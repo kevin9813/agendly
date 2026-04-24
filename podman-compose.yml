@@ -21,6 +21,9 @@ services:
     restart: always
     depends_on:
       - db
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: ${DJANGO_DEBUG}
     ports:
       - "8000:8000"
     networks:

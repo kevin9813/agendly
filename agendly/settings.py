@@ -3,7 +3,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
-DEBUG = os.getenv['DJANGO_DEBUG']
+DEBUG = os.environ['DJANGO_DEBUG']
 
 ALLOWED_HOSTS = ['*']
 
