@@ -26,3 +26,8 @@ podman compose -f podman-compose.yml up --build
 ---
 
 **Más detalles en [`DEVELOPMENT.md`](./DEVELOPMENT.md)**
+
+Limpiar todo dev
+podman compose down -v    
+podman rm -f db web 2>/dev/null
+podman network prune -f
