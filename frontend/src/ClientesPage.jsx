@@ -123,7 +123,7 @@ function ClientesPage({ user }) {
 
   return (
     <div className="clientes-page">
-      <div className="page-header">
+      <div className="dashboard-topbar">
         <h1>Gestión de Clientes</h1>
         <button className="create-button" onClick={openCreateModal}>
           + Nuevo Cliente

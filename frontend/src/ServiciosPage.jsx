@@ -148,7 +148,7 @@ function ServiciosPage({ user }) {
 
   return (
     <div className="servicios-page">
-      <div className="page-header">
+      <div className="dashboard-topbar">
         <h1>Gestión de Servicios</h1>
         <button className="create-button" onClick={openCreateModal}>
           + Nuevo Servicio

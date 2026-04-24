@@ -4,6 +4,7 @@ import UsuariosPage from './UsuariosPage'
 import NegocioPage from './NegocioPage'
 import AgendaPage from './AgendaPage'
 import ClientesPage from './ClientesPage'
+import EstadisticasPage from './EstadisticasPage'
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/'
 
@@ -264,6 +265,8 @@ function App() {
         return <ServiciosPage user={user} />
       case 'clientes':
         return <ClientesPage user={user}/>
+      case 'estadisticas':
+        return <EstadisticasPage user={user}/>
       default:
         return <div>Página no encontrada</div>
     }
@@ -305,6 +308,10 @@ function App() {
                 className={currentPage === 'clientes' ? 'active' : ''}
                 onClick={() => setCurrentPage('clientes')}
               >Clientes</a>
+              <a
+                className={currentPage === 'estadisticas' ? 'active' : ''}
+                onClick={() => setCurrentPage('estadisticas')}
+              >Estadisticas</a>
             </nav>
           </aside>
 
