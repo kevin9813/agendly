@@ -90,10 +90,10 @@ function AgendaPage({ user }) {
   const loadDataForForm = async () => {
     try {
       const [clientesRes, empleadosRes, serviciosRes, coberturasRes] = await Promise.all([
-        fetch(`${apiUrl}clientes/`,),
-        fetch(`${apiUrl}usuarios/`,),
-        fetch(`${apiUrl}servicios/`,),
-        fetch(`${apiUrl}coberturas/?negocio_id=${user.negocio_id}`,),
+        fetch(`${apiUrl}clientes/`, { credentials: 'include' }),
+        fetch(`${apiUrl}usuarios/`, { credentials: 'include' }),
+        fetch(`${apiUrl}servicios/`, { credentials: 'include' }),
+        fetch(`${apiUrl}coberturas/?negocio_id=${user.negocio_id}`, { credentials: 'include' }),
       ])
       
       const clientesData = await clientesRes.json()
@@ -128,7 +128,7 @@ function AgendaPage({ user }) {
         ano: ano.toString(),
         negocio_id: user.negocio_id,
       })
-      const response = await fetch(`${apiUrl}citas/?${params}`)
+      const response = await fetch(`${apiUrl}citas/?${params}`, { credentials: 'include' })
       const data = await response.json()
       setCitas(data.citas || [])
     } catch (error) {
@@ -228,6 +228,7 @@ function AgendaPage({ user }) {
           celular: newClientCelular,
           negocio_id: user.negocio_id,
         }),
+        credentials: 'include',
       })
       
       if (response.ok) {
@@ -312,6 +313,7 @@ function AgendaPage({ user }) {
           direccion: editCitaForm.direccion,
           notas: editCitaForm.notas,
         }),
+        credentials: 'include',
       })
       
       if (response.ok) {
@@ -341,6 +343,7 @@ function AgendaPage({ user }) {
       const response = await fetch(`${apiUrl}citas/${selectedEvent.id}/`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
       })
       
       if (response.ok) {
@@ -391,6 +394,7 @@ function AgendaPage({ user }) {
           direccion: citaForm.direccion,
           notas: citaForm.notas,
         }),
+        credentials: 'include',
       })
       
       if (response.ok) {

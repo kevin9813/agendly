@@ -122,11 +122,20 @@ def dashboard_view(request):
     if request.method != 'GET':
         return JsonResponse({'detail': 'Use GET'}, status=405)
 
+    user_id = request.session.get('user_id')
+    user_rol = request.session.get('user_rol')
+
     # Get some basic stats
     total_users = User.objects.count()
     total_clientes = Cliente.objects.count()
-    total_citas = Cita.objects.count()
     citas_pendientes = Cita.objects.filter(estado='pendiente').select_related('cliente', 'servicio').all()
+
+     # Filtrar según el rol
+    if user_rol == 'Empleado':
+        # Los empleados solo ven sus propias citas
+        total_citas = Cita.objects.filter(empleado_id=user_id).count()
+    elif user_rol == 'Administrador':
+        total_citas = Cita.objects.count()
 
     citas_pendientes_data = [{
         'id': c.id,

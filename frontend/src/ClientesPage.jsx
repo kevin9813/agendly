@@ -137,7 +137,7 @@ function ClientesPage({ user }) {
               <th>ID</th>
               <th>Nombre</th>
               <th>Celular/WhatsApp</th>
-              <th>Acciones</th>
+              <th style={{ display: user.rol === 'Empleado' ? 'none' : 'block' }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -146,14 +146,14 @@ function ClientesPage({ user }) {
                 <td>{cliente.id}</td>
                 <td>{cliente.name}</td>
                 <td>{cliente.celular || '-'}</td>
-                <td>
+                <td style={{ display: user.rol === 'Empleado' ? 'none' : 'block' }}>
                   <button
                     className="edit-button"
                     onClick={() => handleEdit(cliente)}
                   >
                     Editar
                   </button>
-                  <button
+                  <button 
                     className="delete-button"
                     onClick={() => handleDelete(cliente.id)}
                   >

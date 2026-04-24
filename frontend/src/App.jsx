@@ -39,6 +39,7 @@ function App() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
+        credentials: 'include',
       })
 
       const data = await response.json()
@@ -62,7 +63,7 @@ function App() {
 
   const loadDashboardData = async () => {
     try {
-      const response = await fetch(`${apiUrl}dashboard/`)
+      const response = await fetch(`${apiUrl}dashboard/`, { credentials: 'include' })
       const data = await response.json()
       setDashboardData(data.stats)
 
@@ -71,7 +72,7 @@ function App() {
       if (user.rol !== 'Administrador') {
         upcomingUrl += `?user_id=${user.id}`
       }
-      const upcomingResponse = await fetch(upcomingUrl)
+      const upcomingResponse = await fetch(upcomingUrl, { credentials: 'include' })
       const upcomingData = await upcomingResponse.json()
       setUpcomingCitas(upcomingData)
     } catch (error) {
@@ -112,10 +113,11 @@ function App() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ estado: nuevoEstado }),
+        credentials: 'include',
       })
       if (response.ok) {
         if (nuevoEstado === 'confirmada') {
-          const citaResponse = await fetch(`${apiUrl}citas/${citaId}/`)
+          const citaResponse = await fetch(`${apiUrl}citas/${citaId}/`, { credentials: 'include' })
           if (citaResponse.ok) {
             const citaData = await citaResponse.json()
             if (citaData.cliente_celular) {
@@ -143,6 +145,7 @@ function App() {
       // Hacer logout en el servidor para limpiar la sesión
       await fetch(`${apiUrl}logout/`, {
         method: 'POST',
+        credentials: 'include',
       })
     } catch (error) {
       console.error('Error during logout:', error)
@@ -175,12 +178,12 @@ function App() {
             </div>
   
             <section className="top-cards">
-              <article className="card summary-card">
+              <article className="card summary-card" style={{ display: user.rol === 'Empleado' ? 'none' : 'block' }}>
                 <span className="card-title">Total Usuarios </span>
                 <strong>{dashboardData?.total_users || 0} </strong>
                 <small>Registrados</small>
               </article>
-              <article className="card summary-card">
+              <article className="card summary-card" style={{ display: user.rol === 'Empleado' ? 'none' : 'block' }}>
                 <span className="card-title">Total Clientes </span>
                 <strong>{dashboardData?.total_clientes || 0} </strong>
                 <small>Registrados</small>
@@ -293,7 +296,7 @@ function App() {
                 onClick={() => setCurrentPage('negocio')}
               >Negocio</a>
 
-              <a
+              <a style={{ display: user.rol === 'Empleado' ? 'none' : 'block' }}
                 className={currentPage === 'servicios' ? 'active' : ''}
                 onClick={() => setCurrentPage('servicios')}
               >Servicios</a>
