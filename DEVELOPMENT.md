@@ -1,42 +1,3 @@
-# 🐛 Solución: Problemas de Desarrollo
-
-Este documento explica los dos problemas que experimentabas y sus soluciones.
-
----
-
-## Problema 1: Sesión se pierde al recargar (✅ RESUELTO)
-
-### ¿Qué pasaba?
-Cada vez que recargabas la página (F5), te devolvía al login. Esto ocurría porque la sesión se guardaba solo en memoria (React state).
-
-### Solución implementada
-Se agregó persistencia de sesión usando **localStorage**:
-- Cuando haces login, el usuario se guarda en `localStorage.setItem('agendly_user', JSON.stringify(user))`
-- Cuando el app monta (recarga), se restaura desde `localStorage.getItem('agendly_user')`
-- Cuando haces logout, se limpia con `localStorage.removeItem('agendly_user')`
-
-**Resultado**: Ahora puedes recargar la página sin perder la sesión ✅
-
----
-
-## Problema 2: Necesitas eliminar todo el proyecto para que funcione
-
-### ¿Qué pasaba?
-Incluso con `podman-compose up --build`, algunos cambios no aparecían. Tenías que ejecutar:
-```bash
-podman compose down -v
-podman rm -f db web
-podman network prune -f
-```
-
-### Causa raíz
-El archivo `podman-compose.yml` **no tenía volúmenes configurados** para desarrollo:
-- Los cambios en tu código **no se reflejaban** en los contenedores sin reconstruir
-- El backend (Django) usaba `runserver` que debería hacer hot reload, pero sin volúmenes no veía los cambios
-- El frontend (Vite) necesita volúmenes para que el hot reload funcione correctamente
-
-### Soluciones implementadas
-
 #### 1️⃣ Archivo de composición para DESARROLLO (`podman-compose.dev.yml`)
 
 Úsalo mientras desarrollas **localmente**:
@@ -162,11 +123,9 @@ podman compose -f podman-compose.dev.yml down
 
 ---
 
-## ✅ Resumen de cambios
-
-1. **`App.jsx`**: Agregada persistencia de sesión con localStorage
-2. **`podman-compose.dev.yml`**: Nueva configuración para desarrollo con volúmenes
-3. **`clean-and-rebuild.sh`**: Script para limpiar y reconstruir fácilmente
+## ✅ Resumen
+1. **`podman-compose.dev.yml`**: Nueva configuración para desarrollo con volúmenes
+2. **`clean-and-rebuild.sh`**: Script para limpiar y reconstruir fácilmente
 
 ¡Ahora tu flujo de desarrollo será mucho más fluido! 🎉
 
