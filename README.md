@@ -1,13 +1,4 @@
 # agendly
-# 🚀 Guía Rápida: Desarrollo vs Producción
-
-## Problema 1: Rechargos en navegador ← Se pierde sesión ✅ RESUELTO
-
-**Cambio implementado**: La sesión ahora se guarda en `localStorage`. Ya no pierde sesión al recargar.
-
----
-
-## Problema 2: Cambios requieren eliminar todo ✅ RESUELTO
 
 ### Para DESARROLLO (recomendado mientras codificas):
 ```bash
