@@ -1,0 +1,59 @@
+ 
+version: "3.9"
+
+services:
+  db:
+    image: docker.io/library/postgres:15
+    container_name: db
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mi_red
+
+  web:
+    build: .
+    container_name: web
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    networks:
+      - mi_red
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: always
+    depends_on:
+      - web
+    ports:
+      - "3000:3000"
+    networks:
+      - mi_red
+
+  frontend-public:
+    build:
+      context: ./frontend-public
+      dockerfile: Dockerfile
+    container_name: frontend-public
+    restart: always
+    depends_on:
+      - web
+    ports:
+      - "3001:3001"
+    networks:
+      - mi_red
+
+volumes:
+  postgres_data:
+
+networks:
+  mi_red:

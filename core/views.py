@@ -1,0 +1,878 @@
+import json
+from datetime import datetime
+from functools import wraps
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+from .models import Barrio, Cobertura, Cita, Cliente, Negocio, Rol, Servicio, User, UserServicio, Ciudad
+
+
+def parse_datetime(value):
+    if isinstance(value, str):
+        return datetime.fromisoformat(value.replace('Z', '+00:00'))
+    return value
+
+
+def serialize_datetime(value):
+    if isinstance(value, str):
+        return value
+    return value.isoformat() if value else None
+
+
+def require_auth(view_func):
+    """Decorador para requerir autenticación. Extrae user_id y user_rol de la sesión."""
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        user_id = request.session.get('user_id')
+        user_rol = request.session.get('user_rol')
+        
+        if not user_id or not user_rol:
+            return JsonResponse({'detail': 'No autenticado'}, status=401)
+        
+        # Pasar el user_id y user_rol al view
+        request.user_id = user_id
+        request.user_rol = user_rol
+        return view_func(request, *args, **kwargs)
+    
+    return wrapper
+
+
+@csrf_exempt
+def api_root(request):
+    return JsonResponse({'message': 'Hola desde Django'})
+
+
+@csrf_exempt
+def login_view(request):
+    if request.method != 'POST':
+        return JsonResponse({'detail': 'Use POST'}, status=405)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except json.JSONDecodeError:
+        return JsonResponse({'detail': 'JSON inválido'}, status=400)
+
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return JsonResponse({'detail': 'Usuario y contraseña son requeridos'}, status=400)
+
+    user = User.objects.select_related('rol', 'negocio').filter(username=username).first()
+    if user is None or not user.check_password(password):
+        return JsonResponse({'success': False, 'detail': 'Credenciales inválidas'}, status=401)
+
+    # Guardar información en sesión
+    request.session['user_id'] = user.id
+    request.session['user_rol'] = user.rol.name
+    request.session['negocio_id'] = user.negocio.id
+
+    return JsonResponse(
+        {
+            'success': True,
+            'user': {
+                'id': user.id,
+                'name': user.name,
+                'username': user.username,
+                'rol': user.rol.name,
+                'negocio': user.negocio.name,
+                'negocio_id': user.negocio.id,
+            },
+        }
+    )
+
+
+@csrf_exempt
+def logout_view(request):
+    """Logout endpoint"""
+    if request.method != 'POST':
+        return JsonResponse({'detail': 'Use POST'}, status=405)
+    
+    request.session.flush()
+    return JsonResponse({'message': 'Sesión cerrada'})
+
+
+@csrf_exempt
+def me_view(request):
+    """Obtener datos del usuario autenticado"""
+    if request.method != 'GET':
+        return JsonResponse({'detail': 'Use GET'}, status=405)
+    
+    user_id = request.session.get('user_id')
+    
+    if not user_id:
+        return JsonResponse({'detail': 'No autenticado'}, status=401)
+    
+    user = User.objects.select_related('rol', 'negocio').get(id=user_id)
+    
+    return JsonResponse({
+        'id': user.id,
+        'name': user.name,
+        'username': user.username,
+        'rol': user.rol.name,
+        'negocio': user.negocio.name,
+        'negocio_id': user.negocio.id,
+    })
+
+
+# Dashboard data
+@csrf_exempt
+def dashboard_view(request):
+    if request.method != 'GET':
+        return JsonResponse({'detail': 'Use GET'}, status=405)
+
+    # Get some basic stats
+    total_users = User.objects.count()
+    total_clientes = Cliente.objects.count()
+    total_citas = Cita.objects.count()
+    citas_pendientes = Cita.objects.filter(estado='pendiente').select_related('cliente', 'servicio').all()
+
+    citas_pendientes_data = [{
+        'id': c.id,
+        'cliente': c.cliente.name if c.cliente else 'Sin cliente',
+        'servicio': c.servicio.name if c.servicio else 'Sin servicio',
+        'fecha_hora': serialize_datetime(c.fecha_hora),
+        'estado': c.estado,
+    } for c in citas_pendientes]
+
+    return JsonResponse({
+        'stats': {
+            'total_users': total_users,
+            'total_clientes': total_clientes,
+            'total_citas': total_citas,
+            'citas_pendientes': citas_pendientes_data,
+        }
+    })
+
+
+# CRUD for Negocio
+@csrf_exempt
+def negocio_list(request):
+    if request.method == 'GET':
+        negocios = Negocio.objects.select_related('barrio', 'ciudad').all()
+        data = [{
+            'id': n.id,
+            'name': n.name,
+            'direccion': n.direccion,
+            'tel': n.tel,
+            'whatsapp': n.whatsapp,
+            'barrio': n.barrio.name,
+            'barrio_id': n.barrio_id,
+            'horario': n.horario,
+            'ciudad': n.ciudad.name,
+            'ciudad_id': n.ciudad_id,
+        } for n in negocios]
+        return JsonResponse({'negocios': data})
+
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            negocio = Negocio.objects.create(
+                name=data['name'],
+                direccion=data.get('direccion', ''),
+                tel=data.get('tel', ''),
+                whatsapp=data.get('whatsapp', ''),
+                barrio_id=data['barrio_id'],
+                horario=data.get('horario', ''),
+                ciudad_id=data['ciudad_id'],
+            )
+            return JsonResponse({'id': negocio.id, 'message': 'Negocio creado'})
+        except Exception as e:
+            return JsonResponse({'detail': str(e)}, status=400)
+
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+def negocio_detail(request, negocio_id):
+    try:
+        negocio = Negocio.objects.select_related('barrio', 'ciudad').get(id=negocio_id)
+    except Negocio.DoesNotExist:
+        return JsonResponse({'detail': 'Negocio no encontrado'}, status=404)
+
+    if request.method == 'GET':
+        data = {
+            'id': negocio.id,
+            'name': negocio.name,
+            'direccion': negocio.direccion,
+            'tel': negocio.tel,
+            'whatsapp': negocio.whatsapp,
+            'barrio': negocio.barrio.name,
+            'barrio_id': negocio.barrio_id,
+            'horario': negocio.horario,
+            'ciudad': negocio.ciudad.name,
+            'ciudad_id': negocio.ciudad_id,
+        }
+        return JsonResponse(data)
+
+    elif request.method in ['PUT', 'PATCH']:
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            negocio.name = data.get('name', negocio.name)
+            negocio.direccion = data.get('direccion', negocio.direccion)
+            negocio.tel = data.get('tel', negocio.tel)
+            negocio.whatsapp = data.get('whatsapp', negocio.whatsapp)
+            negocio.barrio_id = data.get('barrio_id', negocio.barrio_id)
+            negocio.horario = data.get('horario', negocio.horario)
+            negocio.ciudad_id = data.get('ciudad_id', negocio.ciudad_id)
+            negocio.save()
+            return JsonResponse({'message': 'Negocio actualizado'})
+        except Exception as e:
+            return JsonResponse({'detail': str(e)}, status=400)
+
+    elif request.method == 'DELETE':
+        negocio.delete()
+        return JsonResponse({'message': 'Negocio eliminado'})
+
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+# Similar CRUD views for other models would go here
+# For brevity, I'll add basic list views for now
+
+@csrf_exempt
+def roles_list(request):
+    if request.method == 'GET':
+        roles = Rol.objects.all()
+        data = [{
+            'id': r.id,
+            'name': r.name,
+        } for r in roles]
+        return JsonResponse({'roles': data})
+
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+def barrios_list(request):
+    if request.method == 'GET':
+        barrios = Barrio.objects.select_related('ciudad').all()
+        data = [{
+            'id': b.id,
+            'name': b.name,
+            'ciudad': b.ciudad.name,
+            'ciudad_id': b.ciudad_id,
+        } for b in barrios]
+        return JsonResponse({'barrios': data})
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+def coberturas_list(request):
+    if request.method == 'GET':
+        negocio_id = request.GET.get('negocio_id')
+        coberturas = Cobertura.objects.select_related('barrio', 'negocio').all()
+        if negocio_id:
+            coberturas = coberturas.filter(negocio_id=negocio_id)
+        data = [{
+            'id': c.id,
+            'negocio_id': c.negocio_id,
+            'barrio': c.barrio.name,
+            'barrio_id': c.barrio_id,
+            'costo_extra': str(c.costo_extra),
+            'tiempo_estimado': c.tiempo_estimado,
+            'activo': c.activo,
+        } for c in coberturas]
+        return JsonResponse({'coberturas': data})
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+def usuarios_list(request):
+    if request.method == 'GET':
+        users = User.objects.select_related('rol', 'negocio').prefetch_related('user_servicios__servicio').all()
+        data = [{
+            'id': u.id,
+            'name': u.name,
+            'username': u.username,
+            'rol': u.rol.name,
+            'rol_id': u.rol.id,
+            'negocio': u.negocio.name,
+            'negocio_id': u.negocio.id,
+            'color': u.color,
+            'whatsapp': u.whatsapp,
+            'servicios_ids': [us.servicio_id for us in u.user_servicios.all()],
+            'servicios': [us.servicio.name for us in u.user_servicios.all()],
+        } for u in users]
+        return JsonResponse({'usuarios': data})
+
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            user = User.objects.create(
+                name=data['name'],
+                username=data['username'],
+                rol_id=data['rol_id'],
+                negocio_id=data['negocio_id'],
+                color=data.get('color', '#4ECDC4'),
+                whatsapp=data.get('whatsapp', ''),
+            )
+            user.set_password(data['password'])
+            user.save()
+
+            servicios_ids = data.get('servicios_ids', [])
+            UserServicio.objects.bulk_create([
+                UserServicio(user=user, servicio_id=servicio_id)
+                for servicio_id in servicios_ids
+            ])
+
+            return JsonResponse({
+                'id': user.id,
+                'message': 'Usuario creado',
+                'usuario': {
+                    'id': user.id,
+                    'name': user.name,
+                    'username': user.username,
+                    'rol': user.rol.name,
+                    'negocio': user.negocio.name,
+                    'color': user.color,
+                    'whatsapp': user.whatsapp,
+                    'servicios_ids': servicios_ids,
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'detail': str(e)}, status=400)
+
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+def usuario_detail(request, usuario_id):
+    try:
+        user = User.objects.select_related('rol', 'negocio').get(id=usuario_id)
+    except User.DoesNotExist:
+        return JsonResponse({'detail': 'Usuario no encontrado'}, status=404)
+
+    servicios_ids = list(user.user_servicios.values_list('servicio_id', flat=True))
+
+    if request.method == 'GET':
+        data = {
+            'id': user.id,
+            'name': user.name,
+            'username': user.username,
+            'rol': user.rol.name,
+            'rol_id': user.rol.id,
+            'negocio': user.negocio.name,
+            'negocio_id': user.negocio.id,
+            'color': user.color,
+            'whatsapp': user.whatsapp,
+            'servicios_ids': servicios_ids,
+        }
+        return JsonResponse(data)
+
+    elif request.method in ['PUT', 'PATCH']:
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            user.name = data.get('name', user.name)
+            user.username = data.get('username', user.username)
+            user.rol_id = data.get('rol_id', user.rol_id)
+            user.negocio_id = data.get('negocio_id', user.negocio_id)
+            user.color = data.get('color', user.color)
+            user.whatsapp = data.get('whatsapp', user.whatsapp)
+            if 'password' in data and data['password']:
+                user.set_password(data['password'])
+            user.save()
+
+            if 'servicios_ids' in data:
+                servicios_ids = data.get('servicios_ids', []) or []
+                UserServicio.objects.filter(user=user).exclude(servicio_id__in=servicios_ids).delete()
+                existing_ids = set(user.user_servicios.values_list('servicio_id', flat=True))
+                UserServicio.objects.bulk_create([
+                    UserServicio(user=user, servicio_id=sid)
+                    for sid in servicios_ids
+                    if sid not in existing_ids
+                ])
+
+            return JsonResponse({
+                'message': 'Usuario actualizado',
+                'usuario': {
+                    'id': user.id,
+                    'name': user.name,
+                    'username': user.username,
+                    'rol': user.rol.name,
+                    'negocio': user.negocio.name,
+                    'color': user.color,
+                    'whatsapp': user.whatsapp,
+                    'servicios_ids': servicios_ids,
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'detail': str(e)}, status=400)
+
+    elif request.method == 'DELETE':
+        user.delete()
+        return JsonResponse({'message': 'Usuario eliminado'})
+
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+def servicios_list(request):
+    if request.method == 'GET':
+        servicios = Servicio.objects.select_related('negocio').all()
+        data = [{
+            'id': s.id,
+            'name': s.name,
+            'precio': str(s.precio),
+            'tiempo': s.tiempo,
+            'permite_domicilio': s.permite_domicilio,
+            'notas': s.notas,
+            'negocio': s.negocio.name,
+            'negocio_id': s.negocio.id,
+        } for s in servicios]
+        return JsonResponse({'servicios': data})
+
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            servicio = Servicio.objects.create(
+                name=data['name'],
+                precio=data['precio'],
+                tiempo=data['tiempo'],
+                permite_domicilio=data.get('permite_domicilio', False),
+                notas=data.get('notas', ''),
+                negocio_id=data['negocio_id'],
+            )
+            return JsonResponse({
+                'id': servicio.id,
+                'message': 'Servicio creado',
+                'servicio': {
+                    'id': servicio.id,
+                    'nombre': servicio.name,
+                    'precio': str(servicio.precio),
+                    'tiempo': servicio.tiempo,
+                    'permite_domicilio': servicio.permite_domicilio,
+                    'notas': servicio.notas,
+                    'negocio': servicio.negocio.name,
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'detail': str(e)}, status=400)
+
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+def servicio_detail(request, servicio_id):
+    try:
+        servicio = Servicio.objects.get(id=servicio_id)
+    except Servicio.DoesNotExist:
+        return JsonResponse({'detail': 'Servicio no encontrado'}, status=404)
+
+    if request.method == 'GET':
+        data = {
+            'id': servicio.id,
+            'nombre': servicio.name,
+            'precio': str(servicio.precio),
+            'tiempo': servicio.tiempo,
+            'permite_domicilio': servicio.permite_domicilio,
+            'notas': servicio.notas,
+            'negocio': servicio.negocio.name,
+            'negocio_id': servicio.negocio.id,
+        }
+        return JsonResponse(data)
+
+    elif request.method in ['PUT', 'PATCH']:
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            servicio.name = data.get('nombre', servicio.name)
+            servicio.precio = data.get('precio', servicio.precio)
+            servicio.tiempo = data.get('tiempo', servicio.tiempo)
+            servicio.permite_domicilio = data.get('permite_domicilio', servicio.permite_domicilio)
+            servicio.notas = data.get('notas', servicio.notas)
+            servicio.negocio_id = data.get('negocio_id', servicio.negocio_id)
+            servicio.save()
+            return JsonResponse({
+                'message': 'Servicio actualizado',
+                'servicio': {
+                    'id': servicio.id,
+                    'nombre': servicio.name,
+                    'precio': str(servicio.precio),
+                    'tiempo': servicio.tiempo,
+                    'permite_domicilio': servicio.permite_domicilio,
+                    'notas': servicio.notas,
+                    'negocio': servicio.negocio.name,
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'detail': str(e)}, status=400)
+
+    elif request.method == 'DELETE':
+        servicio.delete()
+        return JsonResponse({'message': 'Servicio eliminado'})
+
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+def negocio_servicios_list(request, negocio_id):
+    if request.method == 'GET':
+        servicios = Servicio.objects.filter(negocio_id=negocio_id)
+        data = [{
+            'id': s.id,
+            'nombre': s.name,
+            'precio': str(s.precio),
+            'tiempo': s.tiempo,
+            'permite_domicilio': s.permite_domicilio,
+            'negocio': s.negocio.name,
+        } for s in servicios]
+        return JsonResponse({'servicios': data})
+
+@csrf_exempt
+def clientes_list(request):
+    if request.method == 'GET':
+        clientes = Cliente.objects.all()
+        
+        # Filtrar por parámetros de query
+        celular = request.GET.get('celular')
+        negocio_id = request.GET.get('negocio_id')
+        
+        if celular:
+            clientes = clientes.filter(celular=celular)
+        if negocio_id:
+            clientes = clientes.filter(negocio_id=negocio_id)
+        
+        data = [{'id': c.id, 'name': c.name, 'celular': c.celular, 'negocio_id': c.negocio_id} for c in clientes]
+        return JsonResponse({'clientes': data})
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            cliente = Cliente.objects.create(
+                name=data['name'],
+                celular=data.get('celular', ''),
+                negocio_id=data['negocio_id'],
+            )
+            return JsonResponse({
+                'id': cliente.id,
+                'message': 'Cliente creado',
+                'cliente': {'id': cliente.id, 'name': cliente.name, 'celular': cliente.celular, 'negocio_id': cliente.negocio_id}
+            })
+        except Exception as e:
+            return JsonResponse({'detail': str(e)}, status=400)
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+def cliente_detail(request, cliente_id):
+    try:
+        cliente = Cliente.objects.get(id=cliente_id)
+    except Cliente.DoesNotExist:
+        return JsonResponse({'detail': 'Cliente no encontrado'}, status=404)
+
+    if request.method == 'GET':
+        data = {
+            'id': cliente.id,
+            'name': cliente.name,
+            'celular': cliente.celular,
+            'negocio_id': cliente.negocio.id,
+
+        }
+        return JsonResponse(data)
+
+    elif request.method in ['PUT', 'PATCH']:
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            cliente.name = data.get('name', cliente.name)
+            cliente.celular = data.get('celular', cliente.celular)
+            cliente.negocio_id = data.get('negocio_id', cliente.negocio_id)
+            cliente.save()
+            return JsonResponse({
+                'message': 'Cliente actualizado',
+                'cliente': {
+                    'id': cliente.id,
+                    'name': cliente.name,
+                    'celular': cliente.celular,
+                    'negocio_id': cliente.negocio_id,
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'detail': str(e)}, status=400)
+
+    elif request.method == 'DELETE':
+        cliente.delete()
+        return JsonResponse({'message': 'Cliente eliminado'})
+
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+def citas_list(request):
+    if request.method == 'GET':
+        # GET requiere autenticación
+        user_id = request.session.get('user_id')
+        user_rol = request.session.get('user_rol')
+        
+        if not user_id or not user_rol:
+            return JsonResponse({'detail': 'No autenticado'}, status=401)
+        
+        # Permitir filtrar por mes y año
+        mes = request.GET.get('mes')
+        ano = request.GET.get('ano')
+        negocio_id = request.GET.get('negocio_id')
+        
+        citas = Cita.objects.select_related('cliente', 'empleado', 'servicio', 'cobertura').all()
+        
+        # Filtrar según el rol
+        if user_rol == 'Empleado':
+            # Los empleados solo ven sus propias citas
+            citas = citas.filter(empleado_id=user_id)
+        elif user_rol == 'Administrador':
+            # Los administradores ven citas de su negocio
+            if negocio_id:
+                citas = citas.filter(empleado__negocio_id=negocio_id)
+            else:
+                # Si no especifica negocio_id, usar el del usuario
+                negocio_id = request.session.get('negocio_id')
+                if negocio_id:
+                    citas = citas.filter(empleado__negocio_id=negocio_id)
+        
+        if mes and ano:
+            from django.db.models import Q
+            citas = citas.filter(
+                fecha_hora__year=int(ano),
+                fecha_hora__month=int(mes)
+            )
+        
+        data = [{
+            'id': c.id,
+            'cliente': c.cliente.name,
+            'cliente_id': c.cliente.id,
+            'cliente_celular': c.cliente.celular,
+            'empleado': c.empleado.name,
+            'empleado_id': c.empleado.id,
+            'empleado_color': c.empleado.color,
+            'servicio': c.servicio.name,
+            'servicio_id': c.servicio.id,
+            'servicio_tiempo': c.servicio.tiempo,
+            'fecha_hora': serialize_datetime(c.fecha_hora),
+            'hora_fin': serialize_datetime(c.hora_fin),
+            'estado': c.estado,
+            'tipo_servicio': c.tipo_servicio,
+            'cobertura_id': c.cobertura_id,
+            'cobertura': c.cobertura.barrio.name if c.cobertura else None,
+            'direccion': c.direccion,
+            'notas': c.notas,
+        } for c in citas]
+        return JsonResponse({'citas': data})
+    
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            
+            # Validar que la fecha_hora no sea anterior a ahora
+            from django.utils import timezone
+            from datetime import datetime, timedelta
+            try:
+                fecha_hora = datetime.fromisoformat(data['fecha_hora'].replace('Z', '+00:00'))
+                fecha_hora_aware = timezone.make_aware(fecha_hora) if timezone.is_naive(fecha_hora) else fecha_hora
+                now = timezone.now()
+                
+                # Permitir citas desde hoy en adelante (con algunos minutos de margen)
+                # Rechazar solo si es una fecha completamente anterior a hoy
+                today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+                if fecha_hora_aware < today_start:
+                    return JsonResponse({'detail': 'No se puede agendar citas en fechas anteriores'}, status=400)
+            except (ValueError, AttributeError):
+                pass  # Si hay error al parsear fecha, dejar que continúe y falle gracefully
+            
+            # Validar que el empleado es el correcto según el rol
+            empleado_id = data.get('empleado_id')
+            
+            # Si hay sesión autenticada, validar según el rol
+            user_id = request.session.get('user_id')
+            user_rol = request.session.get('user_rol')
+            
+            if user_id and user_rol:
+                # Usuario autenticado: validar permisos
+                if user_rol == 'Empleado':
+                    # Los empleados solo pueden crear citas para sí mismos
+                    if int(empleado_id) != user_id:
+                        return JsonResponse({'detail': 'No tienes permiso para crear citas para otros empleados'}, status=403)
+            
+            servicio = Servicio.objects.get(id=data['servicio_id'])
+            tipo_servicio = data.get('tipo_servicio', 'local')
+            
+            if tipo_servicio == 'domicilio' and not servicio.permite_domicilio:
+                return JsonResponse({'detail': 'Este servicio no está disponible a domicilio.'}, status=400)
+
+            cliente = Cliente.objects.get(id=data['cliente_id'])
+            celular = (cliente.celular or '').strip()
+            if celular:
+                fecha = parse_datetime(data['fecha_hora'])
+                from django.db.models import Q
+                citas_mismo_dia = Cita.objects.filter(
+                    cliente__celular=celular,
+                    fecha_hora__date=fecha.date(),
+                ).count()
+                if citas_mismo_dia >= 2:
+                    return JsonResponse({'detail': 'Ya tienes 2 citas agendadas para este día con este celular.'}, status=400)
+
+            # Crear la cita primero sin hora_fin para calcularla
+            cita = Cita(
+                cliente_id=data['cliente_id'],
+                empleado_id=data['empleado_id'],
+                servicio_id=data['servicio_id'],
+                fecha_hora=parse_datetime(data['fecha_hora']),
+                estado=data.get('estado', 'pendiente'),
+                tipo_servicio=tipo_servicio,
+                cobertura_id=data.get('cobertura_id'),
+                direccion=data.get('direccion', ''),
+                notas=data.get('notas', ''),
+            )
+            
+            # Calcular hora_fin automáticamente
+            cita.save()  # Esto activa el método save() que calcula hora_fin
+            
+            # Validar solapamientos después de calcular hora_fin
+            from django.core.exceptions import ValidationError
+            try:
+                cita.full_clean()
+            except ValidationError as e:
+                cita.delete()  # Eliminar la cita si hay error de validación
+                return JsonResponse({'detail': str(e)}, status=400)
+            
+            return JsonResponse({
+                'id': cita.id,
+                'message': 'Cita creada correctamente',
+                'cita': {
+                    'id': cita.id,
+                    'cliente': cita.cliente.name,
+                    'cliente_id': cita.cliente.id,
+                    'cliente_celular': cita.cliente.celular,
+                    'empleado': cita.empleado.name,
+                    'empleado_id': cita.empleado.id,
+                    'empleado_color': cita.empleado.color,
+                    'servicio': cita.servicio.name,
+                    'servicio_id': cita.servicio.id,
+                    'servicio_tiempo': cita.servicio.tiempo,
+                    'fecha_hora': serialize_datetime(cita.fecha_hora),
+                    'hora_fin': serialize_datetime(cita.hora_fin),
+                    'estado': cita.estado,
+                    'tipo_servicio': cita.tipo_servicio,
+                    'cobertura_id': cita.cobertura_id,
+                    'cobertura': cita.cobertura.barrio.name if cita.cobertura else None,
+                    'direccion': cita.direccion,
+                    'notas': cita.notas,
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'detail': str(e)}, status=400)
+    
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+@require_auth
+def cita_detail(request, cita_id):
+    """Get, update or delete a specific appointment"""
+    try:
+        cita = Cita.objects.select_related('cliente', 'empleado', 'servicio').get(id=cita_id)
+    except Cita.DoesNotExist:
+        return JsonResponse({'detail': 'Cita no encontrada'}, status=404)
+    
+    # Validar acceso según el rol
+    if request.user_rol == 'Empleado' and cita.empleado_id != request.user_id:
+        return JsonResponse({'detail': 'No tienes permiso para acceder a esta cita'}, status=403)
+    
+    if request.method == 'GET':
+        data = {
+            'id': cita.id,
+            'cliente': cita.cliente.name,
+            'cliente_id': cita.cliente.id,
+            'cliente_celular': cita.cliente.celular,
+            'empleado': cita.empleado.name,
+            'empleado_id': cita.empleado.id,
+            'empleado_color': cita.empleado.color,
+            'servicio': cita.servicio.name,
+            'servicio_id': cita.servicio.id,
+            'servicio_tiempo': cita.servicio.tiempo,
+            'fecha_hora': serialize_datetime(cita.fecha_hora),
+            'hora_fin': serialize_datetime(cita.hora_fin),
+            'estado': cita.estado,
+            'tipo_servicio': cita.tipo_servicio,
+            'cobertura_id': cita.cobertura_id,
+            'cobertura': cita.cobertura.barrio.name if cita.cobertura else None,
+            'direccion': cita.direccion,
+            'notas': cita.notas,
+        }
+        return JsonResponse(data)
+    
+    elif request.method == 'PUT':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            
+            def parse_datetime(value):
+                if isinstance(value, str):
+                    return datetime.fromisoformat(value.replace('Z', '+00:00'))
+                return value
+            
+            # Los empleados no pueden cambiar a quién está asignada la cita
+            if request.user_rol == 'Empleado' and 'empleado_id' in data:
+                if int(data['empleado_id']) != request.user_id:
+                    return JsonResponse({'detail': 'No tienes permiso para cambiar el empleado asignado'}, status=403)
+            
+            # Actualizar los campos proporcionados
+            if 'cliente_id' in data:
+                cita.cliente_id = data['cliente_id']
+            if 'empleado_id' in data:
+                cita.empleado_id = data['empleado_id']
+            if 'servicio_id' in data:
+                cita.servicio_id = data['servicio_id']
+                cita.hora_fin = None
+            if 'fecha_hora' in data:
+                cita.fecha_hora = parse_datetime(data['fecha_hora'])
+                cita.hora_fin = None
+            if 'estado' in data:
+                cita.estado = data['estado']
+            if 'tipo_servicio' in data:
+                cita.tipo_servicio = data['tipo_servicio']
+            if 'cobertura_id' in data:
+                cita.cobertura_id = data.get('cobertura_id')
+            if 'direccion' in data:
+                cita.direccion = data.get('direccion', cita.direccion)
+            if 'notas' in data:
+                cita.notas = data['notas']
+            
+            # Guardar (esto recalcula hora_fin si fue necesario)
+            cita.save()
+            
+            def serialize_dt(value):
+                if isinstance(value, str):
+                    return value
+                return value.isoformat() if value else None
+            
+            return JsonResponse({
+                'message': 'Cita actualizada correctamente',
+                'cita': {
+                    'id': cita.id,
+                    'cliente': cita.cliente.name,
+                    'cliente_id': cita.cliente.id,
+                    'cliente_celular': cita.cliente.celular,
+                    'empleado': cita.empleado.name,
+                    'empleado_id': cita.empleado.id,
+                    'empleado_color': cita.empleado.color,
+                    'servicio': cita.servicio.name,
+                    'servicio_id': cita.servicio.id,
+                    'servicio_tiempo': cita.servicio.tiempo,
+                    'fecha_hora': serialize_dt(cita.fecha_hora),
+                    'hora_fin': serialize_dt(cita.hora_fin),
+                    'estado': cita.estado,
+                    'tipo_servicio': cita.tipo_servicio,
+                    'cobertura_id': cita.cobertura_id,
+                    'cobertura': cita.cobertura.barrio.name if cita.cobertura else None,
+                    'direccion': cita.direccion,
+                    'notas': cita.notas,
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'detail': str(e)}, status=400)
+    
+    elif request.method == 'DELETE':
+        try:
+            cita.delete()
+            return JsonResponse({'message': 'Cita eliminada correctamente'})
+        except Exception as e:
+            return JsonResponse({'detail': str(e)}, status=400)
+    
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)

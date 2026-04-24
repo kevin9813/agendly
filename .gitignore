@@ -1,0 +1,9 @@
+.env
+/core/migrations
+/core/__pycache__
+/agendly/__pycache__
+
+/frontend/node_modules
+/frontend-public/node_modules
+
+staticfiles/
