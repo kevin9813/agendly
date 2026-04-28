@@ -142,3 +142,7 @@ podman compose -f podman-compose.dev.yml up --build
 
 ./clean-and-rebuild.sh dev   # Limpia y reinicia desarrollo
 ./clean-and-rebuild.sh prod  # Limpia y reinicia producción
+
+
+# Estadisticas
+Grafica Mensual/Semanal de Completastas/Canceladas

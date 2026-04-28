@@ -47,6 +47,43 @@ function HomePage() {
           </div>
         </section>
 
+        <section className="features-section">
+          <h3>Planes</h3>
+          <div className="features-grid">
+            <div className="feature-card">
+              <h4>Basico</h4>
+              <span className="price">$20.000/mes</span>
+              <ul>
+                <li>Hasta 100 citas al mes</li>
+                <li>Hasta 10 Servicios</li>
+                <li>Hasta 3 Usuarios</li>
+                <li>Agenda y calendario</li>
+                <li>Página pública para reservas</li>
+                <li>Gestión de clientes</li>
+                <li>Soporte estándar</li>
+              </ul>
+              <p>Ideal para negocios pequeños o independientes.</p>
+            </div>
+            <div className="feature-card">
+              <h4>Premium</h4>
+              <span className="price">$45.000/mes</span>
+              <ul>
+                <li>Citas ilimitadas</li>
+                <li>Hasta 50 Servicios</li>
+                <li>Hasta 15 Usuarios</li>
+                <li>Agenda y calendario</li>
+                <li>Página pública para reservas</li>
+                <li>Gestión de clientes</li>
+                <li>Estadísticas</li>
+                <li>Prioridad en soporte</li>
+              </ul>
+              <p>Perfecto para negocios en crecimiento que buscan automatización.</p>
+            </div>
+          </div>
+        </section>
+
+    
+
         <section className="cta-section">
           <h3>¿Tienes un negocio?</h3>
           <p>

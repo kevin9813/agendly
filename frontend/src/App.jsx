@@ -146,9 +146,18 @@ function App() {
   }
 
   const handleCitaEstadoChange = async (citaId, nuevoEstado) => {
-    const accion = nuevoEstado === 'completada' ? 'completar' : 'cancelar'
-    const titulo = nuevoEstado === 'completada' ? 'Completar Cita' : 'Cancelar Cita'
-    const icono = nuevoEstado === 'completada' ? 'success' : 'warning'
+    const estados = {
+      completada: {
+        accion: 'completar',titulo: 'Completar Cita',icono: 'success'
+      },
+      confirmada: {
+        accion: 'confirmar',titulo: 'Confirmar Cita',icono: 'info'
+      },
+      cancelada: {
+        accion: 'cancelar',titulo: 'Cancelar Cita',icono: 'warning'
+      }
+    }
+    const { accion, titulo, icono } = estados[nuevoEstado]
     
     const result = await Swal.fire({
       title: titulo,
@@ -239,14 +248,14 @@ function App() {
                               onClick={() => handleCitaEstadoChange(cita.id, 'completada')}
                               title="Marcar como completada"
                             >
-                              ✓ Completada
+                              ✓
                             </button>
                             <button 
                               className="btn-cancel" 
                               onClick={() => handleCitaEstadoChange(cita.id, 'cancelada')}
                               title="Cancelar cita"
                             >
-                              ✗ Cancelada
+                              ✗
                             </button>
                           </div>
                         </li>
@@ -261,7 +270,6 @@ function App() {
               <article className="card">
                 <div className="card-title-row">
                   <span>Citas Pendientes </span>
-                  <span className="status-pill status-passed">Actualizado</span>
                 </div>
                 <div>
                   {dashboardData?.citas_pendientes?.length > 0 ? (
@@ -271,7 +279,7 @@ function App() {
                           <span>{cita.cliente} - {cita.servicio} - {new Date(cita.fecha_hora).toLocaleString()}</span>
                           <div className="cita-actions">
                             <button 
-                              className="btn-confirm" 
+                              className="btn-update" 
                               onClick={() => handleCitaEstadoChange(cita.id, 'confirmada')}
                               title="Confirmar cita"
                             >
