@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/'
+import { useSucursales } from './hooks/useData'
 
 function ClientesPage({ user }) {
   const [clientes, setClientes] = useState([])
   const [negocios, setNegocios] = useState([])
+  const { sucursales, loadingSucursales } = useSucursales(user)
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingCliente, setEditingCliente] = useState(null)
@@ -12,6 +14,7 @@ function ClientesPage({ user }) {
     name: '',
     celular: '',
     negocio_id: '',
+    sucursal_id: '',
   })
 
   useEffect(() => {
@@ -63,7 +66,7 @@ function ClientesPage({ user }) {
         await loadClientes()
         setShowModal(false)
         setEditingCliente(null)
-        setFormData({ name: '', celular: '', negocio_id: '' })
+        setFormData({ name: '', celular: '', negocio_id: '', sucursal_id: '' })
       } else {
         const error = await response.json()
         alert(`Error: ${error.detail || 'Error desconocido'}`)
@@ -80,6 +83,7 @@ function ClientesPage({ user }) {
       name: cliente.name,
       celular: cliente.celular || '',
       negocio_id: cliente.negocio_id,
+      sucursal_id: cliente.sucursal_id || '',
     })
     setShowModal(true)
   }
@@ -107,14 +111,14 @@ function ClientesPage({ user }) {
 
   const openCreateModal = () => {
     setEditingCliente(null)
-    setFormData({ name: '', celular: '', negocio_id: user ? user.negocio_id.toString() : '',})
+    setFormData({ name: '', celular: '', negocio_id: user ? user.negocio_id.toString() : '', sucursal_id: '' })
     setShowModal(true)
   }
 
   const closeModal = () => {
     setShowModal(false)
     setEditingCliente(null)
-    setFormData({ name: '', celular: '', negocio_id:''})
+    setFormData({ name: '', celular: '', negocio_id: '', sucursal_id: '' })
   }
 
   if (loading) {
@@ -130,8 +134,8 @@ function ClientesPage({ user }) {
         </button>
       </div>
 
-      <div className="clientes-table-container">
-        <table className="clientes-table">
+      <div className="table-container">
+        <table className="table">
           <thead>
             <tr>
               <th>ID</th>
@@ -194,6 +198,22 @@ function ClientesPage({ user }) {
                   placeholder="Ej: 312 123 4567"
                 />
               </div>
+
+              <div className="form-group">
+                <label>Sucursal:</label>
+                <select disabled={editingCliente}
+                  value={formData.sucursal_id}
+                  onChange={e => setFormData({...formData, sucursal_id: e.target.value})}
+                  required
+                >
+                  <option value="">Seleccione una sucursal</option>
+                  {sucursales.map(sucursal => (
+                    <option key={sucursal.id} value={sucursal.id}>
+                      {sucursal.name}
+                    </option>
+                  ))}
+                </select>
+              </div> 
 
               <div className="form-group">
                 <label>Negocio:</label>

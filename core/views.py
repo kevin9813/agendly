@@ -5,7 +5,7 @@ from functools import wraps
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import Barrio, Cobertura, Cita, Cliente, Negocio, Rol, Servicio, User, UserServicio, Ciudad
+from .models import Barrio, Cobertura, Cita, Cliente, Negocio, Rol, Servicio, Sucursal, User, UserServicio, Ciudad
 
 
 def parse_datetime(value):
@@ -125,12 +125,16 @@ def dashboard_view(request):
     user_id = request.session.get('user_id')
     user_rol = request.session.get('user_rol')
 
+    if not user_id or not user_rol:
+        return JsonResponse({'detail': 'No autenticado'}, status=401)
+
     # Get some basic stats
     total_users = User.objects.count()
     total_clientes = Cliente.objects.count()
     citas_pendientes = Cita.objects.filter(estado='pendiente').select_related('cliente', 'servicio').all()
 
-     # Filtrar según el rol
+    # Filtrar según el rol
+    total_citas = 0
     if user_rol == 'Empleado':
         # Los empleados solo ven sus propias citas
         total_citas = Cita.objects.filter(empleado_id=user_id).count()
@@ -159,19 +163,10 @@ def dashboard_view(request):
 @csrf_exempt
 def negocio_list(request):
     if request.method == 'GET':
-        negocios = Negocio.objects.select_related('barrio', 'ciudad').all()
+        negocios = Negocio.objects.all()
         data = [{
             'id': n.id,
             'name': n.name,
-            'direccion': n.direccion,
-            'tel': n.tel,
-            'whatsapp': n.whatsapp,
-            'barrio': n.barrio.name,
-            'barrio_id': n.barrio_id,
-            'horario': n.horario,
-            'ciudad': n.ciudad.name,
-            'ciudad_id': n.ciudad_id,
-            'permite_agendar': n.permite_agendar,
         } for n in negocios]
         return JsonResponse({'negocios': data})
 
@@ -180,13 +175,6 @@ def negocio_list(request):
             data = json.loads(request.body.decode('utf-8'))
             negocio = Negocio.objects.create(
                 name=data['name'],
-                direccion=data.get('direccion', ''),
-                tel=data.get('tel', ''),
-                whatsapp=data.get('whatsapp', ''),
-                barrio_id=data['barrio_id'],
-                horario=data.get('horario', ''),
-                ciudad_id=data['ciudad_id'],
-                permite_agendar=data.get('permite_agendar', False),
             )
             return JsonResponse({'id': negocio.id, 'message': 'Negocio creado'})
         except Exception as e:
@@ -198,23 +186,14 @@ def negocio_list(request):
 @csrf_exempt
 def negocio_detail(request, negocio_id):
     try:
-        negocio = Negocio.objects.select_related('barrio', 'ciudad').get(id=negocio_id)
+        negocio = Negocio.objects.get(id=negocio_id)
     except Negocio.DoesNotExist:
         return JsonResponse({'detail': 'Negocio no encontrado'}, status=404)
 
     if request.method == 'GET':
         data = {
             'id': negocio.id,
-            'name': negocio.name,
-            'direccion': negocio.direccion,
-            'tel': negocio.tel,
-            'whatsapp': negocio.whatsapp,
-            'barrio': negocio.barrio.name,
-            'barrio_id': negocio.barrio_id,
-            'horario': negocio.horario,
-            'ciudad': negocio.ciudad.name,
-            'ciudad_id': negocio.ciudad_id,
-            'permite_agendar': negocio.permite_agendar,
+            'name': negocio.name
         }
         return JsonResponse(data)
 
@@ -222,13 +201,6 @@ def negocio_detail(request, negocio_id):
         try:
             data = json.loads(request.body.decode('utf-8'))
             negocio.name = data.get('name', negocio.name)
-            negocio.direccion = data.get('direccion', negocio.direccion)
-            negocio.tel = data.get('tel', negocio.tel)
-            negocio.whatsapp = data.get('whatsapp', negocio.whatsapp)
-            negocio.barrio_id = data.get('barrio_id', negocio.barrio_id)
-            negocio.horario = data.get('horario', negocio.horario)
-            negocio.ciudad_id = data.get('ciudad_id', negocio.ciudad_id)
-            negocio.permite_agendar = data.get('permite_agendar', negocio.permite_agendar)
             negocio.save()
             return JsonResponse({'message': 'Negocio actualizado'})
         except Exception as e:
@@ -237,6 +209,101 @@ def negocio_detail(request, negocio_id):
     elif request.method == 'DELETE':
         negocio.delete()
         return JsonResponse({'message': 'Negocio eliminado'})
+
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+def sucursales_list(request):
+    if request.method == 'GET':
+        negocio_id = request.GET.get('negocio_id')
+        sucursales = Sucursal.objects.select_related('ciudad', 'barrio', 'negocio').all()
+        if negocio_id:
+            sucursales = sucursales.filter(negocio_id=negocio_id)
+        data = [{
+            'id': s.id,
+            'negocio_id': s.negocio_id,
+            'name': s.name,
+            'direccion': s.direccion,
+            'tel': s.tel,
+            'whatsapp': s.whatsapp,
+            'ciudad': s.ciudad.name,
+            'ciudad_id': s.ciudad_id,
+            'barrio': s.barrio.name,
+            'barrio_id': s.barrio_id,
+            'horario': s.horario,
+            'permite_agendar': s.permite_agendar,
+            'activo': s.activo,
+        } for s in sucursales]
+        return JsonResponse({'sucursales': data})
+
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            sucursal = Sucursal.objects.create(
+                negocio_id=data['negocio_id'],
+                name=data['name'],
+                direccion=data.get('direccion', ''),
+                tel=data.get('tel', ''),
+                whatsapp=data.get('whatsapp', ''),
+                ciudad_id=data['ciudad_id'],
+                barrio_id=data['barrio_id'],
+                horario=data.get('horario', ''),
+                permite_agendar=data.get('permite_agendar', False),
+                activo=data.get('activo', True),
+            )
+            return JsonResponse({'id': sucursal.id, 'message': 'Sucursal creada'})
+        except Exception as e:
+            return JsonResponse({'detail': str(e)}, status=400)
+
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+def sucursal_detail(request, sucursal_id):
+    try:
+        sucursal = Sucursal.objects.select_related('ciudad', 'barrio', 'negocio').get(id=sucursal_id)
+    except Sucursal.DoesNotExist:
+        return JsonResponse({'detail': 'Sucursal no encontrada'}, status=404)
+
+    if request.method == 'GET':
+        data = {
+            'id': sucursal.id,
+            'negocio_id': sucursal.negocio_id,
+            'name': sucursal.name,
+            'direccion': sucursal.direccion,
+            'tel': sucursal.tel,
+            'whatsapp': sucursal.whatsapp,
+            'ciudad': sucursal.ciudad.name,
+            'ciudad_id': sucursal.ciudad_id,
+            'barrio': sucursal.barrio.name,
+            'barrio_id': sucursal.barrio_id,
+            'horario': sucursal.horario,
+            'permite_agendar': sucursal.permite_agendar,
+            'activo': sucursal.activo,
+        }
+        return JsonResponse(data)
+
+    elif request.method in ['PUT', 'PATCH']:
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            sucursal.name = data.get('name', sucursal.name)
+            sucursal.direccion = data.get('direccion', sucursal.direccion)
+            sucursal.tel = data.get('tel', sucursal.tel)
+            sucursal.whatsapp = data.get('whatsapp', sucursal.whatsapp)
+            sucursal.ciudad_id = data.get('ciudad_id', sucursal.ciudad_id)
+            sucursal.barrio_id = data.get('barrio_id', sucursal.barrio_id)
+            sucursal.horario = data.get('horario', sucursal.horario)
+            sucursal.permite_agendar = data.get('permite_agendar', sucursal.permite_agendar)
+            sucursal.activo = data.get('activo', sucursal.activo)
+            sucursal.save()
+            return JsonResponse({'message': 'Sucursal actualizada'})
+        except Exception as e:
+            return JsonResponse({'detail': str(e)}, status=400)
+
+    elif request.method == 'DELETE':
+        sucursal.delete()
+        return JsonResponse({'message': 'Sucursal eliminada'})
 
     return JsonResponse({'detail': 'Method not allowed'}, status=405)
 
@@ -303,6 +370,7 @@ def usuarios_list(request):
             'rol_id': u.rol.id,
             'negocio': u.negocio.name,
             'negocio_id': u.negocio.id,
+            'sucursal_id': u.sucursal_id,
             'color': u.color,
             'whatsapp': u.whatsapp,
             'servicios_ids': [us.servicio_id for us in u.user_servicios.all()],
@@ -318,6 +386,7 @@ def usuarios_list(request):
                 username=data['username'],
                 rol_id=data['rol_id'],
                 negocio_id=data['negocio_id'],
+                sucursal_id=data.get('sucursal_id'),
                 color=data.get('color', '#4ECDC4'),
                 whatsapp=data.get('whatsapp', ''),
             )
@@ -342,6 +411,7 @@ def usuarios_list(request):
                     'color': user.color,
                     'whatsapp': user.whatsapp,
                     'servicios_ids': servicios_ids,
+                    'sucursal_id': user.sucursal_id,
                 }
             })
         except Exception as e:
@@ -371,6 +441,7 @@ def usuario_detail(request, usuario_id):
             'color': user.color,
             'whatsapp': user.whatsapp,
             'servicios_ids': servicios_ids,
+            'sucursal_id': user.sucursal_id,
         }
         return JsonResponse(data)
 
@@ -381,6 +452,7 @@ def usuario_detail(request, usuario_id):
             user.username = data.get('username', user.username)
             user.rol_id = data.get('rol_id', user.rol_id)
             user.negocio_id = data.get('negocio_id', user.negocio_id)
+            user.sucursal_id = data.get('sucursal_id', user.sucursal_id)
             user.color = data.get('color', user.color)
             user.whatsapp = data.get('whatsapp', user.whatsapp)
             if 'password' in data and data['password']:
@@ -408,6 +480,7 @@ def usuario_detail(request, usuario_id):
                     'color': user.color,
                     'whatsapp': user.whatsapp,
                     'servicios_ids': servicios_ids,
+                    'sucursal_id': user.sucursal_id,
                 }
             })
         except Exception as e:
@@ -433,6 +506,7 @@ def servicios_list(request):
             'notas': s.notas,
             'negocio': s.negocio.name,
             'negocio_id': s.negocio.id,
+            'sucursal_id': s.sucursal.id,
         } for s in servicios]
         return JsonResponse({'servicios': data})
 
@@ -446,6 +520,7 @@ def servicios_list(request):
                 permite_domicilio=data.get('permite_domicilio', False),
                 notas=data.get('notas', ''),
                 negocio_id=data['negocio_id'],
+                sucursal_id=data['sucursal_id'],
             )
             return JsonResponse({
                 'id': servicio.id,
@@ -458,6 +533,7 @@ def servicios_list(request):
                     'permite_domicilio': servicio.permite_domicilio,
                     'notas': servicio.notas,
                     'negocio': servicio.negocio.name,
+                    'sucursal_id': servicio.sucursal.id,
                 }
             })
         except Exception as e:
@@ -483,6 +559,7 @@ def servicio_detail(request, servicio_id):
             'notas': servicio.notas,
             'negocio': servicio.negocio.name,
             'negocio_id': servicio.negocio.id,
+            'sucursal_id': servicio.sucursal.id,
         }
         return JsonResponse(data)
 
@@ -495,6 +572,7 @@ def servicio_detail(request, servicio_id):
             servicio.permite_domicilio = data.get('permite_domicilio', servicio.permite_domicilio)
             servicio.notas = data.get('notas', servicio.notas)
             servicio.negocio_id = data.get('negocio_id', servicio.negocio_id)
+            servicio.sucursal_id = data.get('sucursal_id', servicio.sucursal_id)
             servicio.save()
             return JsonResponse({
                 'message': 'Servicio actualizado',
@@ -505,6 +583,7 @@ def servicio_detail(request, servicio_id):
                     'tiempo': servicio.tiempo,
                     'permite_domicilio': servicio.permite_domicilio,
                     'notas': servicio.notas,
+                    'sucursal_id': servicio.sucursal.id,
                     'negocio': servicio.negocio.name,
                 }
             })
@@ -540,13 +619,16 @@ def clientes_list(request):
         # Filtrar por parámetros de query
         celular = request.GET.get('celular')
         negocio_id = request.GET.get('negocio_id')
+        sucursal_id = request.GET.get('sucursal_id')
         
         if celular:
             clientes = clientes.filter(celular=celular)
         if negocio_id:
             clientes = clientes.filter(negocio_id=negocio_id)
+        if sucursal_id:
+            clientes = clientes.filter(sucursal_id=sucursal_id)
         
-        data = [{'id': c.id, 'name': c.name, 'celular': c.celular, 'negocio_id': c.negocio_id} for c in clientes]
+        data = [{'id': c.id, 'name': c.name, 'celular': c.celular, 'negocio_id': c.negocio_id, 'sucursal_id': c.sucursal_id} for c in clientes]
         return JsonResponse({'clientes': data})
     elif request.method == 'POST':
         try:
@@ -555,6 +637,7 @@ def clientes_list(request):
                 name=data['name'],
                 celular=data.get('celular', ''),
                 negocio_id=data['negocio_id'],
+                sucursal_id=data['sucursal_id']
             )
             return JsonResponse({
                 'id': cliente.id,
@@ -579,6 +662,7 @@ def cliente_detail(request, cliente_id):
             'name': cliente.name,
             'celular': cliente.celular,
             'negocio_id': cliente.negocio.id,
+            'sucursal_id': cliente.sucursal.id,
 
         }
         return JsonResponse(data)
@@ -589,6 +673,7 @@ def cliente_detail(request, cliente_id):
             cliente.name = data.get('name', cliente.name)
             cliente.celular = data.get('celular', cliente.celular)
             cliente.negocio_id = data.get('negocio_id', cliente.negocio_id)
+            cliente.sucursal_id = data.get('sucursal_id', cliente.sucursal_id)
             cliente.save()
             return JsonResponse({
                 'message': 'Cliente actualizado',
@@ -597,6 +682,7 @@ def cliente_detail(request, cliente_id):
                     'name': cliente.name,
                     'celular': cliente.celular,
                     'negocio_id': cliente.negocio_id,
+                    'sucursal_id': cliente.sucursal_id,
                 }
             })
         except Exception as e:

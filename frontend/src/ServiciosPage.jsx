@@ -10,6 +10,7 @@ const formatPrice = (price) => {
 function ServiciosPage({ user }) {
   const [servicios, setServicios] = useState([])
   const [negocios, setNegocios] = useState([])
+  const [sucursales, setSucursales] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingServicio, setEditingServicio] = useState(null)
@@ -20,11 +21,13 @@ function ServiciosPage({ user }) {
     permite_domicilio: false,
     notas: '',
     negocio_id: '',
+    sucursal_id: '',
   })
 
   useEffect(() => {
     loadServicios()
     loadNegocios()
+    loadSucursales()
   }, [])
 
   const loadServicios = async () => {
@@ -46,6 +49,16 @@ function ServiciosPage({ user }) {
       setNegocios(data.negocios || [])
     } catch (error) {
       console.error('Error loading negocios:', error)
+    }
+  }
+
+  const loadSucursales = async () => {
+    try {
+      const response = await fetch(`${apiUrl}sucursales/?negocio_id=${user.negocio_id}`)
+      const data = await response.json()
+      setSucursales(data.sucursales || [])
+    } catch (error) {
+      console.error('Error loading sucursales:', error)
     }
   }
 
@@ -71,6 +84,7 @@ function ServiciosPage({ user }) {
           permite_domicilio: Boolean(formData.permite_domicilio),
           notas: formData.notas,
           negocio_id: parseInt(formData.negocio_id),
+          sucursal_id: parseInt(formData.sucursal_id),
         }),
       })
 
@@ -78,7 +92,7 @@ function ServiciosPage({ user }) {
         await loadServicios()
         setShowModal(false)
         setEditingServicio(null)
-        setFormData({ name: '', precio: '', tiempo: '', negocio_id: '' })
+        setFormData({ name: '', precio: '', tiempo: '', negocio_id: '', sucursal_id: '' })
       } else {
         const error = await response.json()
         alert(`Error: ${error.detail || 'Error desconocido'}`)
@@ -98,6 +112,7 @@ function ServiciosPage({ user }) {
       permite_domicilio: servicio.permite_domicilio,
       notas: servicio.notas || '',
       negocio_id: servicio.negocio_id.toString(),
+      sucursal_id: servicio.sucursal_id ? servicio.sucursal_id.toString() : '',
     })
     setShowModal(true)
   }
@@ -132,6 +147,7 @@ function ServiciosPage({ user }) {
       permite_domicilio: false,
       notas: '',
       negocio_id: user ? user.negocio_id.toString() : '',
+      sucursal_id: '',
     })
     setShowModal(true)
   }
@@ -139,7 +155,7 @@ function ServiciosPage({ user }) {
   const closeModal = () => {
     setShowModal(false)
     setEditingServicio(null)
-    setFormData({ name: '', precio: '', tiempo: '', negocio_id: '' })
+    setFormData({ name: '', precio: '', tiempo: '', negocio_id: '', sucursal_id: '' })
   }
 
   if (loading) {
@@ -155,8 +171,8 @@ function ServiciosPage({ user }) {
         </button>
       </div>
 
-      <div className="servicios-table-container">
-        <table className="servicios-table">
+      <div className="table-container">
+        <table className="table">
           <thead>
             <tr>
               <th>ID</th>
@@ -254,6 +270,22 @@ function ServiciosPage({ user }) {
                   style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', fontFamily: 'inherit' }}
                   rows="3"
                 />
+              </div>
+
+              <div className="form-group">
+                <label>Sucursal:</label>
+                <select disabled={editingServicio}
+                  value={formData.sucursal_id}
+                  onChange={e => setFormData({...formData, sucursal_id: e.target.value})}
+                  required
+                >
+                  <option value="">Seleccione una sucursal</option>
+                  {sucursales.map(sucursal => (
+                    <option key={sucursal.id} value={sucursal.id}>
+                      {sucursal.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-group">

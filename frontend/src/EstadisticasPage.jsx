@@ -309,27 +309,34 @@ function EstadisticasPage({ user }) {
       </section>
 
       <section className="estadisticas-chart-card">
-        <div className="chart-legend">
-          <div>
-            <span className="legend-dot legend-completada" /> Completadas
+        <div className="charts-wrapper" style={{ display: 'flex', gap: '1rem' }}>
+          <div className="chart-half" style={{ flex: 1 }}>
+            <div className="chart-legend">
+              <div>
+                <span className="legend-dot legend-completada" /> Completadas
+              </div>
+              <div>
+                <span className="legend-dot legend-cancelada" /> Canceladas
+              </div>
+            </div>
+
+            {chartData.every((item) => item.completadas === 0 && item.canceladas === 0) ? (
+              <div className="chart-empty">No hay datos de citas completadas o canceladas para este periodo.</div>
+            ) : (
+              <div className="chart-container">
+                <canvas ref={chartRef} />
+              </div>
+            )}
+            {filteredCitas.length === 0 && (
+              <div style={{ textAlign: 'center', marginTop: '1rem', color: '#64748b', fontSize: '0.9rem' }}>
+                Mostrando datos de ejemplo para demostración
+              </div>
+            )}
           </div>
-          <div>
-            <span className="legend-dot legend-cancelada" /> Canceladas
+          <div className="chart-half" style={{ flex: 1 }}>
+            {/* Espacio reservado para otra gráfica */}
           </div>
         </div>
-
-        {chartData.every((item) => item.completadas === 0 && item.canceladas === 0) ? (
-          <div className="chart-empty">No hay datos de citas completadas o canceladas para este periodo.</div>
-        ) : (
-          <div className="chart-container">
-            <canvas ref={chartRef} />
-          </div>
-        )}
-        {filteredCitas.length === 0 && (
-          <div style={{ textAlign: 'center', marginTop: '1rem', color: '#64748b', fontSize: '0.9rem' }}>
-            Mostrando datos de ejemplo para demostración
-          </div>
-        )}
       </section>
     </div>
   )

@@ -569,65 +569,6 @@ button {
   background: #059669;
 }
 
-.servicios-table-container {
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin: 0 2rem 2rem;
-}
-
-@media (max-width: 768px) {
-  .servicios-table-container {
-    margin: 0 1.5rem 1.5rem;
-    overflow-x: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .servicios-table-container {
-    margin: 0 1rem 1rem;
-    border-radius: 12px;
-  }
-}
-
-.servicios-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.servicios-table th,
-.servicios-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-@media (max-width: 768px) {
-  .servicios-table th,
-  .servicios-table td {
-    padding: 0.75rem;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .servicios-table th,
-  .servicios-table td {
-    padding: 0.5rem;
-    font-size: 0.8rem;
-  }
-}
-
-.servicios-table th {
-  background: #f8fafc;
-  font-weight: 600;
-  color: #374151;
-}
-
-.servicios-table tbody tr:hover {
-  background: #f8fafc;
-}
 
 .edit-button {
   background: #3b82f6;
@@ -1382,7 +1323,7 @@ button {
   padding: 0;
 }
 
-.usuarios-table-container {
+.table-container {
   background: white;
   border-radius: 16px;
   overflow: hidden;
@@ -1391,38 +1332,38 @@ button {
 }
 
 @media (max-width: 768px) {
-  .usuarios-table-container {
+  .table-container {
     margin: 0 1.5rem 1.5rem;
     overflow-x: auto;
   }
 }
 
 @media (max-width: 480px) {
-  .usuarios-table-container {
+  .table-container {
     margin: 0 1rem 1rem;
     border-radius: 12px;
   }
 }
 
-.usuarios-table {
+.table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.usuarios-table th,
-.usuarios-table td {
+.table th,
+.table td {
   padding: 1rem;
   text-align: left;
   border-bottom: 1px solid #e2e8f0;
 }
 
-.usuarios-table th {
+.table th {
   background: #f8fafc;
   font-weight: 600;
   color: #374151;
 }
 
-.usuarios-table tbody tr:hover {
+.table tbody tr:hover {
   background: #f8fafc;
 }
 
@@ -1433,50 +1374,6 @@ button {
 /* Clientes Page Styles */
 .clientes-page {
   padding: 0;
-}
-
-.clientes-table-container {
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin: 0 2rem 2rem;
-}
-
-@media (max-width: 768px) {
-  .clientes-table-container {
-    margin: 0 1.5rem 1.5rem;
-    overflow-x: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .clientes-table-container {
-    margin: 0 1rem 1rem;
-    border-radius: 12px;
-  }
-}
-
-.clientes-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.clientes-table th,
-.clientes-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.clientes-table th {
-  background: #f8fafc;
-  font-weight: 600;
-  color: #374151;
-}
-
-.clientes-table tbody tr:hover {
-  background: #f8fafc;
 }
 
 .cliente-form {

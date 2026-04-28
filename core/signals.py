@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 
-from .models import Negocio, Rol, User, Ciudad, Barrio
+from .models import Negocio, Rol, User, Ciudad, Barrio, Sucursal
 
 
 @receiver(post_migrate)
@@ -32,13 +32,14 @@ def create_initial_data(sender, **kwargs):
         Barrio.objects.get_or_create(
             name=nombre, ciudad=cali
         )
+    
     barrio, _ = Barrio.objects.get_or_create(name='Poblado 1', ciudad=cali)
     rol, _ = Rol.objects.get_or_create(name='Administrador')
     rol_empleado, _ = Rol.objects.get_or_create(name='Empleado')
-    negocio, _ = Negocio.objects.get_or_create(name='MiNegocio', direccion='Calle Falsa 123', tel='555-1234', barrio=barrio, ciudad=cali)
-
+    negocio, _ = Negocio.objects.get_or_create(name='MiNegocio')
+    sucursal, _ = Sucursal.objects.get_or_create(name='MiSucursal',negocio=negocio,ciudad=cali,barrio=barrio)
     if not User.objects.filter(username='admin').exists():
-        user = User(name='Administrador', username='admin', rol=rol, negocio=negocio)
+        user = User(name='Administrador', username='admin', rol=rol, negocio=negocio, sucursal=sucursal)
         user.set_password('1234')
         user.save()
 

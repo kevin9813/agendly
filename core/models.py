@@ -3,6 +3,17 @@ from django.db import models
 from datetime import timedelta, datetime
 
 
+class Plan(models.Model):
+    name = models.CharField(max_length=150)
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        db_table = 'plan'
+
+    def __str__(self):
+        return self.name
+
+
 class Ciudad(models.Model):
     name = models.CharField(max_length=50)
 
@@ -24,15 +35,6 @@ class Barrio(models.Model):
 
 class Negocio(models.Model):
     name = models.CharField(max_length=150)
-    direccion = models.CharField(max_length=255, blank=True)
-    tel = models.CharField(max_length=20, blank=True, help_text='Número de telefono del negocio')
-    whatsapp = models.CharField(max_length=20, blank=True, help_text='Número de WhatsApp del negocio')
-    ciudad = models.ForeignKey(Ciudad, on_delete=models.CASCADE)
-    barrio = models.ForeignKey(Barrio, on_delete=models.CASCADE)
-    horario = models.TextField(blank=True)
-    permite_agendar = models.BooleanField(default=False)
-    activo = models.BooleanField(default=True)
-
 
     class Meta:
         db_table = 'negocio'
@@ -40,12 +42,45 @@ class Negocio(models.Model):
     def __str__(self):
         return self.name
 
+
+class Sucursal(models.Model):
+    negocio = models.ForeignKey(Negocio, on_delete=models.CASCADE, related_name='sucursales')
+    name = models.CharField(max_length=150)
+    direccion = models.CharField(max_length=255)
+    tel = models.CharField(max_length=20, blank=True, help_text='Número de telefono de la sucursal')
+    whatsapp = models.CharField(max_length=20, blank=True, help_text='Número de WhatsApp de la sucursal')
+    ciudad = models.ForeignKey(Ciudad, on_delete=models.CASCADE)
+    barrio = models.ForeignKey(Barrio, on_delete=models.CASCADE)
+    horario = models.TextField(blank=True)
+    permite_agendar = models.BooleanField(default=False)
+    activo = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'sucursal'
+
+    def __str__(self):
+        return f"{self.negocio.name} - {self.name}"
+
+
+class NegocioSuscripcion(models.Model):
+    negocio = models.ForeignKey(Negocio, on_delete=models.CASCADE, related_name='suscripciones')
+    plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
+
+    class Meta:
+        db_table = 'negocio_suscripcion'
+
+    def __str__(self):
+        return f"{self.negocio.name} - {self.plan.name}"
+
 class Cobertura(models.Model):
-    negocio = models.ForeignKey(Negocio, on_delete=models.CASCADE, related_name='config_barrios')
     barrio = models.ForeignKey(Barrio, on_delete=models.CASCADE)
     costo_extra = models.DecimalField(max_digits=10, decimal_places=2)
     tiempo_estimado = models.IntegerField(help_text="Minutos de desplazamiento")
     activo = models.BooleanField(default=True)
+    negocio = models.ForeignKey(Negocio, on_delete=models.CASCADE, related_name='config_barrios')
+    sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE, related_name='config_barrios')
 
     class Meta:
         unique_together = ('negocio', 'barrio')
@@ -69,10 +104,11 @@ class User(models.Model):
     username = models.CharField(max_length=150, unique=True)
     password = models.CharField(max_length=128)
     rol = models.ForeignKey(Rol, on_delete=models.PROTECT, db_column='id_rol', related_name='users')
-    negocio = models.ForeignKey(Negocio, on_delete=models.PROTECT, db_column='id_negocio', related_name='users')
     color = models.CharField(max_length=7, default='#4ECDC4', help_text='Color para identificar al usuario en la agenda (formato #RRGGBB)')
     whatsapp = models.CharField(max_length=20, blank=True, help_text='Número de WhatsApp del usuario')
     activo = models.BooleanField(default=True)
+    negocio = models.ForeignKey(Negocio, on_delete=models.PROTECT, db_column='id_negocio', related_name='users')
+    sucursal = models.ForeignKey(Sucursal, on_delete=models.PROTECT, db_column='id_sucursal', related_name='users')
 
     class Meta:
         db_table = 'user'
@@ -94,6 +130,7 @@ class Servicio(models.Model):
     permite_domicilio = models.BooleanField(default=False)
     notas = models.TextField(blank=True)
     negocio = models.ForeignKey(Negocio, on_delete=models.CASCADE, related_name='servicios')
+    sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE, related_name='servicios')
 
     class Meta:
         db_table = 'servicio'
@@ -117,6 +154,7 @@ class Cliente(models.Model):
     name = models.CharField(max_length=150)
     celular = models.CharField(max_length=20, blank=True, help_text='Número de celular/WhatsApp')
     negocio = models.ForeignKey(Negocio, on_delete=models.CASCADE, related_name='clientes')
+    sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE, related_name='clientes')
 
 
     class Meta:

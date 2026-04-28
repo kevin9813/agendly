@@ -5,6 +5,7 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/'
 function UsuariosPage({ user }) {
   const [usuarios, setUsuarios] = useState([])
   const [negocios, setNegocios] = useState([])
+  const [sucursales, setSucursales] = useState([])
   const [roles, setRoles] = useState([])
   const [servicios, setServicios] = useState([])
   const [loading, setLoading] = useState(true)
@@ -16,6 +17,7 @@ function UsuariosPage({ user }) {
     password: '',
     rol_id: '',
     negocio_id: '',
+    sucursal_id: '',
     color: '#4ECDC4',
     whatsapp: '',
     servicios_ids: [],
@@ -26,6 +28,7 @@ function UsuariosPage({ user }) {
     loadNegocios()
     loadRoles()
     loadServicios()
+    loadSucursales()
   }, [])
 
   const loadServicios = async () => {
@@ -57,6 +60,16 @@ function UsuariosPage({ user }) {
       setNegocios(data.negocios || [])
     } catch (error) {
       console.error('Error loading negocios:', error)
+    }
+  }
+
+  const loadSucursales = async () => {
+    try {
+      const response = await fetch(`${apiUrl}sucursales/?negocio_id=${user.negocio_id}`)
+      const data = await response.json()
+      setSucursales(data.sucursales || [])
+    } catch (error) {
+      console.error('Error loading sucursales:', error)
     }
   }
 
@@ -133,6 +146,7 @@ function UsuariosPage({ user }) {
       password: '', // No mostrar contraseña existente
       rol_id: usuario.rol_id.toString(),
       negocio_id: usuario.negocio_id.toString(),
+      sucursal_id: usuario.sucursal_id ? usuario.sucursal_id.toString() : '',
       color: usuario.color || '#4ECDC4',
       whatsapp: usuario.whatsapp || '',
       servicios_ids: usuario.servicios_ids || [],
@@ -169,6 +183,7 @@ function UsuariosPage({ user }) {
       password: '',
       rol_id: '',
       negocio_id: user ? user.negocio_id.toString() : '',
+      sucursal_id: '',
       color: '#4ECDC4',
       whatsapp: '',
       servicios_ids: [],
@@ -195,8 +210,8 @@ function UsuariosPage({ user }) {
         </button>
       </div>
 
-      <div className="usuarios-table-container">
-        <table className="usuarios-table">
+      <div className="table-container">
+        <table className="table">
           <thead>
             <tr>
               <th>ID</th>
@@ -328,6 +343,23 @@ function UsuariosPage({ user }) {
                   {servicios.map(servicio => (
                     <option key={servicio.id} value={servicio.id}>
                       {servicio.name} ({servicio.negocio})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+
+              <div className="form-group">
+                <label>Sucursal:</label>
+                <select
+                  value={formData.sucursal_id}
+                  onChange={e => setFormData({...formData, sucursal_id: e.target.value})}
+                  required
+                >
+                  <option value="">Seleccione una sucursal</option>
+                  {sucursales.map(sucursal => (
+                    <option key={sucursal.id} value={sucursal.id}>
+                      {sucursal.name}
                     </option>
                   ))}
                 </select>
