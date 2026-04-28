@@ -25,6 +25,7 @@ if [ "$MODE" = "dev" ]; then
     podman compose -f podman-compose.dev.yml up --build
     podman exec -it web_dev python manage.py makemigrations core
     podman exec -it web_dev python manage.py migrate
+    podman restart web_dev
 else
     echo "📝 Usando podman-compose.yml (producción)"
     podman compose -f podman-compose.yml up --build

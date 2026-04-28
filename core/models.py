@@ -29,7 +29,10 @@ class Negocio(models.Model):
     whatsapp = models.CharField(max_length=20, blank=True, help_text='Número de WhatsApp del negocio')
     ciudad = models.ForeignKey(Ciudad, on_delete=models.CASCADE)
     barrio = models.ForeignKey(Barrio, on_delete=models.CASCADE)
-    horario = models.TextField(blank=True) 
+    horario = models.TextField(blank=True)
+    permite_agendar = models.BooleanField(default=False)
+    activo = models.BooleanField(default=True)
+
 
     class Meta:
         db_table = 'negocio'
@@ -69,6 +72,7 @@ class User(models.Model):
     negocio = models.ForeignKey(Negocio, on_delete=models.PROTECT, db_column='id_negocio', related_name='users')
     color = models.CharField(max_length=7, default='#4ECDC4', help_text='Color para identificar al usuario en la agenda (formato #RRGGBB)')
     whatsapp = models.CharField(max_length=20, blank=True, help_text='Número de WhatsApp del usuario')
+    activo = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'user'

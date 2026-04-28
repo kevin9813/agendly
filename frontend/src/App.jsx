@@ -7,6 +7,7 @@ import ClientesPage from './ClientesPage'
 import EstadisticasPage from './EstadisticasPage'
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/'
+const Swal = window.Swal
 
 function App() {
   const [username, setUsername] = useState('')
@@ -14,7 +15,9 @@ function App() {
   const [status, setStatus] = useState('Introduzca sus datos para iniciar sesión.')
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [currentPage, setCurrentPage] = useState('dashboard')
+  const [currentPage, setCurrentPage] = useState(() => {
+    return localStorage.getItem('agendly_current_page') || 'dashboard'
+  })
   const [dashboardData, setDashboardData] = useState(null)
   const [upcomingCitas, setUpcomingCitas] = useState([])
 
@@ -27,6 +30,11 @@ function App() {
       loadDashboardData()
     }
   }, [])
+
+  // Guardar página actual en localStorage cuando cambia
+  useEffect(() => {
+    localStorage.setItem('agendly_current_page', currentPage)
+  }, [currentPage])
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -69,13 +77,9 @@ function App() {
       setDashboardData(data.stats)
 
       // Fetch upcoming citas for the week
-      let upcomingUrl = `${apiUrl}citas/upcoming/`
-      if (user.rol !== 'Administrador') {
-        upcomingUrl += `?user_id=${user.id}`
-      }
-      const upcomingResponse = await fetch(upcomingUrl, { credentials: 'include' })
+      const upcomingResponse = await fetch(`${apiUrl}citas/`, { credentials: 'include' })
       const upcomingData = await upcomingResponse.json()
-      setUpcomingCitas(upcomingData)
+      setUpcomingCitas(upcomingData.citas || [])
     } catch (error) {
       console.error('Error loading dashboard:', error)
     }
@@ -141,6 +145,27 @@ function App() {
     }
   }
 
+  const handleCitaEstadoChange = async (citaId, nuevoEstado) => {
+    const accion = nuevoEstado === 'completada' ? 'completar' : 'cancelar'
+    const titulo = nuevoEstado === 'completada' ? 'Completar Cita' : 'Cancelar Cita'
+    const icono = nuevoEstado === 'completada' ? 'success' : 'warning'
+    
+    const result = await Swal.fire({
+      title: titulo,
+      text: `¿Está seguro de ${accion} esta cita?`,
+      icon: icono,
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, continuar',
+      cancelButtonText: 'Cancelar'
+    })
+    
+    if (result.isConfirmed) {
+      updateCitaEstado(citaId, nuevoEstado)
+    }
+  }
+
   const handleLogout = async () => {
     try {
       // Hacer logout en el servidor para limpiar la sesión
@@ -160,6 +185,7 @@ function App() {
     setDashboardData(null)
     // Limpiar localStorage
     localStorage.removeItem('agendly_user')
+    localStorage.removeItem('agendly_current_page')
   }
 
   const renderPage = () => {
@@ -200,14 +226,29 @@ function App() {
               <article className="card">
                 <div className="card-title-row">
                   <span>Próximas Citas </span>
-                  <span className="status-pill status-info">Semana</span>
                 </div>
                 <div>
-                  {upcomingCitas.length > 0 ? (
+                  {upcomingCitas.filter(cita => cita.estado === 'confirmada').sort((a, b) => new Date(a.fecha_hora) - new Date(b.fecha_hora)).length > 0 ? (
                     <ul className="citas-pendientes-list">
-                      {upcomingCitas.map(cita => (
+                      {upcomingCitas.filter(cita => cita.estado === 'confirmada').sort((a, b) => new Date(a.fecha_hora) - new Date(b.fecha_hora)).map(cita => (
                         <li key={cita.id} className="cita-item">
                           <span>{cita.cliente} - {cita.servicio} - {new Date(cita.fecha_hora).toLocaleString()}</span>
+                          <div className="cita-actions">
+                            <button 
+                              className="btn-confirm" 
+                              onClick={() => handleCitaEstadoChange(cita.id, 'completada')}
+                              title="Marcar como completada"
+                            >
+                              ✓ Completada
+                            </button>
+                            <button 
+                              className="btn-cancel" 
+                              onClick={() => handleCitaEstadoChange(cita.id, 'cancelada')}
+                              title="Cancelar cita"
+                            >
+                              ✗ Cancelada
+                            </button>
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -231,14 +272,14 @@ function App() {
                           <div className="cita-actions">
                             <button 
                               className="btn-confirm" 
-                              onClick={() => updateCitaEstado(cita.id, 'confirmada')}
+                              onClick={() => handleCitaEstadoChange(cita.id, 'confirmada')}
                               title="Confirmar cita"
                             >
                               ✓
                             </button>
                             <button 
                               className="btn-cancel" 
-                              onClick={() => updateCitaEstado(cita.id, 'cancelada')}
+                              onClick={() => handleCitaEstadoChange(cita.id, 'cancelada')}
                               title="Cancelar cita"
                             >
                               ✗

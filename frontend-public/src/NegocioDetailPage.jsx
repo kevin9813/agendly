@@ -130,27 +130,29 @@ function NegocioDetailPage() {
                   <h4>{servicio.nombre}</h4>
                   <p><strong>Precio:</strong> ${formatPrice(servicio.precio)}</p>
                   <p><strong>Duración:</strong> {servicio.tiempo} minutos</p>
-                  <div className="empleados-list">
-                    <h5>Colaboradores:</h5>
-                    {(() => {
-                      const empleadosParaServicio = empleados.filter(empleado => 
-                        empleado.servicios_ids && empleado.servicios_ids.includes(servicio.id)
-                      )
-                      return empleadosParaServicio.length > 0 ? (
-                        empleadosParaServicio.map(empleado => (
-                          <button
-                            key={empleado.id}
-                            className="agendar-button"
-                            onClick={() => handleAgendar(servicio, empleado)}
-                          >
-                            Agendar con {empleado.name}
-                          </button>
-                        ))
-                      ) : (
-                        <p className="no-empleados">No hay colaboradores disponibles para este servicio</p>
-                      )
-                    })()}
-                  </div>
+                  {negocio.permite_agendar && (
+                    <div className="empleados-list">
+                      <h5>Colaboradores:</h5>
+                      {(() => {
+                        const empleadosParaServicio = empleados.filter(empleado => 
+                          empleado.servicios_ids && empleado.servicios_ids.includes(servicio.id)
+                        )
+                        return empleadosParaServicio.length > 0 ? (
+                          empleadosParaServicio.map(empleado => (
+                            <button
+                              key={empleado.id}
+                              className="agendar-button"
+                              onClick={() => handleAgendar(servicio, empleado)}
+                            >
+                              Agendar con {empleado.name}
+                            </button>
+                          ))
+                        ) : (
+                          <p className="no-empleados">No hay colaboradores disponibles para este servicio</p>
+                        )
+                      })()}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

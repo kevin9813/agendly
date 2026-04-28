@@ -17,6 +17,7 @@ function NegocioPage({ user }) {
     barrio_id: '',
     horario: '',
     ciudad_id: '',
+    permite_agendar: false,
   })
 
   useEffect(() => {
@@ -55,6 +56,7 @@ function NegocioPage({ user }) {
           barrio_id: data.barrio_id ? data.barrio_id.toString() : '',
           horario: data.horario,
           ciudad_id: data.ciudad_id ? data.ciudad_id.toString() : '',
+          permite_agendar: data.permite_agendar || false,
         })
       } else {
         setMessage('Error al cargar la información del negocio')
@@ -205,6 +207,11 @@ function NegocioPage({ user }) {
                   {negocio.horario || 'No especificado'}
                 </p>
               </div>
+
+              <div className="info-group">
+                <label>Permitir agendar cliente</label>
+                <p>{negocio.permite_agendar ? 'Sí' : 'No'}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -301,6 +308,19 @@ function NegocioPage({ user }) {
                 rows="4"
                 placeholder="Ej:&#10;Lunes a Viernes: 9:00 - 18:00&#10;Sábado: 10:00 - 14:00&#10;Domingo: Cerrado"
               />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="permite_agendar"  style={{display: "flex",alignItems: "center",gap: "8px",cursor: "pointer"}}>
+                Permitir que los clientes agenden citas
+                <input
+                  type="checkbox"
+                  id="permite_agendar"
+                  name="permite_agendar"
+                  checked={formData.permite_agendar || false}
+                  onChange={e => setFormData(prev => ({ ...prev, permite_agendar: e.target.checked }))}
+                  />
+              </label>
             </div>
 
             <div className="form-actions">

@@ -171,6 +171,7 @@ def negocio_list(request):
             'horario': n.horario,
             'ciudad': n.ciudad.name,
             'ciudad_id': n.ciudad_id,
+            'permite_agendar': n.permite_agendar,
         } for n in negocios]
         return JsonResponse({'negocios': data})
 
@@ -185,6 +186,7 @@ def negocio_list(request):
                 barrio_id=data['barrio_id'],
                 horario=data.get('horario', ''),
                 ciudad_id=data['ciudad_id'],
+                permite_agendar=data.get('permite_agendar', False),
             )
             return JsonResponse({'id': negocio.id, 'message': 'Negocio creado'})
         except Exception as e:
@@ -212,6 +214,7 @@ def negocio_detail(request, negocio_id):
             'horario': negocio.horario,
             'ciudad': negocio.ciudad.name,
             'ciudad_id': negocio.ciudad_id,
+            'permite_agendar': negocio.permite_agendar,
         }
         return JsonResponse(data)
 
@@ -225,6 +228,7 @@ def negocio_detail(request, negocio_id):
             negocio.barrio_id = data.get('barrio_id', negocio.barrio_id)
             negocio.horario = data.get('horario', negocio.horario)
             negocio.ciudad_id = data.get('ciudad_id', negocio.ciudad_id)
+            negocio.permite_agendar = data.get('permite_agendar', negocio.permite_agendar)
             negocio.save()
             return JsonResponse({'message': 'Negocio actualizado'})
         except Exception as e:
