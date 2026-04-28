@@ -22,7 +22,6 @@ function EstadisticasPage({ user }) {
         <div className="estadisticas-page">
             <div className="dashboard-topbar">
                 <h1>Estadísticas</h1>
-                <p>Bienvenido, {user.nombre}!</p>
             </div>
         </div>
     )
