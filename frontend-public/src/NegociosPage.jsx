@@ -18,17 +18,17 @@ function NegociosPage() {
 
   const loadNegocios = async () => {
     try {
-      const response = await fetch(`${apiUrl}negocios/`)
+      const response = await fetch(`${apiUrl}negocios-sucursales/`)
       const data = await response.json()
       const negociosList = data.negocios || []
       setNegocios(negociosList)
       
       // Extraer ciudades y barrios únicos
-      const uniqueCiudades = [...new Set(negociosList.map(n => n.ciudad).filter(Boolean))]
+      const uniqueCiudades = [...new Set(negociosList.map(n => n.sucursales.map(s => s.ciudad)).flat().filter(Boolean))]
       setCiudades(uniqueCiudades)
       
       // Extraer todos los barrios inicialmente
-      const uniqueBarrios = [...new Set(negociosList.map(n => n.barrio).filter(Boolean))]
+      const uniqueBarrios = [...new Set(negociosList.map(n => n.sucursales.map(s => s.barrio)).flat().filter(Boolean))]
       setBarrios(uniqueBarrios)
     } catch (error) {
       console.error('Error loading negocios:', error)
@@ -43,19 +43,19 @@ function NegociosPage() {
     
     // Actualizar barrios basado en la ciudad seleccionada
     if (ciudad) {
-      const negociosFiltrados = negocios.filter(n => n.ciudad === ciudad)
-      const uniqueBarrios = [...new Set(negociosFiltrados.map(n => n.barrio).filter(Boolean))]
+      const negociosFiltrados = negocios.filter(n => n.sucursales.some(s => s.ciudad === ciudad))
+      const uniqueBarrios = [...new Set(negociosFiltrados.map(n => n.sucursales.map(s => s.barrio)).flat().filter(Boolean))]
       setBarrios(uniqueBarrios)
     } else {
-      const uniqueBarrios = [...new Set(negocios.map(n => n.barrio).filter(Boolean))]
+      const uniqueBarrios = [...new Set(negocios.map(n => n.sucursales.map(s => s.barrio)).flat().filter(Boolean))]
       setBarrios(uniqueBarrios)
     }
   }
 
   const getNegociosFiltrados = () => {
     return negocios.filter(negocio => {
-      const matchCiudad = !selectedCiudad || negocio.ciudad === selectedCiudad
-      const matchBarrio = !selectedBarrio || negocio.barrio === selectedBarrio
+      const matchCiudad = !selectedCiudad || negocio.sucursales.some(s => s.ciudad === selectedCiudad)
+      const matchBarrio = !selectedBarrio || negocio.sucursales.some(s => s.barrio === selectedBarrio)
       return matchCiudad && matchBarrio
     })
   }
@@ -130,13 +130,26 @@ function NegociosPage() {
           <h2>Negocios disponibles {negociosFiltrados.length}</h2>
           {negociosFiltrados.length > 0 ? (
             <div className="grid">
-              {negociosFiltrados.map(negocio => (
-                <div 
-                  key={negocio.id} 
+              {negociosFiltrados.map((negocio) => (
+                <div
+                  key={negocio.id}
                   className="negocio-card"
                   onClick={() => handleNegocioSelect(negocio)}
                 >
                   <h3>{negocio.name}</h3>
+
+                  {negocio.sucursales && negocio.sucursales.length > 0 && (
+                    <div className="sucursales-list">
+                      {negocio.sucursales.map((sucursal) => (
+                        <div key={sucursal.id} className="sucursal-item">
+                          <p className="sucursal-name">{sucursal.name}</p>
+                          <span className="sucursal-location">
+                            {sucursal.ciudad} - {sucursal.barrio}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

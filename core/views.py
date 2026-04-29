@@ -212,6 +212,38 @@ def negocio_detail(request, negocio_id):
 
     return JsonResponse({'detail': 'Method not allowed'}, status=405)
 
+@csrf_exempt
+def negocio_list_sucursales(request):
+    if request.method == 'GET':
+        negocios = Negocio.objects.prefetch_related('sucursales').all()
+
+        data = []
+        for n in negocios:
+            sucursales_data = []
+
+            for s in n.sucursales.all():
+                sucursales_data.append({
+                    'id': s.id,
+                    'name': s.name,
+                    'direccion': s.direccion,
+                    'tel': s.tel,
+                    'whatsapp': s.whatsapp,
+                    'ciudad': s.ciudad.name if s.ciudad else '',
+                    'barrio': s.barrio.name if s.barrio else '',
+                    'horario': s.horario,
+                    'permite_agendar': s.permite_agendar,
+                    'activo': s.activo,
+                })
+
+            data.append({
+                'id': n.id,
+                'name': n.name,
+                'sucursales': sucursales_data
+            })
+
+        return JsonResponse({'negocios': data})
+
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
 
 @csrf_exempt
 def sucursales_list(request):
