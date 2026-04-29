@@ -130,13 +130,24 @@ class Servicio(models.Model):
     permite_domicilio = models.BooleanField(default=False)
     notas = models.TextField(blank=True)
     negocio = models.ForeignKey(Negocio, on_delete=models.CASCADE, related_name='servicios')
-    sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE, related_name='servicios')
 
     class Meta:
         db_table = 'servicio'
 
     def __str__(self):
         return f"{self.name} - {self.negocio.name}"
+
+
+class ServicioSucursal(models.Model):
+    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='servicio_sucursales')
+    sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE, related_name='servicio_sucursales')
+
+    class Meta:
+        db_table = 'servicio_sucursal'
+        unique_together = ('servicio', 'sucursal')
+
+    def __str__(self):
+        return f"{self.servicio.name} - {self.sucursal.name}"
 
 class UserServicio(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_servicios')

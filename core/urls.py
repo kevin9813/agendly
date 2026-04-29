@@ -14,7 +14,8 @@ from .views import (
     me_view,
     negocio_detail,
     negocio_list,
-    negocio_list_sucursales,
+    negocios_list_sucursales,
+    negocio_detail_sucursales,
     sucursal_detail,
     sucursales_list,
     roles_list,
@@ -34,7 +35,8 @@ urlpatterns = [
 
     # Negocio CRUD
     path('negocios/', negocio_list, name='api-negocios'),
-    path('negocios-sucursales/', negocio_list_sucursales, name='api-negocios-sucursales'),
+    path('negocios-sucursales/', negocios_list_sucursales, name='api-negocios-sucursales'),
+    path('negocio-sucursales/<int:negocio_id>/', negocio_detail_sucursales, name='api-negocios-detail-sucursales'),
     path('negocios/<int:negocio_id>/', negocio_detail, name='api-negocio-detail'),
     path('sucursales/', sucursales_list, name='api-sucursales'),
     path('sucursales/<int:sucursal_id>/', sucursal_detail, name='api-sucursal-detail'),

@@ -331,8 +331,7 @@ function UsuariosPage({ user }) {
 
               <div className="form-group">
                 <label>Servicios asignados:</label>
-                <select
-                  multiple
+                <select multiple
                   value={formData.servicios_ids.map(id => id.toString())}
                   onChange={e => {
                     const options = Array.from(e.target.selectedOptions)

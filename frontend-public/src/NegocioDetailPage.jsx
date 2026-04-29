@@ -27,18 +27,16 @@ function NegocioDetailPage() {
   const loadNegocioDetail = async () => {
     try {
       // Cargar negocio
-      const negociosResponse = await fetch(`${apiUrl}negocios/`)
+      const negociosResponse = await fetch(`${apiUrl}negocio-sucursales/${negocioId}/`)
       const negociosData = await negociosResponse.json()
-      const negocioEncontrado = negociosData.negocios.find(n => n.id === parseInt(negocioId))
+      const negocioEncontrado = negocioId
       
-      if (negocioEncontrado) {
-        setNegocio(negocioEncontrado)
-        
+      if (negociosData) {
+        setNegocio(negociosData)
         // Cargar servicios del negocio
-        loadServicios(negocioEncontrado)
-        
+        loadServicios(negociosData)
         // Cargar empleados del negocio
-        loadEmpleados(negocioEncontrado)
+        loadEmpleados(negociosData)
       }
     } catch (error) {
       console.error('Error loading negocio detail:', error)
@@ -47,12 +45,12 @@ function NegocioDetailPage() {
     }
   }
 
-  const loadServicios = async (negocioData) => {
+  const loadServicios = async (negociosData) => {
     try {
-      const response = await fetch(`${apiUrl}negocio/${negocioData.id}/servicios/`)
+      const response = await fetch(`${apiUrl}negocio/${negociosData.id}/servicios/`)
       const data = await response.json()
       const serviciosFiltrados = data.servicios.filter(
-        s => s.negocio === negocioData.name
+        s => s.negocio === negociosData.name
       )
       setServicios(serviciosFiltrados)
     } catch (error) {
@@ -60,7 +58,7 @@ function NegocioDetailPage() {
     }
   }
 
-  const loadEmpleados = async (negocioData) => {
+  const loadEmpleados = async (negociosData) => {
     try {
       const response = await fetch(`${apiUrl}usuarios/`)
       const data = await response.json()
@@ -108,17 +106,47 @@ function NegocioDetailPage() {
       <div className="negocio-detail">
         <div className="negocio-info">
           <h2>{negocio.name}</h2>
-          <div className="info-details">
-            <p><strong>Dirección:</strong> {negocio.direccion}</p>
-            <p><strong>Ciudad:</strong> {negocio.ciudad}</p>
-            <p><strong>Barrio:</strong> {negocio.barrio}</p>
-            <p><strong>Teléfono:</strong> {negocio.tel}</p>
-            <p><strong>Whatsapp:</strong> {negocio.whatsapp}</p>
-          </div>
-            <div className="horario">
-              <strong>Horario-Notas:</strong>
-              <p>{negocio.horario}</p>
+
+          {negocio.sucursales && negocio.sucursales.length > 0 ? (
+            <div className="accordion" id="sucursalesAccordion">
+              {negocio.sucursales.map((sucursal, index) => (
+                <div className="accordion-item" key={sucursal.id}>
+                  <h2 className="accordion-header" id={`heading-${sucursal.id}`}>
+                    <button
+                      className={`accordion-button ${index !== 0 ? 'collapsed' : ''}`}
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target={`#collapse-${sucursal.id}`}
+                      aria-expanded={index === 0 ? 'true' : 'false'}
+                      aria-controls={`collapse-${sucursal.id}`}
+                    >
+                      {sucursal.name} - {sucursal.ciudad} / {sucursal.barrio}
+                    </button>
+                  </h2>
+
+                  <div
+                    id={`collapse-${sucursal.id}`}
+                    className={`accordion-collapse collapse ${index === 0 ? 'show' : ''}`}
+                    aria-labelledby={`heading-${sucursal.id}`}
+                    data-bs-parent="#sucursalesAccordion"
+                  >
+                    <div className="accordion-body info-details">
+                      <p><strong>Dirección:</strong> {sucursal.direccion}</p>
+                      <p><strong>Teléfono:</strong> {sucursal.tel}</p>
+                      <p><strong>Whatsapp:</strong> {sucursal.whatsapp}</p>
+                    </div>
+                      <div className="horario accordion-body">
+                        <strong>Horario-Notas:</strong>
+                        <p>{sucursal.horario}</p>
+                      </div>
+                      <br />
+                  </div>
+                </div>
+              ))}
             </div>
+          ) : (
+            <p>No hay sucursales disponibles.</p>
+          )}
         </div>
 
         <div className="servicios-section">

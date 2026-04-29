@@ -4,6 +4,7 @@ from functools import wraps
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Prefetch
 
 from .models import Barrio, Cobertura, Cita, Cliente, Negocio, Rol, Servicio, Sucursal, User, UserServicio, Ciudad
 
@@ -213,9 +214,10 @@ def negocio_detail(request, negocio_id):
     return JsonResponse({'detail': 'Method not allowed'}, status=405)
 
 @csrf_exempt
-def negocio_list_sucursales(request):
+def negocios_list_sucursales(request):
     if request.method == 'GET':
-        negocios = Negocio.objects.prefetch_related('sucursales').all()
+        negocios = Negocio.objects.prefetch_related(Prefetch('sucursales',
+            queryset=Sucursal.objects.filter(activo=True))).all()
 
         data = []
         for n in negocios:
@@ -242,6 +244,38 @@ def negocio_list_sucursales(request):
             })
 
         return JsonResponse({'negocios': data})
+
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+@csrf_exempt
+def negocio_detail_sucursales(request, negocio_id):
+    try:
+        negocio = Negocio.objects.prefetch_related('sucursales').get(id=negocio_id)
+    except Negocio.DoesNotExist:
+        return JsonResponse({'detail': 'Negocio no encontrado'}, status=404)
+
+    if request.method == 'GET':
+        sucursales_data = []
+        for s in negocio.sucursales.all():
+            sucursales_data.append({
+                'id': s.id,
+                'name': s.name,
+                'direccion': s.direccion,
+                'tel': s.tel,
+                'whatsapp': s.whatsapp,
+                'ciudad': s.ciudad.name if s.ciudad else '',
+                'barrio': s.barrio.name if s.barrio else '',
+                'horario': s.horario,
+                'permite_agendar': s.permite_agendar,
+                'activo': s.activo,
+            })
+
+        data = {
+            'id': negocio.id,
+            'name': negocio.name,
+            'sucursales': sucursales_data
+        }
+        return JsonResponse(data)
 
     return JsonResponse({'detail': 'Method not allowed'}, status=405)
 
@@ -538,7 +572,6 @@ def servicios_list(request):
             'notas': s.notas,
             'negocio': s.negocio.name,
             'negocio_id': s.negocio.id,
-            'sucursal_id': s.sucursal.id,
         } for s in servicios]
         return JsonResponse({'servicios': data})
 
@@ -552,7 +585,6 @@ def servicios_list(request):
                 permite_domicilio=data.get('permite_domicilio', False),
                 notas=data.get('notas', ''),
                 negocio_id=data['negocio_id'],
-                sucursal_id=data['sucursal_id'],
             )
             return JsonResponse({
                 'id': servicio.id,
@@ -565,7 +597,6 @@ def servicios_list(request):
                     'permite_domicilio': servicio.permite_domicilio,
                     'notas': servicio.notas,
                     'negocio': servicio.negocio.name,
-                    'sucursal_id': servicio.sucursal.id,
                 }
             })
         except Exception as e:
@@ -591,7 +622,6 @@ def servicio_detail(request, servicio_id):
             'notas': servicio.notas,
             'negocio': servicio.negocio.name,
             'negocio_id': servicio.negocio.id,
-            'sucursal_id': servicio.sucursal.id,
         }
         return JsonResponse(data)
 
@@ -604,7 +634,6 @@ def servicio_detail(request, servicio_id):
             servicio.permite_domicilio = data.get('permite_domicilio', servicio.permite_domicilio)
             servicio.notas = data.get('notas', servicio.notas)
             servicio.negocio_id = data.get('negocio_id', servicio.negocio_id)
-            servicio.sucursal_id = data.get('sucursal_id', servicio.sucursal_id)
             servicio.save()
             return JsonResponse({
                 'message': 'Servicio actualizado',
@@ -615,7 +644,6 @@ def servicio_detail(request, servicio_id):
                     'tiempo': servicio.tiempo,
                     'permite_domicilio': servicio.permite_domicilio,
                     'notas': servicio.notas,
-                    'sucursal_id': servicio.sucursal.id,
                     'negocio': servicio.negocio.name,
                 }
             })
