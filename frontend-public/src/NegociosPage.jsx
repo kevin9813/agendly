@@ -137,14 +137,6 @@ function NegociosPage() {
                   onClick={() => handleNegocioSelect(negocio)}
                 >
                   <h3>{negocio.name}</h3>
-                  <p><strong>Dirección:</strong> {negocio.direccion}</p>
-                  <p><strong>Barrio:</strong> {negocio.barrio}</p>
-                  <p><strong>Ciudad:</strong> {negocio.ciudad}</p>
-                  <p><strong>Tel:</strong> {negocio.tel}</p>
-                  <div className="horario">
-                    <strong>Horario:</strong>
-                    <p>{negocio.horario}</p>
-                  </div>
                 </div>
               ))}
             </div>

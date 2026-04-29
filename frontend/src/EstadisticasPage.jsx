@@ -262,7 +262,9 @@ function EstadisticasPage({ user }) {
         </div>
       </div>
 
-      <section className="estadisticas-controls">
+    <div className="row">
+      <div className="col-md-6">
+        <section className="estadisticas-controls">
         <div className="estadisticas-filters">
           <label>
             Usuario
@@ -290,7 +292,9 @@ function EstadisticasPage({ user }) {
               ))}
             </select>
           </label>
+
         </div>
+           
 
         <div className="estadisticas-summary">
           <div>
@@ -306,38 +310,41 @@ function EstadisticasPage({ user }) {
             <strong>{periodOptions.find((opt) => opt.value === period)?.label}</strong>
           </div>
         </div>
-      </section>
+        </section>
 
-      <section className="estadisticas-chart-card">
-        <div className="charts-wrapper" style={{ display: 'flex', gap: '1rem' }}>
-          <div className="chart-half" style={{ flex: 1 }}>
-            <div className="chart-legend">
-              <div>
-                <span className="legend-dot legend-completada" /> Completadas
+        <section className="estadisticas-chart-card">
+          <div className="charts-wrapper" >
+            <div className="chart-half" >
+              <div className="chart-legend">
+                <div>
+                  <span className="legend-dot legend-completada" /> Completadas
+                </div>
+                <div>
+                  <span className="legend-dot legend-cancelada" /> Canceladas
+                </div>
               </div>
-              <div>
-                <span className="legend-dot legend-cancelada" /> Canceladas
-              </div>
+
+              {chartData.every((item) => item.completadas === 0 && item.canceladas === 0) ? (
+                <div className="chart-empty">No hay datos de citas completadas o canceladas para este periodo.</div>
+              ) : (
+                <div className="chart-container">
+                  <canvas ref={chartRef} />
+                </div>
+              )}
+              {filteredCitas.length === 0 && (
+                <div style={{ textAlign: 'center', marginTop: '1rem', color: '#64748b', fontSize: '0.9rem' }}>
+                  Mostrando datos de ejemplo para demostración
+                </div>
+              )}
             </div>
+          </div>
+        </section>
+      </div>   
+      <div className="col-md-6">
+      </div>   
+    </div>
 
-            {chartData.every((item) => item.completadas === 0 && item.canceladas === 0) ? (
-              <div className="chart-empty">No hay datos de citas completadas o canceladas para este periodo.</div>
-            ) : (
-              <div className="chart-container">
-                <canvas ref={chartRef} />
-              </div>
-            )}
-            {filteredCitas.length === 0 && (
-              <div style={{ textAlign: 'center', marginTop: '1rem', color: '#64748b', fontSize: '0.9rem' }}>
-                Mostrando datos de ejemplo para demostración
-              </div>
-            )}
-          </div>
-          <div className="chart-half" style={{ flex: 1 }}>
-            {/* Espacio reservado para otra gráfica */}
-          </div>
-        </div>
-      </section>
+      
     </div>
   )
 }

@@ -493,7 +493,7 @@ function AgendaPage({ user }) {
           <span className="month-year">
             {viewMode === 'monthly' 
               ? `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`
-              : `Semana del ${getWeekDays(currentDate)[0].toLocaleDateString('es-ES')} al ${getWeekDays(currentDate)[6].toLocaleDateString('es-ES')}`
+              : `Semana del ${getWeekDays(currentDate)[0].toLocaleDateString('es-EN')} al ${getWeekDays(currentDate)[6].toLocaleDateString('es-EN')}`
             }
           </span>
           <button onClick={viewMode === 'monthly' ? nextMonth : nextWeek} className="nav-button">Siguiente →</button>
@@ -554,7 +554,7 @@ function AgendaPage({ user }) {
                                   <strong>{cita.servicio.substring(0, 10)}</strong>
                                   <small>{cita.empleado}</small>
                                   <div style={{ fontSize: '0.7em', marginTop: '2px' }}>
-                                    {new Date(cita.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} - {cita.hora_fin ? new Date(cita.hora_fin).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+                                    {new Date(cita.fecha_hora).toLocaleTimeString('es-EN', { hour: '2-digit', minute: '2-digit' })} - {cita.hora_fin ? new Date(cita.hora_fin).toLocaleTimeString('es-EN', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
                                   </div>
                                 </div>
                               ))}
@@ -580,7 +580,7 @@ function AgendaPage({ user }) {
                   <th key={idx} style={{ minWidth: '120px' }}>
                     <div>{weekDays[day.getDay()]}</div>
                     <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                      {day.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                      {day.toLocaleDateString('es-EN', { day: 'numeric', month: 'short' })}
                     </div>
                   </th>
                 ))}
@@ -589,15 +589,16 @@ function AgendaPage({ user }) {
             <tbody>
               <tr>
                 {getWeekDays(currentDate).map((day, idx) => {
-                  const dateStr = day.toISOString().split('T')[0]
+                  const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`
                   const citasDelDia = citas.filter(cita => cita.fecha_hora.startsWith(dateStr)).sort((a, b) => a.fecha_hora.localeCompare(b.fecha_hora))
                   return (
                     <td
                       key={idx}
                       style={{
                         minWidth: '120px',
+                        minHeight: '120px',
                         verticalAlign: 'top',
-                        padding: '0.5rem',
+                        padding: '1rem',
                         backgroundColor: day.toDateString() === new Date().toDateString() ? '#fef3c7' : '#fff',
                         borderRight: '1px solid #e5e7eb',
                       }}
@@ -623,7 +624,7 @@ function AgendaPage({ user }) {
                             <strong>{cita.servicio.substring(0, 8)}</strong>
                             <div>{cita.empleado}</div>
                             <div>
-                              {new Date(cita.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} - {cita.hora_fin ? new Date(cita.hora_fin).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+                              {new Date(cita.fecha_hora).toLocaleTimeString('es-EN', { hour: '2-digit', minute: '2-digit' })} - {cita.hora_fin ? new Date(cita.hora_fin).toLocaleTimeString('es-EN', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
                             </div>
                           </div>
                         ))}
@@ -663,13 +664,13 @@ function AgendaPage({ user }) {
               <div className="event-detail">
                 <label>Horario:</label>
                 <p>
-                  {new Date(selectedEvent.fecha_hora).toLocaleString('es-ES', {
+                  {new Date(selectedEvent.fecha_hora).toLocaleString('es-EN', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
                     hour: '2-digit',
                     minute: '2-digit',
-                  })} - {selectedEvent.hora_fin ? new Date(selectedEvent.hora_fin).toLocaleString('es-ES', {
+                  })} - {selectedEvent.hora_fin ? new Date(selectedEvent.hora_fin).toLocaleString('es-EN', {
                     hour: '2-digit',
                     minute: '2-digit',
                   }) : 'N/A'}
@@ -900,7 +901,7 @@ function AgendaPage({ user }) {
         {/* Columna izquierda - Citas del día actual */}
         <div style={{ flex: 1 }}>
           <h2 style={{ marginBottom: '1rem', fontSize: '1.25rem', fontWeight: '600' }}>
-            Citas de Hoy ({new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })})
+            Citas de Hoy ({new Date().toLocaleDateString('es-EN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })})
           </h2>
           
           {getCitasToday().length === 0 ? (
@@ -943,7 +944,7 @@ function AgendaPage({ user }) {
                         <strong>{cita.empleado}</strong> → {cita.cliente}
                       </div>
                       <div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
-                        ⏰ {new Date(cita.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} - {cita.hora_fin ? new Date(cita.hora_fin).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+                        ⏰ {new Date(cita.fecha_hora).toLocaleTimeString('es-EN', { hour: '2-digit', minute: '2-digit' })} - {cita.hora_fin ? new Date(cita.hora_fin).toLocaleTimeString('es-EN', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
                       </div>
                       {cita.notas && (
                         <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem', fontStyle: 'italic' }}>

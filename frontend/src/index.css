@@ -1444,7 +1444,7 @@ button {
 }
 
 .estadisticas-filters select {
-  width: 00%;
+  width: 100%;
   padding: 0.9rem 1rem;
   border-radius: 16px;
   border: 1px solid #cbd5e1;
