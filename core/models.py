@@ -137,18 +137,6 @@ class Servicio(models.Model):
     def __str__(self):
         return f"{self.name} - {self.negocio.name}"
 
-
-class ServicioSucursal(models.Model):
-    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='servicio_sucursales')
-    sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE, related_name='servicio_sucursales')
-
-    class Meta:
-        db_table = 'servicio_sucursal'
-        unique_together = ('servicio', 'sucursal')
-
-    def __str__(self):
-        return f"{self.servicio.name} - {self.sucursal.name}"
-
 class UserServicio(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_servicios')
     servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='user_servicios')
