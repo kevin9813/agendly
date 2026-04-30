@@ -24,6 +24,7 @@ from .views import (
     negocio_servicios_list,
     usuario_detail,
     usuarios_list,
+    negocio_suscripcion,
 )
 
 urlpatterns = [
@@ -40,6 +41,9 @@ urlpatterns = [
     path('negocios/<int:negocio_id>/', negocio_detail, name='api-negocio-detail'),
     path('sucursales/', sucursales_list, name='api-sucursales'),
     path('sucursales/<int:sucursal_id>/', sucursal_detail, name='api-sucursal-detail'),
+
+    # Negocios Suscripciones
+    path('negocio-suscripcion/<int:negocio_id>/', negocio_suscripcion, name='api-negocio-suscripcion'),
 
     # Servicio CRUD
     path('servicios/', servicios_list, name='api-servicios'),

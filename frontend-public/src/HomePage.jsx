@@ -65,7 +65,7 @@ function HomePage() {
             <div className="text-center mb-4">
               <h3 className="fw-bold text-primary">Básico</h3>
               <h2 className="fw-bold">
-                $20.000
+                $24.900
                 <span className="fs-6 text-muted">/mes</span>
               </h2>
               <p className="text-muted">
@@ -96,7 +96,7 @@ function HomePage() {
             <div className="text-center mb-4 mt-3">
               <h3 className="fw-bold text-primary">Premium</h3>
               <h2 className="fw-bold">
-                $45.000
+                $49.900
                 <span className="fs-6 text-muted">/mes</span>
               </h2>
               <p className="text-muted">

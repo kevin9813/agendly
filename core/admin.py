@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 
-from .models import Cita, Cliente, Negocio, Sucursal, Rol, Servicio, User, Ciudad, Barrio, Cobertura, UserServicio
+from .models import Cita, Cliente, Negocio, Sucursal, Rol, Servicio, User, Ciudad, Barrio, Cobertura, UserServicio, NegocioSuscripcion, Plan
 
 
 class CitaForm(forms.ModelForm):
@@ -45,6 +45,17 @@ class NegocioAdmin(admin.ModelAdmin):
 class SucursalAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'negocio')
     search_fields = ('name', 'negocio__name')
+
+@admin.register(NegocioSuscripcion)
+class NegocioSuscripcionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'negocio', 'plan', 'fecha_inicio', 'fecha_fin')
+    search_fields = ('negocio__name', 'plan')
+    list_filter = ('plan', 'negocio')
+
+@admin.register(Plan)
+class PlanAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'precio')
+    search_fields = ('name',)
 
 @admin.register(Cobertura)
 class CoberturaAdmin(admin.ModelAdmin):

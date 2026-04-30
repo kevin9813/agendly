@@ -20,6 +20,11 @@ function App() {
   })
   const [dashboardData, setDashboardData] = useState(null)
   const [upcomingCitas, setUpcomingCitas] = useState([])
+  const [suscripcion, setSuscripcion] = useState({
+    estado: null, // activa | engracia | vencida
+    mensaje: '',
+    plan: ''
+  })
 
   // Cargar sesión desde localStorage cuando el componente monta
   useEffect(() => {
@@ -28,6 +33,7 @@ function App() {
       const userData = JSON.parse(savedUser)
       setUser(userData)
       loadDashboardData()
+      loadSuscripcionStatus(userData.negocio_id)
     }
   }, [])
 
@@ -80,6 +86,48 @@ function App() {
       const upcomingResponse = await fetch(`${apiUrl}citas/`, { credentials: 'include' })
       const upcomingData = await upcomingResponse.json()
       setUpcomingCitas(upcomingData.citas || [])
+    } catch (error) {
+      console.error('Error loading dashboard:', error)
+    }
+  }
+
+  const loadSuscripcionStatus = async (negocioId) => {
+    try {
+      const response = await fetch(`${apiUrl}negocio-suscripcion/${negocioId}/`, { credentials: 'include' })
+      const data = await response.json()
+      if (data) {
+        if (data.activa) {
+          setSuscripcion({
+            estado: 'activa',
+            mensaje: `Suscripción activa.`,
+            plan: data.plan
+          })
+        } else {
+          setSuscripcion({
+            estado: 'vencida',
+            mensaje: `Su suscripción ha expirado y el acceso está bloqueado.`,
+            plan: data.plan
+          })
+          if (data?.fecha_fin) {
+            const fechaFin = new Date(data.fecha_fin + 'T00:00:00')
+            const hoy = new Date()
+            const diferenciaDias = Math.floor((hoy - fechaFin) / (1000 * 60 * 60 * 24))
+            if (diferenciaDias <= 5) {
+              setSuscripcion({
+                estado: 'engracia',
+                mensaje: `Su suscripción venció el ${fechaFin.toLocaleDateString()}, tiene ${5 - diferenciaDias} días para renovar.`,
+                plan: data.plan
+              })
+            }
+          }
+        }
+
+      } else {
+        setSuscripcion({
+          estado: 'vencida',
+          mensaje: `Suscripción vencida.`
+        })
+      }
     } catch (error) {
       console.error('Error loading dashboard:', error)
     }
@@ -212,7 +260,14 @@ function App() {
                 </button>
               </div>
             </div>
-  
+            
+            {suscripcion.estado !== 'activa' && (
+              <div className="dashboard-topbar">
+                <strong style={{ color: 'red' }}>{suscripcion.mensaje}</strong>
+              </div>
+            )}
+
+            {suscripcion.estado !== 'vencida' && (
             <section className="top-cards">
               <article className="card summary-card" style={{ display: user.rol === 'Empleado' ? 'none' : 'block' }}>
                 <span className="card-title">Total Usuarios </span>
@@ -230,7 +285,9 @@ function App() {
                 <small>Agendadas</small>
               </article>
             </section>
-
+            )}
+            
+            {suscripcion.estado !== 'vencida' && (
             <section className="dashboard-grid">
               <article className="card">
                 <div className="card-title-row">
@@ -302,8 +359,9 @@ function App() {
                 </div>
               </article>
             </section>
+            )}
           </div>
-        )
+        )      
       case 'agenda':
         return <AgendaPage user={user} />
       case 'usuarios':
@@ -318,6 +376,7 @@ function App() {
         return <EstadisticasPage user={user}/>
       default:
         return <div>Página no encontrada</div>
+   
     }
   }
 
@@ -327,7 +386,8 @@ function App() {
         <div className="dashboard-shell">
           <aside className="sidebar">
             <div className="brand">Agendly</div>
-            <nav>
+            {suscripcion.estado !== 'vencida' && (
+            <nav >
               <a 
                 className={currentPage === 'dashboard' ? 'active' : ''}
                 onClick={() => setCurrentPage('dashboard')}
@@ -362,6 +422,7 @@ function App() {
                 onClick={() => setCurrentPage('estadisticas')}
               >Estadisticas</a>
             </nav>
+            )}
           </aside>
 
           <main className="dashboard-content">

@@ -1,12 +1,12 @@
 import json
 from datetime import datetime
 from functools import wraps
-
+from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Prefetch
 
-from .models import Barrio, Cobertura, Cita, Cliente, Negocio, Rol, Servicio, Sucursal, User, UserServicio, Ciudad
+from .models import Barrio, Cobertura, Cita, Cliente, Negocio, Rol, Servicio, Sucursal, User, UserServicio, Ciudad, NegocioSuscripcion, Plan
 
 
 def parse_datetime(value):
@@ -372,6 +372,26 @@ def sucursal_detail(request, sucursal_id):
         return JsonResponse({'message': 'Sucursal eliminada'})
 
     return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+@csrf_exempt
+def negocio_suscripcion(request, negocio_id):
+    if request.method == 'GET':
+        suscripcion = NegocioSuscripcion.objects.select_related('plan').filter(negocio_id=negocio_id).order_by('-fecha_fin').first()
+        if not suscripcion:
+            return JsonResponse({'activa': False, 'plan': 'Basico'})
+        
+        activa = suscripcion.fecha_fin >= timezone.now().date()
+
+        data = {
+            'id': suscripcion.id,
+            'negocio_id': suscripcion.negocio_id,
+            'plan': suscripcion.plan.name,
+            'plan_id': suscripcion.plan_id,
+            'fecha_inicio': serialize_datetime(suscripcion.fecha_inicio),
+            'fecha_fin': serialize_datetime(suscripcion.fecha_fin),
+            'activa': activa,
+        }
+        return JsonResponse(data)
 
 
 # Similar CRUD views for other models would go here
