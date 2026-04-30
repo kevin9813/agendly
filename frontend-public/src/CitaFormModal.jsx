@@ -182,6 +182,7 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
 
         <div className="modal-header">
           <h2>Agendar Cita</h2>
+          <br />
           <div className="cita-info">
             <p><strong>Servicio:</strong> {servicio.nombre}</p>
             <p><strong>Empleado:</strong> {empleado.name}</p>
@@ -291,7 +292,7 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
                 <option value="domicilio" disabled={!servicioPermiteDomicilio}>
                   A domicilio{!servicioPermiteDomicilio ? ' (no disponible para este servicio)' : ''}
                 </option>
-                <option value="virtual">Virtual</option>
+                {/* <option value="virtual">Virtual</option> */}
               </select>
               {errors.tipo_servicio && <span className="error-text">{errors.tipo_servicio}</span>}
             </div>

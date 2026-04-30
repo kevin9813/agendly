@@ -28,15 +28,15 @@ function NegocioDetailPage() {
     try {
       // Cargar negocio
       const negociosResponse = await fetch(`${apiUrl}negocio-sucursales/${negocioId}/`)
-      const negociosData = await negociosResponse.json()
+      const negocioData = await negociosResponse.json()
       const negocioEncontrado = negocioId
       
-      if (negociosData) {
-        setNegocio(negociosData)
+      if (negocioData) {
+        setNegocio(negocioData)
         // Cargar servicios del negocio
-        loadServicios(negociosData)
+        loadServicios(negocioData)
         // Cargar empleados del negocio
-        loadEmpleados(negociosData)
+        loadEmpleados(negocioData)
       }
     } catch (error) {
       console.error('Error loading negocio detail:', error)
@@ -45,12 +45,12 @@ function NegocioDetailPage() {
     }
   }
 
-  const loadServicios = async (negociosData) => {
+  const loadServicios = async (negocioData) => {
     try {
-      const response = await fetch(`${apiUrl}negocio/${negociosData.id}/servicios/`)
+      const response = await fetch(`${apiUrl}negocio/${negocioData.id}/servicios/`)
       const data = await response.json()
       const serviciosFiltrados = data.servicios.filter(
-        s => s.negocio === negociosData.name
+        s => s.negocio === negocioData.name
       )
       setServicios(serviciosFiltrados)
     } catch (error) {
@@ -58,7 +58,7 @@ function NegocioDetailPage() {
     }
   }
 
-  const loadEmpleados = async (negociosData) => {
+  const loadEmpleados = async (negocioData) => {
     try {
       const response = await fetch(`${apiUrl}usuarios/`)
       const data = await response.json()
@@ -158,13 +158,23 @@ function NegocioDetailPage() {
                   <h4>{servicio.nombre}</h4>
                   <p><strong>Precio:</strong> ${formatPrice(servicio.precio)}</p>
                   <p><strong>Duración:</strong> {servicio.tiempo} minutos</p>
-                  {negocio.permite_agendar && (
+                  {negocio.sucursales.some(sucursal => sucursal.permite_agendar) && (
                     <div className="empleados-list">
                       <h5>Colaboradores:</h5>
                       {(() => {
-                        const empleadosParaServicio = empleados.filter(empleado => 
-                          empleado.servicios_ids && empleado.servicios_ids.includes(servicio.id)
+                        // Obtener IDs de sucursales que permiten agendar
+                        const sucursalesPermitidas = negocio.sucursales
+                          .filter(sucursal => sucursal.permite_agendar)
+                          .map(sucursal => sucursal.id)
+
+                        // Filtrar empleados por servicio y sucursal permitida
+                        const empleadosParaServicio = empleados.filter(
+                          empleado =>
+                            empleado.servicios_ids &&
+                            empleado.servicios_ids.includes(servicio.id) &&
+                            sucursalesPermitidas.includes(empleado.sucursal_id)
                         )
+
                         return empleadosParaServicio.length > 0 ? (
                           empleadosParaServicio.map(empleado => (
                             <button
@@ -172,11 +182,13 @@ function NegocioDetailPage() {
                               className="agendar-button"
                               onClick={() => handleAgendar(servicio, empleado)}
                             >
-                              Agendar con {empleado.name}
+                              {empleado.name} {empleado.sucursal}
                             </button>
                           ))
                         ) : (
-                          <p className="no-empleados">No hay colaboradores disponibles para este servicio</p>
+                          <p className="no-empleados">
+                            No hay colaboradores disponibles para este servicio
+                          </p>
                         )
                       })()}
                     </div>
