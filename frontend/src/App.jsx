@@ -357,7 +357,7 @@ function App() {
                 className={currentPage === 'clientes' ? 'active' : ''}
                 onClick={() => setCurrentPage('clientes')}
               >Clientes</a>
-              <a
+              <a style={{ display: user.rol === 'Empleado' ? 'none' : 'block' }}
                 className={currentPage === 'estadisticas' ? 'active' : ''}
                 onClick={() => setCurrentPage('estadisticas')}
               >Estadisticas</a>
