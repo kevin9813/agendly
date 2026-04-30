@@ -797,7 +797,7 @@ function AgendaPage({ user }) {
                   <option value="">Seleccionar empleado</option>
                   {empleados.map(empleado => (
                     <option key={empleado.id} value={empleado.id}>
-                      {empleado.name}
+                      {empleado.name} ({empleado.sucursal})
                     </option>
                   ))}
                 </select>
@@ -816,7 +816,7 @@ function AgendaPage({ user }) {
                 >
                   <option value="local">En local</option>
                   <option value="domicilio">A domicilio</option>
-                  <option value="virtual">Virtual</option>
+                  {/* <option value="virtual">Virtual</option> */}
                 </select>
               </div>
 
@@ -1098,7 +1098,7 @@ function AgendaPage({ user }) {
                   <option value="">Seleccionar empleado</option>
                   {empleados.map(empleado => (
                     <option key={empleado.id} value={empleado.id}>
-                      {empleado.name}
+                      {empleado.name} - ({empleado.sucursal})
                     </option>
                   ))}
                 </select>
