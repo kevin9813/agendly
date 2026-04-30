@@ -224,7 +224,7 @@ function App() {
                 <strong>{dashboardData?.total_clientes || 0} </strong>
                 <small>Registrados</small>
               </article>
-              <article className="card summary-card">
+              <article className="card summary-card" style={{ display: user.rol === 'Empleado' ? 'block' : 'block' }}>
                 <span className="card-title">Total Citas </span>
                 <strong>{dashboardData?.total_citas || 0} </strong>
                 <small>Agendadas</small>

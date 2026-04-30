@@ -944,7 +944,7 @@ function AgendaPage({ user }) {
                         <strong>{cita.empleado}</strong> → {cita.cliente}
                       </div>
                       <div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
-                        ⏰ {new Date(cita.fecha_hora).toLocaleTimeString('es-EN', { hour: '2-digit', minute: '2-digit' })} - {cita.hora_fin ? new Date(cita.hora_fin).toLocaleTimeString('es-EN', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+                        ⏰ {new Date(cita.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} - {cita.hora_fin ? new Date(cita.hora_fin).toLocaleTimeString('es-EN', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
                       </div>
                       {cita.notas && (
                         <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem', fontStyle: 'italic' }}>
