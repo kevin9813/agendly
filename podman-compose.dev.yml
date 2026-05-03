@@ -6,8 +6,8 @@ services:
     container_name: db_dev
     restart: always
     environment:
-      POSTGRES_DB: miapp
-      POSTGRES_USER: postgres
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
