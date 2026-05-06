@@ -385,7 +385,7 @@ function App() {
       {user ? (
         <div className="dashboard-shell">
           <aside className="sidebar">
-            <div className="brand">Agendly</div>
+            <div className="brand">Kelzo</div>
             {suscripcion.estado !== 'vencida' && (
             <nav >
               <a 
