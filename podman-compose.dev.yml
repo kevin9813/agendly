@@ -50,7 +50,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      VITE_API_URL: "http://localhost:8000/api/"
+      VITE_API_URL: ${VITE_API_URL}
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -68,7 +68,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      VITE_API_URL: "http://localhost:8000/api/"
+      VITE_API_URL: ${VITE_API_URL}
     volumes:
       - ./frontend-public:/app
       - /app/node_modules
