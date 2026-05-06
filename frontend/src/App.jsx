@@ -432,7 +432,7 @@ function App() {
       ) : (
         <div className="login-page">
           <div className="login-card">
-            <h1>Login Agendly</h1>
+            <h1>Login Kelzo</h1>
             <p className="login-text">{status}</p>
             <form onSubmit={handleSubmit} className="login-form">
               <label>

@@ -6,7 +6,7 @@ function HomePage() {
   return (
     <div className="public-app">
       <header className="public-header">
-        <h1>Agendly</h1>
+        <h1>Kelzo</h1>
         <p>Reserva tu cita en el negocio de tu preferencia</p>
         <button 
           className="ver-negocios-btn"
@@ -18,9 +18,9 @@ function HomePage() {
 
       <div className="home-content">
         <section className="info-section">
-          <h2>¿Qué es Agendly?</h2>
+          <h2>¿Qué es Kelzo?</h2>
           <p>
-            Agendly es una plataforma de reservas de citas en línea que conecta a personas con negocios y servicios de su ciudad.
+            Kelzo es una plataforma de reservas de citas en línea que conecta a personas con negocios y servicios de su ciudad.
             Permite agendar citas de forma rápida, sencilla y sin llamadas, ayudando a los negocios a organizar su agenda y a los clientes a encontrar disponibilidad en segundos.
           </p>
         </section>
@@ -128,12 +128,12 @@ function HomePage() {
           <h3>¿Tienes un negocio?</h3>
           <p>
             Empieza a recibir reservas en línea, organiza tu agenda y deja de perder clientes.
-            Con Agendly puedes automatizar tus citas y hacer crecer tu negocio.
+            Con Kelzo puedes automatizar tus citas y hacer crecer tu negocio.
           </p>
             <div className="d-flex flex-column flex-md-row justify-content-center gap-3">
-              <a href="https://www.instagram.com/agendly_app/" target="_blank" rel="noopener noreferrer"
+              <a href="https://www.instagram.com/kelzo_app/" target="_blank" rel="noopener noreferrer"
                 className="btn btn-light btn-lg rounded-pill px-4 shadow-sm"
-              > 📷 @agendly_app </a>
+              > 📷 @kelzo_app </a>
 
               <a href="https://wa.me/573123456789" target="_blank" rel="noopener noreferrer"
                 className="btn btn-success btn-lg rounded-pill px-4 shadow-sm"

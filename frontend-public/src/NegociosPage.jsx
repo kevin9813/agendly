@@ -74,7 +74,7 @@ function NegociosPage() {
   return (
     <div className="public-app">
       <header className="public-header">
-        <h1>Agendly</h1>
+        <h1>Kelzo</h1>
         <p>Reserva tu cita en el negocio de tu preferencia</p>
         <button 
           className="back-to-home"
