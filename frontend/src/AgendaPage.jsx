@@ -449,738 +449,1538 @@ function AgendaPage({ user }) {
   }
 
   return (
-    <div className="agenda-page">
-      <div className="dashboard-topbar">
+    <div className="min-h-screen text-white p-6 rounded-2xl border border-slate-800 dark:bg-gray-800">
+      <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        {/* LEFT */}
         <div>
-          <p className="eyebrow">Calendario</p>
-          <h1>Agenda</h1>
+          <p className="text-sm uppercase tracking-widest text-slate-400">
+            Calendario
+          </p>
+
+          <h1 className="text-3xl font-bold text-white">
+            Agenda
+          </h1>
         </div>
-        <div className="topbar-actions">
-          <div style={{ display: 'flex', gap: '0.5rem', marginRight: '1rem' }}>
-            <button 
+        {/* RIGHT */}
+        <div className="flex flex-wrap items-center gap-3">
+
+          {/* VIEW MODE */}
+          <div className="flex items-center rounded-xl border border-slate-800 bg-slate-900 p-1">
+
+            <button
+              type="button"
               onClick={() => setViewMode('monthly')}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: viewMode === 'monthly' ? '#3b82f6' : '#e5e7eb',
-                color: viewMode === 'monthly' ? '#fff' : '#374151',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '0.875rem',
-                fontWeight: viewMode === 'monthly' ? '600' : '500',
-              }}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                viewMode === 'monthly'
+                  ? 'bg-indigo-500 text-white'
+                  : 'text-slate-400 hover:text-white'
+              }`}
             >
               Mes
             </button>
-            <button 
+
+            <button
+              type="button"
               onClick={() => setViewMode('weekly')}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: viewMode === 'weekly' ? '#3b82f6' : '#e5e7eb',
-                color: viewMode === 'weekly' ? '#fff' : '#374151',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '0.875rem',
-                fontWeight: viewMode === 'weekly' ? '600' : '500',
-              }}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                viewMode === 'weekly'
+                  ? 'bg-indigo-500 text-white'
+                  : 'text-slate-400 hover:text-white'
+              }`}
             >
               Semana
             </button>
           </div>
-          
-          <button onClick={viewMode === 'monthly' ? previousMonth : previousWeek} className="nav-button">← Anterior</button>
-          <span className="month-year">
-            {viewMode === 'monthly' 
-              ? `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`
-              : `Semana del ${getWeekDays(currentDate)[0].toLocaleDateString('es-EN')} al ${getWeekDays(currentDate)[6].toLocaleDateString('es-EN')}`
+
+          {/* PREVIOUS */}
+          <button
+            type="button"
+            onClick={() =>
+              viewMode === 'monthly'
+                ? previousMonth()
+                : previousWeek()
             }
-          </span>
-          <button onClick={viewMode === 'monthly' ? nextMonth : nextWeek} className="nav-button">Siguiente →</button>
-          <button onClick={() => openCreateCitaModal(new Date().getDate())} className="btn-primary">
+            className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+          >
+            ←
+          </button>
+
+          {/* DATE */}
+          <div className="rounded-xl border border-slate-800 bg-slate-900 px-5 py-2 text-sm font-medium text-slate-200">
+            {viewMode === 'monthly'
+              ? `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`
+              : `Semana del ${
+                  getWeekDays(currentDate)[0].toLocaleDateString('es-EN')
+                } al ${
+                  getWeekDays(currentDate)[6].toLocaleDateString('es-EN')
+                }`}
+          </div>
+
+          {/* NEXT */}
+          <button
+            type="button"
+            onClick={() =>
+              viewMode === 'monthly'
+                ? nextMonth()
+                : nextWeek()
+            }
+            className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+          >
+            →
+          </button>
+
+          {/* CREATE */}
+          <button
+            type="button"
+            onClick={() => openCreateCitaModal(new Date().getDate())}
+            className="rounded-xl bg-indigo-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600"
+          >
             + Nueva Cita
           </button>
+
         </div>
       </div>
 
       {viewMode === 'monthly' && (
-      <div className="calendar-container">
-        <table className="calendar">
-          <thead>
-            <tr>
-              {weekDays.map(day => (
-                <th key={day}>{day}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Array(Math.ceil(days.length / 7))
-              .fill(0)
-              .map((_, weekIndex) => (
-                <tr key={weekIndex}>
-                  {days.slice(weekIndex * 7, (weekIndex + 1) * 7).map((day, dayIndex) => {
-                    const citasDelDia = day ? getCitasForDay(day) : []
-                    return (
-                      <td
-                        key={dayIndex}
-                        className={`calendar-day ${!day ? 'empty' : ''} ${
+        <div className="overflow-hidden rounded-2xl border border-slate-800 bg-gray-900 shadow-xl">
+
+          <table className="w-full border-collapse">
+
+            {/* HEADER */}
+            <thead>
+              <tr className="border-b border-slate-800 bg-slate-900">
+
+                {weekDays.map(day => (
+                  <th
+                    key={day}
+                    className="border-r border-slate-800 px-4 py-4 text-center text-sm font-semibold text-slate-300 last:border-r-0"
+                  >
+                    {day}
+                  </th>
+                ))}
+
+              </tr>
+            </thead>
+
+            {/* BODY */}
+            <tbody>
+
+              {Array(Math.ceil(days.length / 7))
+                .fill(0)
+                .map((_, weekIndex) => (
+
+                  <tr key={weekIndex}>
+
+                    {days
+                      .slice(
+                        weekIndex * 7,
+                        (weekIndex + 1) * 7
+                      )
+                      .map((day, dayIndex) => {
+
+                        const citasDelDia = day
+                          ? getCitasForDay(day)
+                          : []
+
+                        const isToday =
                           day === new Date().getDate() &&
-                          currentDate.getMonth() === new Date().getMonth() &&
-                          currentDate.getFullYear() === new Date().getFullYear()
-                            ? 'today'
-                            : ''
-                        }`}
-                        onClick={() => day && openCreateCitaModal(day)}
-                        style={{ cursor: day ? 'pointer' : 'default' }}
-                      >
-                        {day && (
-                          <div className="day-content">
-                            <div className="day-number">{day}</div>
-                            <div className="events-list">
-                              {citasDelDia.map(cita => (
-                                <div
-                                  key={cita.id}
-                                  className="event"
-                                  style={{
-                                    backgroundColor: cita.empleado_color,
-                                    color: '#fff',
-                                  }}
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setSelectedEvent(cita)
-                                  }}
-                                  title={`${cita.servicio} - ${cita.empleado} (${cita.servicio_tiempo} min)`}
-                                >
-                                  <strong>{cita.servicio.substring(0, 10)}</strong>
-                                  <small>{cita.empleado}</small>
-                                  <div style={{ fontSize: '0.7em', marginTop: '2px' }}>
-                                    {new Date(cita.fecha_hora).toLocaleTimeString('es-EN', { hour: '2-digit', minute: '2-digit' })} - {cita.hora_fin ? new Date(cita.hora_fin).toLocaleTimeString('es-EN', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+                          currentDate.getMonth() ===
+                            new Date().getMonth() &&
+                          currentDate.getFullYear() ===
+                            new Date().getFullYear()
+
+                        return (
+                          <td
+                            key={dayIndex}
+                            onClick={() =>
+                              day && openCreateCitaModal(day)
+                            }
+                            className={`
+                              h-[170px]
+                              align-top
+                              border-r
+                              border-b
+                              border-slate-800
+                              p-2
+                              transition
+                              ${
+                                day
+                                  ? 'cursor-pointer bg-gray-900 hover:bg-slate-800/40'
+                                  : 'bg-slate-950'
+                              }
+                            `}
+                          >
+
+                            {day && (
+                              <div className="flex h-full flex-col">
+
+                                {/* DAY NUMBER */}
+                                <div className="mb-2 flex items-center justify-between">
+
+                                  <div
+                                    className={`
+                                      flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold
+                                      ${
+                                        isToday
+                                          ? 'bg-indigo-500 text-white'
+                                          : 'text-slate-300'
+                                      }
+                                    `}
+                                  >
+                                    {day}
                                   </div>
+
                                 </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </td>
-                    )
-                  })}
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+
+                                {/* EVENTS */}
+                                <div className="flex flex-1 flex-col gap-2 overflow-hidden">
+
+                                  {citasDelDia.map(cita => (
+                                    <div
+                                      key={cita.id}
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        setSelectedEvent(cita)
+                                      }}
+                                      title={`${cita.servicio} - ${cita.empleado} (${cita.servicio_tiempo} min)`}
+                                      className="rounded-lg p-2 text-xs text-white shadow transition hover:opacity-90"
+                                      style={{
+                                        backgroundColor:
+                                          cita.empleado_color,
+                                        color: '#fff',
+                                      }}
+                                    >
+
+                                      <div className="truncate font-semibold">
+                                        {cita.servicio.substring(
+                                          0,
+                                          10
+                                        )}
+                                      </div>
+
+                                      <div className="truncate text-[11px] opacity-90">
+                                        {cita.empleado}
+                                      </div>
+
+                                      <div className="mt-1 text-[10px] opacity-80">
+                                        {new Date(
+                                          cita.fecha_hora
+                                        ).toLocaleTimeString(
+                                          'es-EN',
+                                          {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                          }
+                                        )}
+                                        {' - '}
+                                        {cita.hora_fin
+                                          ? new Date(
+                                              cita.hora_fin
+                                            ).toLocaleTimeString(
+                                              'es-EN',
+                                              {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                              }
+                                            )
+                                          : 'N/A'}
+                                      </div>
+
+                                    </div>
+                                  ))}
+
+                                </div>
+
+                              </div>
+                            )}
+
+                          </td>
+                        )
+                      })}
+
+                  </tr>
+                ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
       )}
 
       {viewMode === 'weekly' && (
-        <div className="calendar-container" style={{ overflowX: 'auto' }}>
-          <table className="calendar" style={{ minWidth: '100%' }}>
+        <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-gray-900 shadow-xl">
+
+          <table className="w-full border-collapse min-w-[900px]">
+
+            {/* HEADER */}
             <thead>
-              <tr>
+              <tr className="border-b border-slate-800 bg-slate-900">
+
                 {getWeekDays(currentDate).map((day, idx) => (
-                  <th key={idx} style={{ minWidth: '120px' }}>
-                    <div>{weekDays[day.getDay()]}</div>
-                    <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                      {day.toLocaleDateString('es-EN', { day: 'numeric', month: 'short' })}
+
+                  <th
+                    key={idx}
+                    className="min-w-[140px] border-r border-slate-800 px-4 py-4 text-center last:border-r-0"
+                  >
+
+                    <div className="text-sm font-semibold text-slate-200">
+                      {weekDays[day.getDay()]}
                     </div>
+
+                    <div className="mt-1 text-xs text-slate-400">
+                      {day.toLocaleDateString('es-EN', {
+                        day: 'numeric',
+                        month: 'short',
+                      })}
+                    </div>
+
                   </th>
+
                 ))}
+
               </tr>
             </thead>
+
+            {/* BODY */}
             <tbody>
               <tr>
+
                 {getWeekDays(currentDate).map((day, idx) => {
-                  const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`
-                  const citasDelDia = citas.filter(cita => cita.fecha_hora.startsWith(dateStr)).sort((a, b) => a.fecha_hora.localeCompare(b.fecha_hora))
+
+                  const dateStr = `${day.getFullYear()}-${String(
+                    day.getMonth() + 1
+                  ).padStart(2, '0')}-${String(
+                    day.getDate()
+                  ).padStart(2, '0')}`
+
+                  const citasDelDia = citas
+                    .filter(cita =>
+                      cita.fecha_hora.startsWith(dateStr)
+                    )
+                    .sort((a, b) =>
+                      a.fecha_hora.localeCompare(
+                        b.fecha_hora
+                      )
+                    )
+
+                  const isToday =
+                    day.toDateString() ===
+                    new Date().toDateString()
+
                   return (
                     <td
                       key={idx}
-                      style={{
-                        minWidth: '120px',
-                        minHeight: '120px',
-                        verticalAlign: 'top',
-                        padding: '1rem',
-                        backgroundColor: day.toDateString() === new Date().toDateString() ? '#fef3c7' : '#fff',
-                        borderRight: '1px solid #e5e7eb',
-                      }}
-                      onClick={() => openCreateCitaModal(day.getDate())}
+                      onClick={() =>
+                        openCreateCitaModal(day.getDate())
+                      }
+                      className={`
+                        min-h-[500px]
+                        min-w-[140px]
+                        align-top
+                        border-r
+                        border-slate-800
+                        p-4
+                        transition
+                        cursor-pointer
+                        ${
+                          isToday
+                            ? 'bg-slate-800/40'
+                            : 'bg-gray-900 hover:bg-slate-800/30'
+                        }
+                      `}
                     >
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+
+                      <div className="flex flex-col gap-3">
+
                         {citasDelDia.map(cita => (
+
                           <div
                             key={cita.id}
-                            style={{
-                              padding: '0.5rem',
-                              backgroundColor: cita.empleado_color,
-                              color: '#fff',
-                              borderRadius: '4px',
-                              fontSize: '0.75rem',
-                              cursor: 'pointer',
-                            }}
                             onClick={(e) => {
                               e.stopPropagation()
                               setSelectedEvent(cita)
                             }}
+                            className="cursor-pointer rounded-xl p-3 text-white shadow transition hover:opacity-90"
+                            style={{
+                              backgroundColor:
+                                cita.empleado_color,
+                              color: '#fff',
+                            }}
                           >
-                            <strong>{cita.servicio.substring(0, 8)}</strong>
-                            <div>{cita.empleado}</div>
-                            <div>
-                              {new Date(cita.fecha_hora).toLocaleTimeString('es-EN', { hour: '2-digit', minute: '2-digit' })} - {cita.hora_fin ? new Date(cita.hora_fin).toLocaleTimeString('es-EN', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+
+                            <div className="truncate text-sm font-semibold">
+                              {cita.servicio.substring(0, 8)}
                             </div>
+
+                            <div className="mt-1 text-xs opacity-90">
+                              {cita.empleado}
+                            </div>
+
+                            <div className="mt-2 text-[11px] opacity-80">
+                              {new Date(
+                                cita.fecha_hora
+                              ).toLocaleTimeString(
+                                'es-EN',
+                                {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                }
+                              )}
+                              {' - '}
+                              {cita.hora_fin
+                                ? new Date(
+                                    cita.hora_fin
+                                  ).toLocaleTimeString(
+                                    'es-EN',
+                                    {
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    }
+                                  )
+                                : 'N/A'}
+                            </div>
+
                           </div>
+
                         ))}
+
                       </div>
+
                     </td>
                   )
                 })}
+
               </tr>
             </tbody>
+
           </table>
+
         </div>
       )}
 
       {selectedEvent && !isEditMode && (
-        <div className="event-modal" onClick={() => setSelectedEvent(null)}>
-          <div className="event-modal-content" onClick={e => e.stopPropagation()}>
-            <button className="close-button" onClick={() => setSelectedEvent(null)}>×</button>
-            <div
-              className="event-modal-header"
-              style={{ backgroundColor: selectedEvent.empleado_color }}
-            >
-              <h2>{selectedEvent.servicio}</h2>
-            </div>
-            <div className="event-modal-body">
-              <div className="event-detail">
-                <label>Empleado:</label>
-                <p>{selectedEvent.empleado}</p>
-              </div>
-              <div className="event-detail">
-                <label>Cliente:</label>
-                <p>{selectedEvent.cliente}</p>
-              </div>
-              <div className="event-detail">
-                <label>Servicio:</label>
-                <p>{selectedEvent.servicio} ({selectedEvent.servicio_tiempo} minutos)</p>
-              </div>
-              <div className="event-detail">
-                <label>Horario:</label>
-                <p>
-                  {new Date(selectedEvent.fecha_hora).toLocaleString('es-EN', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })} - {selectedEvent.hora_fin ? new Date(selectedEvent.hora_fin).toLocaleString('es-EN', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  }) : 'N/A'}
-                </p>
-              </div>
-              <div className="event-detail">
-                <label>Estado:</label>
-                <p className={`status-badge status-${selectedEvent.estado}`}>
-                  {selectedEvent.estado}
-                </p>
-              </div>
-              {selectedEvent.notas && (
-                <div className="event-detail">
-                  <label>Notas:</label>
-                  <p>{selectedEvent.notas}</p>
-                </div>
-              )}
-            </div>
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', justifyContent: 'flex-end', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
-              <button 
-                onClick={() => setSelectedEvent(null)}
-                className="btn-secondary"
-              >
-                Cerrar
-              </button>
-              <button 
-                onClick={() => initializeEditForm(selectedEvent)}
-                className="btn-primary"
-              >
-                Editar
-              </button>
-              <button 
-                onClick={handleDeleteCita}
-                className="btn-secondary"
-                style={{ backgroundColor: '#ef4444' }}
-              >
-                Eliminar
-              </button>
-            </div>
+        <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+        onClick={() => setSelectedEvent(null)}
+        >
+
+        <div
+          className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-slate-800 bg-gray-900 shadow-2xl"
+          onClick={e => e.stopPropagation()}
+        >
+
+          {/* CLOSE */}
+          <button
+            onClick={() => setSelectedEvent(null)}
+            className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-xl text-white transition hover:bg-black/50"
+          >
+            ×
+          </button>
+
+          {/* HEADER */}
+          <div
+            className="p-6"
+            style={{
+              backgroundColor: selectedEvent.empleado_color,
+            }}
+          >
+
+            <h2 className="text-2xl font-bold text-white">
+              {selectedEvent.servicio}
+            </h2>
+
           </div>
+
+          {/* BODY */}
+          <div className="space-y-5 p-6">
+
+            {/* EMPLEADO */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Empleado
+              </label>
+
+              <p className="text-base font-medium text-white">
+                {selectedEvent.empleado}
+              </p>
+            </div>
+
+            {/* CLIENTE */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Cliente
+              </label>
+
+              <p className="text-base font-medium text-white">
+                {selectedEvent.cliente}
+              </p>
+            </div>
+
+            {/* SERVICIO */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Servicio
+              </label>
+
+              <p className="text-base font-medium text-white">
+                {selectedEvent.servicio} ({selectedEvent.servicio_tiempo} minutos)
+              </p>
+            </div>
+
+            {/* HORARIO */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Horario
+              </label>
+
+              <p className="text-base font-medium text-white">
+                {new Date(
+                  selectedEvent.fecha_hora
+                ).toLocaleString('es-EN', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+                {' - '}
+                {selectedEvent.hora_fin
+                  ? new Date(
+                      selectedEvent.hora_fin
+                    ).toLocaleString('es-EN', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
+                  : 'N/A'}
+              </p>
+            </div>
+
+            {/* ESTADO */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Estado
+              </label>
+
+              <span
+                className={`
+                  inline-flex rounded-full px-3 py-1 text-sm font-semibold
+                  ${
+                    selectedEvent.estado === 'confirmada'
+                      ? 'bg-emerald-500/20 text-emerald-400'
+                      : selectedEvent.estado === 'cancelada'
+                      ? 'bg-red-500/20 text-red-400'
+                      : selectedEvent.estado === 'completada'
+                      ? 'bg-blue-500/20 text-blue-400'
+                      : 'bg-yellow-500/20 text-yellow-400'
+                  }
+                `}
+              >
+                {selectedEvent.estado}
+              </span>
+            </div>
+
+            {/* NOTAS */}
+            {selectedEvent.notas && (
+              <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  Notas
+                </label>
+
+                <p className="text-base text-slate-200">
+                  {selectedEvent.notas}
+                </p>
+              </div>
+            )}
+
+          </div>
+
+          {/* FOOTER */}
+          <div className="flex flex-wrap items-center justify-end gap-3 border-t border-slate-800 p-6">
+
+            <button
+              onClick={() => setSelectedEvent(null)}
+              className="rounded-xl border border-slate-700 bg-slate-800 px-5 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+            >
+              Cerrar
+            </button>
+
+            <button
+              onClick={() => initializeEditForm(selectedEvent)}
+              className="rounded-xl bg-indigo-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600"
+            >
+              Editar
+            </button>
+
+            <button
+              onClick={handleDeleteCita}
+              className="rounded-xl bg-red-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-red-600"
+            >
+              Eliminar
+            </button>
+
+          </div>
+
+        </div>
         </div>
       )}
 
       {selectedEvent && isEditMode && (
-        <div className="event-modal" onClick={() => { setSelectedEvent(null); setIsEditMode(false) }}>
-          <div className="event-modal-content" onClick={e => e.stopPropagation()}>
-            <button className="close-button" onClick={() => { setSelectedEvent(null); setIsEditMode(false) }}>×</button>
-            <div className="event-modal-header" style={{ backgroundColor: '#3b82f6' }}>
-              <h2>Editar Cita</h2>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          onClick={() => {
+            setSelectedEvent(null)
+            setIsEditMode(false)
+          }}
+        >
+
+          <div
+            className="relative max-h-[95vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-slate-800 bg-gray-900 shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+
+            {/* CLOSE */}
+            <button
+              className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-xl text-white transition hover:bg-black/50"
+              onClick={() => {
+                setSelectedEvent(null)
+                setIsEditMode(false)
+              }}
+            >
+              ×
+            </button>
+
+            {/* HEADER */}
+            <div className="border-b border-slate-800 bg-indigo-500 p-6">
+              <h2 className="text-2xl font-bold text-white">
+                Editar Cita
+              </h2>
             </div>
-            <form onSubmit={handleUpdateCita} className="cita-form">
-              <div className="form-group">
-                <label>Fecha:</label>
-                <input
-                  type="date"
-                  value={editCitaForm.fecha}
-                  onChange={e => setEditCitaForm({...editCitaForm, fecha: e.target.value})}
+
+            {/* FORM */}
+            <form
+              onSubmit={handleUpdateCita}
+              className="space-y-6 p-6"
+            >
+
+              {/* FECHA */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Fecha
+                </label>
+                <input required type="date" value={editCitaForm.fecha}
+                  onChange={e =>
+                    setEditCitaForm({
+                      ...editCitaForm,
+                      fecha: e.target.value,
+                    })
+                  }
                   min={new Date().toISOString().split('T')[0]}
-                  required
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500 [color-scheme:dark]"
                 />
               </div>
 
-              <div className="form-group">
-                <label>Servicio:</label>
+              {/* SERVICIO */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Servicio
+                </label>
+
                 <select
                   value={editCitaForm.servicio_id}
-                  onChange={e => setEditCitaForm({...editCitaForm, servicio_id: e.target.value})}
+                  onChange={e =>
+                    setEditCitaForm({
+                      ...editCitaForm,
+                      servicio_id: e.target.value,
+                    })
+                  }
                   required
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
                 >
                   <option value="">Seleccionar servicio</option>
+
                   {servicios.map(servicio => (
-                    <option key={servicio.id} value={servicio.id}>
-                      {servicio.name} - ${formatPrice(servicio.precio)} ({servicio.tiempo} min)
+                    <option
+                      key={servicio.id}
+                      value={servicio.id}
+                    >
+                      {servicio.name} - $
+                      {formatPrice(servicio.precio)} (
+                      {servicio.tiempo} min)
                     </option>
                   ))}
                 </select>
               </div>
 
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>Hora:</label>
-                  <input
-                    type="time"
-                    value={editCitaForm.hora}
-                    onChange={e => setEditCitaForm({...editCitaForm, hora: e.target.value})}
-                    required
+              {/* HORAS */}
+              <div className="grid gap-4 md:grid-cols-2">
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                    Hora
+                  </label>
+
+                  <input required type="time" value={editCitaForm.hora}
+                    onChange={e =>
+                      setEditCitaForm({
+                        ...editCitaForm,
+                        hora: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500 [color-scheme:dark]"
                   />
                 </div>
 
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>Hora Fin:</label>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                    Hora Fin
+                  </label>
+
                   <input
                     type="time"
                     value={editHoraFin}
-                    onChange={e => setEditHoraFin(e.target.value)}
+                    onChange={e =>
+                      setEditHoraFin(e.target.value)
+                    }
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
                   />
                 </div>
+
               </div>
 
-              <div className="form-group">
-                <label>Cliente:</label>
+              {/* CLIENTE */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Cliente
+                </label>
+
                 <select
                   value={editCitaForm.cliente_id}
-                  onChange={e => setEditCitaForm({...editCitaForm, cliente_id: e.target.value})}
+                  onChange={e =>
+                    setEditCitaForm({
+                      ...editCitaForm,
+                      cliente_id: e.target.value,
+                    })
+                  }
                   required
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
                 >
-                  <option value="">Seleccionar cliente</option>
+                  <option value="">
+                    Seleccionar cliente
+                  </option>
+
                   {clientes.map(cliente => (
-                    <option key={cliente.id} value={cliente.id}>
-                      {cliente.name} {cliente.celular ? `(${cliente.celular})` : ''}
+                    <option
+                      key={cliente.id}
+                      value={cliente.id}
+                    >
+                      {cliente.name}{' '}
+                      {cliente.celular
+                        ? `(${cliente.celular})`
+                        : ''}
                     </option>
                   ))}
                 </select>
               </div>
 
-              <div className="form-group">
-                <label>Empleado:</label>
+              {/* EMPLEADO */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Empleado
+                </label>
+
                 <select
                   value={editCitaForm.empleado_id}
-                  onChange={e => setEditCitaForm({...editCitaForm, empleado_id: e.target.value})}
+                  onChange={e =>
+                    setEditCitaForm({
+                      ...editCitaForm,
+                      empleado_id: e.target.value,
+                    })
+                  }
                   disabled={user.rol === 'Empleado'}
                   required
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500 disabled:opacity-60"
                 >
-                  <option value="">Seleccionar empleado</option>
+                  <option value="">
+                    Seleccionar empleado
+                  </option>
+
                   {empleados.map(empleado => (
-                    <option key={empleado.id} value={empleado.id}>
-                      {empleado.name} ({empleado.sucursal})
+                    <option
+                      key={empleado.id}
+                      value={empleado.id}
+                    >
+                      {empleado.name} (
+                      {empleado.sucursal})
                     </option>
                   ))}
                 </select>
               </div>
 
-              <div className="form-group">
-                <label>Tipo de servicio:</label>
+              {/* TIPO SERVICIO */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Tipo de servicio
+                </label>
+
                 <select
                   value={editCitaForm.tipo_servicio}
-                  onChange={e => setEditCitaForm(prev => ({
-                    ...prev,
-                    tipo_servicio: e.target.value,
-                    cobertura_id: e.target.value === 'domicilio' ? prev.cobertura_id : '',
-                    direccion: e.target.value === 'domicilio' ? prev.direccion : '',
-                  }))}
+                  onChange={e =>
+                    setEditCitaForm(prev => ({
+                      ...prev,
+                      tipo_servicio: e.target.value,
+                      cobertura_id:
+                        e.target.value === 'domicilio'
+                          ? prev.cobertura_id
+                          : '',
+                      direccion:
+                        e.target.value === 'domicilio'
+                          ? prev.direccion
+                          : '',
+                    }))
+                  }
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
                 >
-                  <option value="local">En local</option>
-                  <option value="domicilio">A domicilio</option>
-                  {/* <option value="virtual">Virtual</option> */}
+                  <option value="local">
+                    En local
+                  </option>
+
+                  <option value="domicilio">
+                    A domicilio
+                  </option>
                 </select>
               </div>
 
-              {editCitaForm.tipo_servicio === 'domicilio' && (
+              {/* DOMICILIO */}
+              {editCitaForm.tipo_servicio ===
+                'domicilio' && (
                 <>
-                  <div className="form-group">
-                    <label>Cobertura:</label>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      Cobertura
+                    </label>
+
                     <select
                       value={editCitaForm.cobertura_id}
-                      onChange={e => setEditCitaForm({...editCitaForm, cobertura_id: e.target.value})}
+                      onChange={e =>
+                        setEditCitaForm({
+                          ...editCitaForm,
+                          cobertura_id:
+                            e.target.value,
+                        })
+                      }
                       required
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
                     >
-                      <option value="">Seleccionar cobertura</option>
+                      <option value="">
+                        Seleccionar cobertura
+                      </option>
+
                       {coberturas.map(cobertura => (
-                        <option key={cobertura.id} value={cobertura.id}>
-                          {cobertura.barrio} - +${formatPrice(cobertura.costo_extra)} ({cobertura.tiempo_estimado} min)
+                        <option
+                          key={cobertura.id}
+                          value={cobertura.id}
+                        >
+                          {cobertura.barrio} - +$
+                          {formatPrice(
+                            cobertura.costo_extra
+                          )}{' '}
+                          (
+                          {
+                            cobertura.tiempo_estimado
+                          }{' '}
+                          min)
                         </option>
                       ))}
                     </select>
                   </div>
 
-                  <div className="form-group">
-                    <label>Dirección:</label>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      Dirección
+                    </label>
+
                     <input
                       type="text"
                       value={editCitaForm.direccion}
-                      onChange={e => setEditCitaForm({...editCitaForm, direccion: e.target.value})}
+                      onChange={e =>
+                        setEditCitaForm({
+                          ...editCitaForm,
+                          direccion:
+                            e.target.value,
+                        })
+                      }
                       placeholder="Dirección para domicilio"
                       required
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
                     />
                   </div>
                 </>
               )}
 
-              <div className="form-group">
-                <label>Estado:</label>
+              {/* ESTADO */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Estado
+                </label>
+
                 <select
                   value={editCitaForm.estado}
-                  onChange={e => setEditCitaForm({...editCitaForm, estado: e.target.value})}
+                  onChange={e =>
+                    setEditCitaForm({
+                      ...editCitaForm,
+                      estado: e.target.value,
+                    })
+                  }
                   required
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
                 >
-                  <option value="pendiente">Pendiente</option>
-                  <option value="confirmada">Confirmada</option>
-                  <option value="cancelada">Cancelada</option>
-                  <option value="completada">Completada</option>
+                  <option value="pendiente">
+                    Pendiente
+                  </option>
+
+                  <option value="confirmada">
+                    Confirmada
+                  </option>
+
+                  <option value="cancelada">
+                    Cancelada
+                  </option>
+
+                  <option value="completada">
+                    Completada
+                  </option>
                 </select>
               </div>
 
-              <div className="form-group">
-                <label>Notas (opcional):</label>
+              {/* NOTAS */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Notas (opcional)
+                </label>
+
                 <textarea
                   value={editCitaForm.notas}
-                  onChange={e => setEditCitaForm({...editCitaForm, notas: e.target.value})}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', fontFamily: 'inherit' }}
-                  rows="3"
+                  onChange={e =>
+                    setEditCitaForm({
+                      ...editCitaForm,
+                      notas: e.target.value,
+                    })
+                  }
+                  rows="4"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
                 />
               </div>
 
-              <div className="form-actions">
+              {/* ACTIONS */}
+              <div className="flex flex-wrap justify-end gap-3 border-t border-slate-800 pt-6">
+
                 <button
                   type="button"
-                  onClick={() => { setSelectedEvent(null); setIsEditMode(false) }}
-                  className="btn-secondary"
+                  onClick={() => {
+                    setSelectedEvent(null)
+                    setIsEditMode(false)
+                  }}
+                  className="rounded-xl border border-slate-700 bg-slate-800 px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
                   disabled={updatingCita}
                 >
                   Cancelar
                 </button>
+
                 <button
                   type="submit"
-                  className="btn-primary"
+                  className="rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-600 disabled:opacity-60"
                   disabled={updatingCita}
                 >
-                  {updatingCita ? 'Actualizando...' : 'Guardar Cambios'}
+                  {updatingCita
+                    ? 'Actualizando...'
+                    : 'Guardar Cambios'}
                 </button>
+
               </div>
+
             </form>
+
           </div>
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '2rem', marginTop: '2rem', paddingBottom: '2rem' }}>
-        {/* Columna izquierda - Citas del día actual */}
-        <div style={{ flex: 1 }}>
-          <h2 style={{ marginBottom: '1rem', fontSize: '1.25rem', fontWeight: '600' }}>
-            Citas de Hoy ({new Date().toLocaleDateString('es-EN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })})
-          </h2>
-          
-          {getCitasToday().length === 0 ? (
-            <div style={{ padding: '2rem', backgroundColor: '#f3f4f6', borderRadius: '8px', textAlign: 'center', color: '#6b7280' }}>
-              <p>No hay citas para hoy</p>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {getCitasToday().map(cita => (
-                <div
-                  key={cita.id}
-                  style={{
-                    padding: '1rem',
-                    border: '1px solid #e5e7eb',
-                    borderLeft: `4px solid ${cita.empleado_color}`,
-                    borderRadius: '6px',
-                    backgroundColor: '#fff',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                  onClick={() => setSelectedEvent(cita)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f9fafb'
-                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#fff'
-                    e.currentTarget.style.boxShadow = 'none'
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                        <strong style={{ fontSize: '1rem' }}>{cita.servicio}</strong>
-                        <span className={`status-badge status-${cita.estado}`} style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}>
-                          {cita.estado}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.25rem' }}>
-                        <strong>{cita.empleado}</strong> → {cita.cliente}
-                      </div>
-                      <div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
-                        ⏰ {new Date(cita.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} - {cita.hora_fin ? new Date(cita.hora_fin).toLocaleTimeString('es-EN', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
-                      </div>
-                      {cita.notas && (
-                        <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem', fontStyle: 'italic' }}>
-                          📝 {cita.notas}
+      <div className="mt-8 grid gap-6 xl:grid-cols-12">
+        {/* CITAS HOY */}
+        <div className="xl:col-span-8">
+
+        <div className="overflow-hidden rounded-3xl border border-slate-800 bg-gray-900 shadow-xl">
+
+          {/* HEADER */}
+          <div className="border-b border-slate-800 px-6 py-5">
+            <h2 className="text-2xl font-bold text-white">
+              Citas de Hoy
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-400">
+              {new Date().toLocaleDateString('es-EN', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </p>
+          </div>
+
+          {/* BODY */}
+          <div className="p-6">
+
+            {getCitasToday().length === 0 ? (
+
+              <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/40 px-6 py-16 text-center">
+                <p className="text-slate-400">
+                  No hay citas para hoy
+                </p>
+              </div>
+
+            ) : (
+
+              <div className="space-y-4">
+
+                {getCitasToday().map(cita => (
+
+                  <div
+                    key={cita.id}
+                    onClick={() => setSelectedEvent(cita)}
+                    className="group cursor-pointer rounded-2xl border border-slate-800 bg-slate-950/40 p-5 transition hover:border-slate-700 hover:bg-slate-900"
+                    style={{
+                      borderLeft: `4px solid ${cita.empleado_color}`,
+                    }}
+                  >
+
+                    <div className="flex items-start justify-between gap-4">
+
+                      <div className="flex-1">
+
+                        {/* TOP */}
+                        <div className="mb-3 flex flex-wrap items-center gap-3">
+
+                          <h3 className="text-lg font-semibold text-white">
+                            {cita.servicio}
+                          </h3>
+
+                          <span
+                            className={`
+                              rounded-full px-3 py-1 text-xs font-semibold
+                              ${
+                                cita.estado === 'confirmada'
+                                  ? 'bg-emerald-500/20 text-emerald-400'
+                                  : cita.estado === 'cancelada'
+                                  ? 'bg-red-500/20 text-red-400'
+                                  : cita.estado === 'completada'
+                                  ? 'bg-blue-500/20 text-blue-400'
+                                  : 'bg-yellow-500/20 text-yellow-400'
+                              }
+                            `}
+                          >
+                            {cita.estado}
+                          </span>
+
                         </div>
-                      )}
+
+                        {/* EMPLEADO */}
+                        <div className="mb-2 text-sm text-slate-400">
+                          <span className="font-semibold text-white">
+                            {cita.empleado}
+                          </span>{' '}
+                          → {cita.cliente}
+                        </div>
+
+                        {/* HORA */}
+                        <div className="text-sm text-slate-300">
+                          ⏰{' '}
+                          {new Date(
+                            cita.fecha_hora
+                          ).toLocaleTimeString('es-ES', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}{' '}
+                          -{' '}
+                          {cita.hora_fin
+                            ? new Date(
+                                cita.hora_fin
+                              ).toLocaleTimeString(
+                                'es-EN',
+                                {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                }
+                              )
+                            : 'N/A'}
+                        </div>
+
+                        {/* NOTAS */}
+                        {cita.notas && (
+                          <div className="mt-3 rounded-xl border border-slate-800 bg-slate-900/60 p-3 text-sm italic text-slate-400">
+                            📝 {cita.notas}
+                          </div>
+                        )}
+
+                      </div>
+
                     </div>
+
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+
+                ))}
+
+              </div>
+
+            )}
+
+          </div>
+
         </div>
 
-        {/* Columna derecha - Leyenda de colores */}
-        <div style={{ flex: 0.4 }}>
-          <div className="calendar-legend">
-            <p><strong>Leyenda de Colores:</strong></p>
-            <div className="legend-items">
-              {Object.values(
-                citas.reduce((acc, c) => {
-                  if (!acc[c.empleado_id]) {
-                    acc[c.empleado_id] = { color: c.empleado_color, name: c.empleado, id: c.empleado_id }
-                  }
-                  return acc
-                }, {})
-              ).map(({ color, name, id }) => (
-                  <div key={id} className="legend-item">
-                    <div
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        backgroundColor: color,
-                        borderRadius: '4px',
-                      }}
-                    />
-                    <span>{name}</span>
-                  </div>
-                )
-              )}
-            </div>
+        </div>
+
+        {/* LEYENDA */}
+        <div className="xl:col-span-4">
+
+        <div className="overflow-hidden rounded-3xl border border-slate-800 bg-gray-900 shadow-xl">
+
+          {/* HEADER */}
+          <div className="border-b border-slate-800 px-6 py-5">
+            <h2 className="text-xl font-bold text-white">
+              Leyenda de Colores
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-400">
+              Empleados asignados
+            </p>
           </div>
+
+          {/* BODY */}
+          <div className="space-y-4 p-6">
+
+            {Object.values(
+              citas.reduce((acc, c) => {
+                if (!acc[c.empleado_id]) {
+                  acc[c.empleado_id] = {
+                    color: c.empleado_color,
+                    name: c.empleado,
+                    id: c.empleado_id,
+                  }
+                }
+
+                return acc
+              }, {})
+            ).map(({ color, name, id }) => (
+
+              <div
+                key={id}
+                className="flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-950/40 p-4"
+              >
+
+                <div
+                  className="h-5 w-5 rounded-md"
+                  style={{
+                    backgroundColor: color,
+                  }}
+                />
+
+                <span className="font-medium text-white">
+                  {name}
+                </span>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        </div>
+
         </div>
       </div>
 
       {showCreateModal && (
-        <div className="event-modal" onClick={() => setShowCreateModal(false)}>
-          <div className="event-modal-content" onClick={e => e.stopPropagation()}>
-            <button className="close-button" onClick={() => setShowCreateModal(false)}>×</button>
-            <div className="event-modal-header" style={{ backgroundColor: '#3b82f6' }}>
-              <h2>Nueva Cita</h2>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          onClick={() => setShowCreateModal(false)}
+        >
+
+          <div
+            className="relative max-h-[95vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-slate-800 bg-gray-900 shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+
+            {/* CLOSE */}
+            <button
+              className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-xl text-white transition hover:bg-black/50"
+              onClick={() => setShowCreateModal(false)}
+            >
+              ×
+            </button>
+
+            {/* HEADER */}
+            <div className="border-b border-slate-800 bg-indigo-500 p-6">
+              <h2 className="text-2xl font-bold text-white">
+                Nueva Cita
+              </h2>
             </div>
-            <form onSubmit={handleCreateCita} className="cita-form">
-              <div className="form-group">
-                <label>Fecha:</label>
-                <input
-                  type="date"
-                  value={citaForm.fecha}
-                  onChange={e => setCitaForm({...citaForm, fecha: e.target.value})}
+
+            {/* FORM */}
+            <form
+              onSubmit={handleCreateCita}
+              className="space-y-6 p-6"
+            >
+
+              {/* FECHA */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Fecha
+                </label>
+
+                <input required type="date" value={citaForm.fecha}
+                  onChange={e =>
+                    setCitaForm({
+                      ...citaForm,
+                      fecha: e.target.value,
+                    })
+                  }
                   min={new Date().toISOString().split('T')[0]}
-                  required
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500 [color-scheme:dark]"
                 />
               </div>
 
-              <div className="form-group">
-                <label>Servicio:</label>
+              {/* SERVICIO */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Servicio
+                </label>
+
                 <select
                   value={citaForm.servicio_id}
-                  onChange={e => setCitaForm({...citaForm, servicio_id: e.target.value})}
+                  onChange={e =>
+                    setCitaForm({
+                      ...citaForm,
+                      servicio_id: e.target.value,
+                    })
+                  }
                   required
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
                 >
-                  <option value="">Seleccionar servicio</option>
+                  <option value="">
+                    Seleccionar servicio
+                  </option>
+
                   {servicios.map(servicio => (
-                    <option key={servicio.id} value={servicio.id}>
-                      {servicio.name} - ${formatPrice(servicio.precio)} ({servicio.tiempo} min)
+                    <option
+                      key={servicio.id}
+                      value={servicio.id}
+                    >
+                      {servicio.name} - $
+                      {formatPrice(servicio.precio)} (
+                      {servicio.tiempo} min)
                     </option>
                   ))}
                 </select>
               </div>
 
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>Hora:</label>
-                  <input
-                    type="time"
-                    value={citaForm.hora}
-                    onChange={e => setCitaForm({...citaForm, hora: e.target.value})}
-                    required
+              {/* HORAS */}
+              <div className="grid gap-4 md:grid-cols-2">
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                    Hora
+                  </label>
+
+                  <input required type="time" value={citaForm.hora}
+                    onChange={e =>
+                      setCitaForm({
+                        ...citaForm,
+                        hora: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500 [color-scheme:dark]"
                   />
                 </div>
 
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>Hora Fin:</label>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                    Hora Fin
+                  </label>
+
                   <input
                     type="time"
                     value={horaFin}
-                    onChange={e => setHoraFin(e.target.value)}
+                    onChange={e =>
+                      setHoraFin(e.target.value)
+                    }
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
                   />
                 </div>
+
               </div>
 
-              <div className="form-group">
-                <label>Cliente:</label>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+              {/* CLIENTE */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Cliente
+                </label>
+
+                <div className="grid gap-3 lg:grid-cols-4">
+
                   <select
                     value={citaForm.cliente_id}
-                    onChange={e => setCitaForm({...citaForm, cliente_id: e.target.value})}
+                    onChange={e =>
+                      setCitaForm({
+                        ...citaForm,
+                        cliente_id: e.target.value,
+                      })
+                    }
                     required
-                    style={{ flex: 1 }}
+                    className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500 lg:col-span-2"
                   >
-                    <option value="">Seleccionar cliente</option>
+                    <option value="">
+                      Seleccionar cliente
+                    </option>
+
                     {clientes.map(cliente => (
-                      <option key={cliente.id} value={cliente.id}>
-                        {cliente.name} {cliente.celular ? `(${cliente.celular})` : ''}
+                      <option
+                        key={cliente.id}
+                        value={cliente.id}
+                      >
+                        {cliente.name}{' '}
+                        {cliente.celular
+                          ? `(${cliente.celular})`
+                          : ''}
                       </option>
                     ))}
                   </select>
+
                   <input
                     type="text"
                     placeholder="Nombre nuevo"
                     value={newClientName}
-                    onChange={e => setNewClientName(e.target.value)}
-                    style={{ flex: 1 }}
+                    onChange={e =>
+                      setNewClientName(
+                        e.target.value
+                      )
+                    }
+                    className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white placeholder:text-slate-500 outline-none transition focus:border-indigo-500"
                   />
-                  <input
-                    type="tel"
-                    placeholder="Celular/WhatsApp"
-                    value={newClientCelular}
-                    onChange={e => setNewClientCelular(e.target.value)}
-                    style={{ flex: 1 }}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleCreateCliente}
-                    className="btn-primary"
-                    style={{ minWidth: 'auto' }}
-                  >
-                    +
-                  </button>
+
+                  <div className="flex gap-2">
+                    <input
+                      type="tel"
+                      placeholder="WhatsApp"
+                      value={newClientCelular}
+                      onChange={e =>
+                        setNewClientCelular(
+                          e.target.value
+                        )
+                      }
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white placeholder:text-slate-500 outline-none transition focus:border-indigo-500"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={handleCreateCliente}
+                      className="rounded-xl bg-emerald-500 px-4 py-3 font-bold text-white transition hover:bg-emerald-600"
+                    >
+                      +
+                    </button>
+                  </div>
+
                 </div>
               </div>
 
-              <div className="form-group">
-                <label>Empleado:</label>
+              {/* EMPLEADO */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Empleado
+                </label>
+
                 <select
                   value={citaForm.empleado_id}
-                  onChange={e => setCitaForm({...citaForm, empleado_id: e.target.value})}
+                  onChange={e =>
+                    setCitaForm({
+                      ...citaForm,
+                      empleado_id: e.target.value,
+                    })
+                  }
                   disabled={user.rol === 'Empleado'}
                   required
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500 disabled:opacity-60"
                 >
-                  <option value="">Seleccionar empleado</option>
+                  <option value="">
+                    Seleccionar empleado
+                  </option>
+
                   {empleados.map(empleado => (
-                    <option key={empleado.id} value={empleado.id}>
-                      {empleado.name} - ({empleado.sucursal})
+                    <option
+                      key={empleado.id}
+                      value={empleado.id}
+                    >
+                      {empleado.name} - (
+                      {empleado.sucursal})
                     </option>
                   ))}
                 </select>
               </div>
 
-              <div className="form-group">
-                <label>Tipo de servicio:</label>
+              {/* TIPO SERVICIO */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Tipo de servicio
+                </label>
+
                 <select
                   value={citaForm.tipo_servicio}
-                  onChange={e => setCitaForm(prev => ({
-                    ...prev,
-                    tipo_servicio: e.target.value,
-                    cobertura_id: e.target.value === 'domicilio' ? prev.cobertura_id : '',
-                    direccion: e.target.value === 'domicilio' ? prev.direccion : '',
-                  }))}
+                  onChange={e =>
+                    setCitaForm(prev => ({
+                      ...prev,
+                      tipo_servicio: e.target.value,
+                      cobertura_id:
+                        e.target.value ===
+                        'domicilio'
+                          ? prev.cobertura_id
+                          : '',
+                      direccion:
+                        e.target.value ===
+                        'domicilio'
+                          ? prev.direccion
+                          : '',
+                    }))
+                  }
                   required
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
                 >
-                  <option value="local">En local</option>
-                  <option value="domicilio">A domicilio</option>
-                  <option value="virtual">Virtual</option>
+                  <option value="local">
+                    En local
+                  </option>
+
+                  <option value="domicilio">
+                    A domicilio
+                  </option>
+
+                  <option value="virtual">
+                    Virtual
+                  </option>
                 </select>
               </div>
 
-              {citaForm.tipo_servicio === 'domicilio' && (
+              {/* DOMICILIO */}
+              {citaForm.tipo_servicio ===
+                'domicilio' && (
                 <>
-                  <div className="form-group">
-                    <label>Cobertura:</label>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      Cobertura
+                    </label>
+
                     <select
                       value={citaForm.cobertura_id}
-                      onChange={e => setCitaForm({...citaForm, cobertura_id: e.target.value})}
+                      onChange={e =>
+                        setCitaForm({
+                          ...citaForm,
+                          cobertura_id:
+                            e.target.value,
+                        })
+                      }
                       required
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
                     >
-                      <option value="">Seleccionar cobertura</option>
+                      <option value="">
+                        Seleccionar cobertura
+                      </option>
+
                       {coberturas.map(cobertura => (
-                        <option key={cobertura.id} value={cobertura.id}>
-                          {cobertura.barrio} - +${formatPrice(cobertura.costo_extra)} ({cobertura.tiempo_estimado} min)
+                        <option
+                          key={cobertura.id}
+                          value={cobertura.id}
+                        >
+                          {cobertura.barrio} - +$
+                          {formatPrice(
+                            cobertura.costo_extra
+                          )}{' '}
+                          (
+                          {
+                            cobertura.tiempo_estimado
+                          }{' '}
+                          min)
                         </option>
                       ))}
                     </select>
                   </div>
 
-                  <div className="form-group">
-                    <label>Dirección:</label>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      Dirección
+                    </label>
+
                     <input
                       type="text"
                       value={citaForm.direccion}
-                      onChange={e => setCitaForm({...citaForm, direccion: e.target.value})}
+                      onChange={e =>
+                        setCitaForm({
+                          ...citaForm,
+                          direccion:
+                            e.target.value,
+                        })
+                      }
                       placeholder="Dirección para domicilio"
                       required
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white placeholder:text-slate-500 outline-none transition focus:border-indigo-500"
                     />
                   </div>
                 </>
               )}
 
-              <div className="form-group">
-                <label>Notas (opcional):</label>
+              {/* NOTAS */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Notas (opcional)
+                </label>
+
                 <textarea
                   value={citaForm.notas}
-                  onChange={e => setCitaForm({...citaForm, notas: e.target.value})}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', fontFamily: 'inherit' }}
-                  rows="3"
+                  onChange={e =>
+                    setCitaForm({
+                      ...citaForm,
+                      notas: e.target.value,
+                    })
+                  }
+                  rows="4"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white placeholder:text-slate-500 outline-none transition focus:border-indigo-500"
                 />
               </div>
 
-              <div className="form-actions">
+              {/* ACTIONS */}
+              <div className="flex flex-wrap justify-end gap-3 border-t border-slate-800 pt-6">
+
                 <button
                   type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="btn-secondary"
+                  onClick={() =>
+                    setShowCreateModal(false)
+                  }
+                  className="rounded-xl border border-slate-700 bg-slate-800 px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
                   disabled={creatingCita}
                 >
                   Cancelar
                 </button>
+
                 <button
                   type="submit"
-                  className="btn-primary"
+                  className="rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-600 disabled:opacity-60"
                   disabled={creatingCita}
                 >
-                  {creatingCita ? 'Creando...' : 'Crear Cita'}
+                  {creatingCita
+                    ? 'Creando...'
+                    : 'Crear Cita'}
                 </button>
+
               </div>
+
             </form>
+
           </div>
         </div>
       )}

@@ -202,142 +202,319 @@ function UsuariosPage({ user }) {
   }
 
   return (
-    <div className="usuarios-page">
-      <div className="dashboard-topbar">
-        <h1>Gestión de Usuarios</h1>
-        <button className="create-button" onClick={openCreateModal}>
+    <div className="min-h-screen rounded-2xl border border-slate-800 dark:bg-gray-800 p-6">
+      {/* Header */}
+      <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">
+            Gestión de Usuarios
+          </h1>
+        </div>
+
+        <button
+          onClick={openCreateModal}
+          className="inline-flex items-center justify-center rounded-2xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 transition-all hover:bg-violet-700"
+        >
           + Nuevo Usuario
         </button>
       </div>
 
-      <div className="table-container">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Color</th>
-              <th>Nombre</th>
-              <th>Usuario</th>
-              <th>WhatsApp</th>
-              <th>Rol</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {usuarios.map(usuario => (
-              <tr key={usuario.id}>
-                <td>{usuario.id}</td>
-                <td>
-                  <div
-                    style={{
-                      width: '30px',
-                      height: '30px',
-                      borderRadius: '50%',
-                      backgroundColor: usuario.color,
-                      border: '2px solid #ddd',
-                    }}
-                    title={usuario.color}
-                  />
-                </td>
-                <td>{usuario.name}</td>
-                <td>{usuario.username}</td>
-                <td>{usuario.whatsapp || '-'}</td>
-                <td>{usuario.rol}</td>
-                <td>
-                  <button
-                    className="edit-button"
-                    onClick={() => handleEdit(usuario)}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="delete-button"
-                    onClick={() => handleDelete(usuario.id)}
-                  >
-                    Eliminar
-                  </button>
-                </td>
+      {/* Tabla */}
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+            <thead className="bg-slate-50 dark:bg-slate-800/50">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  ID
+                </th>
+
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  Color
+                </th>
+
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  Nombre
+                </th>
+
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  Usuario
+                </th>
+
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  WhatsApp
+                </th>
+
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  Rol
+                </th>
+
+                <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  Acciones
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {usuarios.map(usuario => (
+                <tr
+                  key={usuario.id}
+                  className="transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                >
+                  <td className="px-6 py-4 text-sm font-medium text-slate-700 dark:text-slate-200">
+                    #{usuario.id}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <div
+                      className="h-10 w-10 rounded-full border-4 border-white shadow-md"
+                      style={{
+                        backgroundColor: usuario.color,
+                      }}
+                      title={usuario.color}
+                    />
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <div className="font-semibold text-slate-900 dark:text-white">
+                      {usuario.name}
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                    @{usuario.username}
+                  </td>
+
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                    {usuario.whatsapp || '-'}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <span className="inline-flex rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700 dark:bg-violet-500/10 dark:text-violet-300">
+                      {usuario.rol}
+                    </span>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-end gap-3">
+                      <button
+                        onClick={() => handleEdit(usuario)}
+                        className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(usuario.id)}
+                        className="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
+      {/* Modal */}
       {showModal && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{editingUsuario ? 'Editar Usuario' : 'Nuevo Usuario'}</h2>
-              <button className="close-button" onClick={closeModal}>×</button>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4 backdrop-blur-sm"
+          onClick={closeModal}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="relative max-h-[95vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white shadow-2xl dark:bg-slate-900"
+          >
+            {/* Header */}
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
+              <div>
+                <p className="text-sm font-medium text-violet-500">
+                  Usuarios
+                </p>
+
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                  {editingUsuario ? 'Editar Usuario' : 'Nuevo Usuario'}
+                </h2>
+              </div>
+
+              <button
+                onClick={closeModal}
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-xl text-slate-600 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
+              >
+                ×
+              </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="usuario-form">
-              <div className="form-group">
-                <label>Nombre completo:</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={e => setFormData({...formData, name: e.target.value})}
-                  required
-                />
+            {/* Form */}
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-6 p-6"
+            >
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                {/* Nombre */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Nombre completo
+                  </label>
+
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        name: e.target.value,
+                      })
+                    }
+                    required
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  />
+                </div>
+
+                {/* Usuario */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Nombre de usuario
+                  </label>
+
+                  <input
+                    type="text"
+                    value={formData.username}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        username: e.target.value,
+                      })
+                    }
+                    required
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Contraseña
+                  </label>
+
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        password: e.target.value,
+                      })
+                    }
+                    required={!editingUsuario}
+                    placeholder={
+                      editingUsuario
+                        ? 'Dejar vacío para mantener la contraseña actual'
+                        : ''
+                    }
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  />
+                </div>
+
+                {/* WhatsApp */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    WhatsApp
+                  </label>
+
+                  <input
+                    type="tel"
+                    value={formData.whatsapp}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        whatsapp: e.target.value,
+                      })
+                    }
+                    placeholder="Ej: 312 123 4567"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  />
+                </div>
+
+                {/* Rol */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Rol
+                  </label>
+
+                  <select
+                    value={formData.rol_id}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        rol_id: e.target.value,
+                      })
+                    }
+                    required
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  >
+                    <option value="">Seleccionar rol</option>
+
+                    {roles.map(rol => (
+                      <option key={rol.id} value={rol.id}>
+                        {rol.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Sucursal */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Sucursal
+                  </label>
+
+                  <select
+                    value={formData.sucursal_id}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        sucursal_id: e.target.value,
+                      })
+                    }
+                    required
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  >
+                    <option value="">Seleccione una sucursal</option>
+
+                    {sucursales.map(sucursal => (
+                      <option key={sucursal.id} value={sucursal.id}>
+                        {sucursal.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <div className="form-group">
-                <label>Nombre de usuario:</label>
-                <input
-                  type="text"
-                  value={formData.username}
-                  onChange={e => setFormData({...formData, username: e.target.value})}
-                  required
-                />
-              </div>
+              {/* Servicios */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Servicios asignados
+                </label>
 
-              <div className="form-group">
-                <label>Contraseña:</label>
-                <input
-                  type="password"
-                  value={formData.password}
-                  onChange={e => setFormData({...formData, password: e.target.value})}
-                  required={!editingUsuario}
-                  placeholder={editingUsuario ? 'Dejar vacío para mantener la contraseña actual' : ''}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>WhatsApp:</label>
-                <input
-                  type="tel"
-                  value={formData.whatsapp}
-                  onChange={e => setFormData({...formData, whatsapp: e.target.value})}
-                  placeholder="Ej: 312 123 4567"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Rol:</label>
                 <select
-                  value={formData.rol_id}
-                  onChange={e => setFormData({...formData, rol_id: e.target.value})}
-                  required
-                >
-                  <option value="">Seleccionar rol</option>
-                  {roles.map(rol => (
-                    <option key={rol.id} value={rol.id}>
-                      {rol.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Servicios asignados:</label>
-                <select multiple
+                  multiple
                   value={formData.servicios_ids.map(id => id.toString())}
                   onChange={e => {
                     const options = Array.from(e.target.selectedOptions)
-                    setFormData({...formData, servicios_ids: options.map(option => parseInt(option.value))})
+
+                    setFormData({
+                      ...formData,
+                      servicios_ids: options.map(option =>
+                        parseInt(option.value)
+                      ),
+                    })
                   }}
-                  style={{ minHeight: '120px' }}
+                  className="min-h-[160px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 >
                   {servicios.map(servicio => (
                     <option key={servicio.id} value={servicio.id}>
@@ -347,62 +524,58 @@ function UsuariosPage({ user }) {
                 </select>
               </div>
 
+              {/* Negocio */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Negocio
+                </label>
 
-              <div className="form-group">
-                <label>Sucursal:</label>
-                <select
-                  value={formData.sucursal_id}
-                  onChange={e => setFormData({...formData, sucursal_id: e.target.value})}
-                  required
-                >
-                  <option value="">Seleccione una sucursal</option>
-                  {sucursales.map(sucursal => (
-                    <option key={sucursal.id} value={sucursal.id}>
-                      {sucursal.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Negocio:</label>
-                <div style={{
-                  padding: '0.9rem 1rem',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '14px',
-                  background: '#f8fafc',
-                  color: '#64748b'
-                }}>
-                  {negocios.find(n => n.id.toString() === formData.negocio_id)?.name || 'Cargando...'}
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                  {negocios.find(
+                    n => n.id.toString() === formData.negocio_id
+                  )?.name || 'Cargando...'}
                 </div>
               </div>
 
-              <div className="form-group">
-                <label>Color para la Agenda:</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              {/* Color */}
+              <div>
+                <label className="mb-3 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Color para la Agenda
+                </label>
+
+                <div className="flex items-center gap-4">
                   <input
                     type="color"
                     value={formData.color}
-                    onChange={e => setFormData({...formData, color: e.target.value})}
-                    style={{
-                      width: '60px',
-                      height: '40px',
-                      border: '2px solid #ddd',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                    }}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        color: e.target.value,
+                      })
+                    }
+                    className="h-14 w-20 cursor-pointer rounded-2xl border border-slate-300 bg-transparent"
                   />
-                  <span style={{ color: '#6b7280', fontSize: '0.9rem' }}>
+
+                  <div className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
                     {formData.color}
-                  </span>
+                  </div>
                 </div>
               </div>
 
-              <div className="form-actions">
-                <button type="button" onClick={closeModal} className="cancel-button">
+              {/* Footer */}
+              <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-end dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
                   Cancelar
                 </button>
-                <button type="submit" className="submit-button">
+
+                <button
+                  type="submit"
+                  className="rounded-2xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 transition hover:bg-violet-700"
+                >
                   {editingUsuario ? 'Actualizar' : 'Crear'}
                 </button>
               </div>

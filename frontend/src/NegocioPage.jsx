@@ -239,248 +239,402 @@ function NegocioPage({ user }) {
   }
 
   return (
-    <div className="negocio-page">
-      <div className="dashboard-topbar">
+    <div className="min-h-screen space-y-8 rounded-2xl border border-slate-800 dark:bg-gray-800 p-6">
+      {/* Header */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="eyebrow">Configuración</p>
-          <h1>Información del Negocio</h1>
+          <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">
+            Información del Negocio
+          </h1>
         </div>
-        <div className="topbar-actions">
-          {/* {!editNegocio && !editingSucursal && (
-            <button className="btn-secondary" onClick={() => setEditNegocio(true)}>
-              Editar nombre
-            </button>
-          )} */}
+
+        <div className="flex items-center gap-3">
+          {/* Botones futuros */}
         </div>
       </div>
 
+      {/* Alert */}
       {message && (
-        <div className={`alert ${message.includes('Error') ? 'alert-error' : 'alert-success'}`}>
+        <div
+          className={`rounded-2xl border px-5 py-4 text-sm font-medium shadow-sm ${
+            message.includes('Error')
+              ? 'border-red-200 bg-red-50 text-red-600 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300'
+              : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300'
+          }`}
+        >
           {message}
         </div>
       )}
 
-      <div className="negocio-view">
-        <div className="card">
-          <div className="card-content">
-            <div className="info-group">
-              <label>Nombre del Negocio</label>
-              <p>{negocio.name}</p>
-            </div>
-            <div className="info-group">
-              <label>Sucursales</label>
-              <p>{sucursales.length}</p>
-            </div>
-          </div>
+      {/* Cards negocio */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-sm font-medium text-slate-500">
+            Nombre del Negocio
+          </p>
+
+          <h2 className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">
+            {negocio.name}
+          </h2>
+        </div>
+
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-sm font-medium text-slate-500">
+            Total Sucursales
+          </p>
+
+          <h2 className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">
+            {sucursales.length}
+          </h2>
         </div>
       </div>
 
+      {/* Edit negocio */}
       {editNegocio && (
-        <form onSubmit={handleNegocioSubmit} className="negocio-form">
-          <div className="card">
-            <div className="form-group">
-              <label htmlFor="name">Nombre del Negocio *</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={negocioForm.name}
-                onChange={handleNegocioChange}
-                required
-                className="form-input"
-              />
-            </div>
+        <form onSubmit={handleNegocioSubmit}>
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="space-y-5">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Nombre del Negocio *
+                </label>
 
-            <div className="form-actions">
-              <button type="button" className="btn-secondary" onClick={() => setEditNegocio(false)} disabled={savingNegocio}>
-                Cancelar
-              </button>
-              <button type="submit" className="btn-primary" disabled={savingNegocio}>
-                {savingNegocio ? 'Guardando...' : 'Guardar'}
-              </button>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={negocioForm.name}
+                  onChange={handleNegocioChange}
+                  required
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                />
+              </div>
+
+              <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setEditNegocio(false)}
+                  disabled={savingNegocio}
+                  className="rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={savingNegocio}
+                  className="rounded-2xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 transition hover:bg-violet-700"
+                >
+                  {savingNegocio ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
             </div>
           </div>
         </form>
       )}
 
-      <div className="sucursales-section">
-        <div className="section-header">
-          <h2>Sucursales</h2>
-          <p>Gestiona las sucursales que dependen de este negocio.</p>
+      {/* Sucursales */}
+      <div className="space-y-5">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            Sucursales
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-500">
+            Gestiona las sucursales que dependen de este negocio.
+          </p>
         </div>
 
         {sucursales.length === 0 ? (
-          <div className="card">
-            <p>No hay sucursales registradas aún.</p>
+          <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500 dark:border-slate-700 dark:bg-slate-900">
+            No hay sucursales registradas aún.
           </div>
         ) : (
-          <div className="card table-card">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Ciudad</th>
-                  <th>Barrio</th>
-                  <th>Tel</th>
-                  <th>WhatsApp</th>
-                  <th>Agenda</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sucursales.map(sucursal => (
-                  <tr key={sucursal.id}>
-                    <td>{sucursal.name}</td>
-                    <td>{sucursal.ciudad}</td>
-                    <td>{sucursal.barrio}</td>
-                    <td>{sucursal.tel || '-'}</td>
-                    <td>{sucursal.whatsapp || '-'}</td>
-                    <td>{sucursal.permite_agendar ? 'Sí' : 'No'}</td>
-                    <td>
-                      <button className="edit-button" onClick={() => openEditSucursal(sucursal)}>
-                        Editar
-                      </button>
-                    </td>
+          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+                <thead className="bg-slate-50 dark:bg-slate-800/50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      Nombre
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      Ciudad
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      Barrio
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      Tel
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      WhatsApp
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      Agenda
+                    </th>
+
+                    <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      Acciones
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {sucursales.map(sucursal => (
+                    <tr
+                      key={sucursal.id}
+                      className="transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                    >
+                      <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">
+                        {sucursal.name}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                        {sucursal.ciudad}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                        {sucursal.barrio}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                        {sucursal.tel || '-'}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                        {sucursal.whatsapp || '-'}
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                            sucursal.permite_agendar
+                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300'
+                              : 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-300'
+                          }`}
+                        >
+                          {sucursal.permite_agendar ? 'Sí' : 'No'}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          onClick={() => openEditSucursal(sucursal)}
+                          className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                        >
+                          Editar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
 
+      {/* Modal */}
       {editingSucursal && (
-        <div className="modal-overlay" onClick={cancelSucursalForm}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <form onSubmit={handleSucursalSubmit} className="negocio-form">
-              <div className="card">
-                <h2>Editar sucursal</h2>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4 backdrop-blur-sm"
+          onClick={cancelSucursalForm}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="relative max-h-[95vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white shadow-2xl dark:bg-slate-900"
+          >
+            <form onSubmit={handleSucursalSubmit}>
+              {/* Header */}
+              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
+                <div>
+                  <p className="text-sm font-medium text-violet-500">
+                    Sucursales
+                  </p>
 
-            <div className="form-group">
-              <label htmlFor="name">Nombre *</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={sucursalForm.name}
-                onChange={handleSucursalChange}
-                required
-                className="form-input"
-              />
-            </div>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                    Editar sucursal
+                  </h2>
+                </div>
 
-            <div className="form-group">
-              <label htmlFor="direccion">Dirección</label>
-              <input
-                type="text"
-                id="direccion"
-                name="direccion"
-                value={sucursalForm.direccion}
-                onChange={handleSucursalChange}
-                className="form-input"
-                placeholder="Ej: Calle Principal 123"
-              />
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="barrio_id">Barrio</label>
-                <select
-                  id="barrio_id"
-                  name="barrio_id"
-                  value={sucursalForm.barrio_id}
-                  onChange={e => {
-                    const selectedBarrio = barrios.find(b => b.id.toString() === e.target.value)
-                    setSucursalForm(prev => ({
-                      ...prev,
-                      barrio_id: e.target.value,
-                      ciudad_id: selectedBarrio ? selectedBarrio.ciudad_id.toString() : prev.ciudad_id,
-                    }))
-                  }}
-                  className="form-input"
+                <button
+                  type="button"
+                  onClick={cancelSucursalForm}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-xl text-slate-600 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
                 >
-                  <option value="">Seleccionar barrio</option>
-                  {barrios.map(barrio => (
-                    <option key={barrio.id} value={barrio.id}>
-                      {barrio.name} ({barrio.ciudad})
-                    </option>
-                  ))}
-                </select>
+                  ×
+                </button>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="tel">Teléfono</label>
-                <input
-                  type="tel"
-                  id="tel"
-                  name="tel"
-                  value={sucursalForm.tel}
-                  onChange={handleSucursalChange}
-                  className="form-input"
-                  placeholder="Ej: 312 123 4567"
-                />
+              {/* Body */}
+              <div className="space-y-6 p-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      Nombre *
+                    </label>
+
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={sucursalForm.name}
+                      onChange={handleSucursalChange}
+                      required
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      Teléfono
+                    </label>
+
+                    <input
+                      type="tel"
+                      id="tel"
+                      name="tel"
+                      value={sucursalForm.tel}
+                      onChange={handleSucursalChange}
+                      placeholder="Ej: 312 123 4567"
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Dirección
+                  </label>
+
+                  <input
+                    type="text"
+                    id="direccion"
+                    name="direccion"
+                    value={sucursalForm.direccion}
+                    onChange={handleSucursalChange}
+                    placeholder="Ej: Calle Principal 123"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      Barrio
+                    </label>
+
+                    <select
+                      id="barrio_id"
+                      name="barrio_id"
+                      value={sucursalForm.barrio_id}
+                      onChange={e => {
+                        const selectedBarrio = barrios.find(
+                          b => b.id.toString() === e.target.value
+                        )
+
+                        setSucursalForm(prev => ({
+                          ...prev,
+                          barrio_id: e.target.value,
+                          ciudad_id: selectedBarrio
+                            ? selectedBarrio.ciudad_id.toString()
+                            : prev.ciudad_id,
+                        }))
+                      }}
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    >
+                      <option value="">Seleccionar barrio</option>
+
+                      {barrios.map(barrio => (
+                        <option key={barrio.id} value={barrio.id}>
+                          {barrio.name} ({barrio.ciudad})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      WhatsApp
+                    </label>
+
+                    <input
+                      type="tel"
+                      id="whatsapp"
+                      name="whatsapp"
+                      value={sucursalForm.whatsapp}
+                      onChange={handleSucursalChange}
+                      placeholder="Ej: 312 123 4567"
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Horario de Atención
+                  </label>
+
+                  <textarea
+                    id="horario"
+                    name="horario"
+                    rows="4"
+                    value={sucursalForm.horario}
+                    onChange={handleSucursalChange}
+                    placeholder={`Ej:\nLunes a Viernes: 9:00 - 18:00`}
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  />
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-800/50">
+                  <label className="flex cursor-pointer items-center justify-between gap-4">
+                    <div>
+                      <p className="font-semibold text-slate-800 dark:text-white">
+                        Permitir agendamiento
+                      </p>
+
+                      <p className="text-sm text-slate-500">
+                        Los clientes podrán reservar citas.
+                      </p>
+                    </div>
+
+                    <input
+                      type="checkbox"
+                      id="permite_agendar"
+                      name="permite_agendar"
+                      checked={sucursalForm.permite_agendar}
+                      onChange={handleSucursalChange}
+                      className="h-5 w-5 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
+                    />
+                  </label>
+                </div>
               </div>
-            </div>
 
-            <div className="form-group">
-              <label htmlFor="whatsapp">WhatsApp</label>
-              <input
-                type="tel"
-                id="whatsapp"
-                name="whatsapp"
-                value={sucursalForm.whatsapp}
-                onChange={handleSucursalChange}
-                className="form-input"
-                placeholder="Ej: 312 123 4567"
-              />
-            </div>
+              {/* Footer */}
+              <div className="flex flex-col-reverse gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={cancelSucursalForm}
+                  disabled={savingSucursal}
+                  className="rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                  Cancelar
+                </button>
 
-            <div className="form-group">
-              <label htmlFor="horario">Horario de Atención</label>
-              <textarea
-                id="horario"
-                name="horario"
-                value={sucursalForm.horario}
-                onChange={handleSucursalChange}
-                className="form-input"
-                rows="4"
-                placeholder="Ej:\nLunes a Viernes: 9:00 - 18:00\nSábado: 10:00 - 14:00\nDomingo: Cerrado"
-              />
-            </div>
-
-            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                Permitir que los clientes agenden citas
-                <input
-                  type="checkbox"
-                  id="permite_agendar"
-                  name="permite_agendar"
-                  checked={sucursalForm.permite_agendar}
-                  onChange={handleSucursalChange}
-                />
-              </label>
-
-              {/* <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                Sucursal activa
-                <input
-                  type="checkbox"
-                  id="activo"
-                  name="activo"
-                  checked={sucursalForm.activo}
-                  onChange={handleSucursalChange}
-                />
-              </label> */}
-            </div>
-
-            <div className="form-actions">
-              <button type="button" className="btn-secondary" onClick={cancelSucursalForm} disabled={savingSucursal}>
-                Cancelar
-              </button>
-              <button type="submit" className="btn-primary" disabled={savingSucursal}>
-                {savingSucursal ? 'Guardando...' : 'Guardar Cambios'}
-              </button>
-            </div>
-          </div>
+                <button
+                  type="submit"
+                  disabled={savingSucursal}
+                  className="rounded-2xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 transition hover:bg-violet-700"
+                >
+                  {savingSucursal ? 'Guardando...' : 'Guardar Cambios'}
+                </button>
+              </div>
             </form>
           </div>
         </div>

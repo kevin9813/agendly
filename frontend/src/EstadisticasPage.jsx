@@ -255,98 +255,169 @@ function EstadisticasPage({ user }) {
   }
 
   return (
-    <div className="estadisticas-page">
-      <div className="dashboard-topbar">
+    <div className="min-h-screen text-white p-6 rounded-2xl border border-slate-800 dark:bg-gray-800">
+      <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1>Estadísticas</h1>
+          <h1 className="text-3xl font-bold text-white">
+            Estadísticas
+          </h1>
         </div>
       </div>
 
-    <div className="row">
-      <div className="col-md-6">
-        <section className="estadisticas-controls">
-        <div className="estadisticas-filters">
-          <label>
-            Usuario
-            <select
-              value={selectedUserId}
-              onChange={(event) => setSelectedUserId(event.target.value)}
-              disabled={user?.rol === 'Empleado'}
-            >
-              <option value="">Todos</option>
-              {usuariosFiltrables.map((usuario) => (
-                <option key={usuario.id} value={usuario.id}>
-                  {usuario.name}
-                </option>
-              ))}
-            </select>
-          </label>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        
+        {/* LEFT */}
+        <div className="space-y-6">
 
-          <label>
-            Periodo
-            <select value={period} onChange={(event) => setPeriod(event.target.value)}>
-              {periodOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          {/* FILTERS */}
+          <section className="rounded-3xl border border-slate-800 bg-[#111827] p-5 shadow-2xl">
+            <div className="flex flex-col lg:flex-row lg:items-end gap-5">
 
-        </div>
-           
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Usuario
+                </label>
 
-        <div className="estadisticas-summary">
-          <div>
-            <span>Total completadas</span>
-            <strong>{totalCompletadas}</strong>
-          </div>
-          <div>
-            <span>Total canceladas</span>
-            <strong>{totalCanceladas}</strong>
-          </div>
-          <div>
-            <span>Periodo</span>
-            <strong>{periodOptions.find((opt) => opt.value === period)?.label}</strong>
-          </div>
-        </div>
-        </section>
+                <select
+                  value={selectedUserId}
+                  onChange={(event) => setSelectedUserId(event.target.value)}
+                  disabled={user?.rol === 'Empleado'}
+                  className="w-full h-12 rounded-2xl border border-slate-700 bg-slate-900 px-4 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                >
+                  <option value="">Todos</option>
 
-        <section className="estadisticas-chart-card">
-          <div className="charts-wrapper" >
-            <div className="chart-half" >
-              <div className="chart-legend">
-                <div>
-                  <span className="legend-dot legend-completada" /> Completadas
-                </div>
-                <div>
-                  <span className="legend-dot legend-cancelada" /> Canceladas
-                </div>
+                  {usuariosFiltrables.map((usuario) => (
+                    <option key={usuario.id} value={usuario.id}>
+                      {usuario.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {chartData.every((item) => item.completadas === 0 && item.canceladas === 0) ? (
-                <div className="chart-empty">No hay datos de citas completadas o canceladas para este periodo.</div>
-              ) : (
-                <div className="chart-container">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Periodo
+                </label>
+
+                <select
+                  value={period}
+                  onChange={(event) => setPeriod(event.target.value)}
+                  className="w-full h-12 rounded-2xl border border-slate-700 bg-slate-900 px-4 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                >
+                  {periodOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* SUMMARY */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+              
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                <span className="text-sm text-slate-400">
+                  Total completadas
+                </span>
+
+                <strong className="block mt-2 text-3xl font-bold text-green-400">
+                  {totalCompletadas}
+                </strong>
+              </div>
+
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                <span className="text-sm text-slate-400">
+                  Total canceladas
+                </span>
+
+                <strong className="block mt-2 text-3xl font-bold text-red-400">
+                  {totalCanceladas}
+                </strong>
+              </div>
+
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                <span className="text-sm text-slate-400">
+                  Periodo
+                </span>
+
+                <strong className="block mt-2 text-lg font-semibold text-white">
+                  {periodOptions.find((opt) => opt.value === period)?.label}
+                </strong>
+              </div>
+
+            </div>
+          </section>
+
+          {/* CHART */}
+          <section className="rounded-3xl border border-slate-800 bg-[#111827] p-5 shadow-2xl">
+            
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="text-sm uppercase tracking-[0.2em] text-slate-500 font-semibold">
+                  Reportes
+                </p>
+
+                <h2 className="text-xl font-bold text-white">
+                  Rendimiento de Citas
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-5 text-sm">
+                
+                <div className="flex items-center gap-2 text-slate-300">
+                  <span className="w-3 h-3 rounded-full bg-green-400" />
+                  Completadas
+                </div>
+
+                <div className="flex items-center gap-2 text-slate-300">
+                  <span className="w-3 h-3 rounded-full bg-red-400" />
+                  Canceladas
+                </div>
+              </div>
+            </div>
+
+            {chartData.every((item) => item.completadas === 0 && item.canceladas === 0) ? (
+              <div className="flex items-center justify-center h-[320px] rounded-2xl border border-dashed border-slate-700 bg-slate-900 text-slate-500 text-center px-6">
+                No hay datos de citas completadas o canceladas para este periodo.
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                <div className="chart-container h-[320px]">
                   <canvas ref={chartRef} />
                 </div>
-              )}
-              {filteredCitas.length === 0 && (
-                <div style={{ textAlign: 'center', marginTop: '1rem', color: '#64748b', fontSize: '0.9rem' }}>
-                  Mostrando datos de ejemplo para demostración
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-      </div>   
-      <div className="col-md-6">
-      </div>   
-    </div>
+              </div>
+            )}
 
-      
+            {filteredCitas.length === 0 && (
+              <div className="mt-4 text-center text-sm text-slate-500">
+                Mostrando datos de ejemplo para demostración
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* RIGHT */}
+        <div className="rounded-3xl border border-slate-800 bg-[#111827] p-6 shadow-2xl min-h-[300px]">
+          {/* <div className="mb-6">
+            <p className="text-sm uppercase tracking-[0.2em] text-slate-500 font-semibold">
+              Información
+            </p>
+
+            <h2 className="text-2xl font-bold text-white">
+              Resumen General
+            </h2>
+          </div>
+
+          <div className="flex items-center justify-center h-[300px] rounded-2xl border border-dashed border-slate-700 bg-slate-900 text-slate-500">
+            Próximamente más estadísticas
+          </div> */}
+        </div>
+      </div>
     </div>
   )
 }
 
 export default EstadisticasPage
+
+
