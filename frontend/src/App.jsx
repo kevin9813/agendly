@@ -510,32 +510,78 @@ function App() {
       </div>
     </div>
       ) : (
-        <div className="login-page">
-          <div className="login-card">
-            <h1>Login Kelzo</h1>
-            <p className="login-text">{status}</p>
-            <form onSubmit={handleSubmit} className="login-form">
-              <label>
-                Usuario
-                <input
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="usuario"
-                />
-              </label>
-              <label>
-                Contraseña
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="contraseña"
-                />
-              </label>
-              <button type="submit" disabled={loading}>
-                {loading ? 'Entrando...' : 'Iniciar sesión'}
-              </button>
-            </form>
+        <div className="min-h-screen bg-[#0f172a] flex items-center justify-center px-4 py-8">
+          <div className="w-full max-w-md">
+            
+            {/* CARD */}
+            <div className="rounded-3xl border border-slate-800 bg-[#111827] shadow-2xl overflow-hidden">
+              
+              {/* HEADER */}
+              <div className="px-8 pt-8 pb-6 border-b border-slate-800">
+                <div className="flex items-center justify-center mb-5">
+                  <div className="w-16 h-16 rounded-2xl bg-blue-600/20 border border-blue-500/20 flex items-center justify-center">
+                    <span className="text-2xl font-bold text-blue-400">
+                      K
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <p className="text-sm uppercase tracking-[0.2em] text-slate-500 font-semibold mb-2">
+                    Bienvenido
+                  </p>
+
+                  <h1 className="text-3xl font-bold text-white">
+                    Login Kelzo
+                  </h1>
+
+                  <p className="mt-3 text-sm text-slate-400">
+                    {status}
+                  </p>
+                </div>
+              </div>
+
+              {/* FORM */}
+              <div className="p-8">
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-slate-300">
+                      Usuario
+                    </label>
+
+                    <input
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="usuario"
+                      className="w-full h-12 rounded-2xl border border-slate-700 bg-slate-900 px-4 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-slate-300">
+                      Contraseña
+                    </label>
+
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="contraseña"
+                      className="w-full h-12 rounded-2xl border border-slate-700 bg-slate-900 px-4 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold shadow-lg shadow-blue-600/20 transition-all duration-200"
+                  >
+                    {loading ? 'Entrando...' : 'Iniciar sesión'}
+                  </button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       )}

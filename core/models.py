@@ -153,8 +153,6 @@ class Cliente(models.Model):
     name = models.CharField(max_length=150)
     celular = models.CharField(max_length=20, blank=True, help_text='Número de celular/WhatsApp')
     negocio = models.ForeignKey(Negocio, on_delete=models.CASCADE, related_name='clientes')
-    sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE, related_name='clientes')
-
 
     class Meta:
         db_table = 'cliente'
