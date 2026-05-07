@@ -5,6 +5,8 @@ import NegocioPage from './NegocioPage'
 import AgendaPage from './AgendaPage'
 import ClientesPage from './ClientesPage'
 import EstadisticasPage from './EstadisticasPage'
+import Sidebar from './partials/Sidebar';
+import Header from './partials/Header';
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/'
 const Swal = window.Swal
@@ -245,121 +247,151 @@ function App() {
     localStorage.removeItem('agendly_current_page')
   }
 
+
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
         return (
-          <div>
-            <div className="dashboard-topbar">
-              <div>
-                <p className="eyebrow">Bienvenido: {user.name}</p>
-              </div>
-              <div className="topbar-actions">
-                <button className="logout-button" onClick={handleLogout}>
-                  Cerrar sesión
-                </button>
-              </div>
+          // <div>
+          //   <div className="dashboard-topbar">
+          //     <div>
+          //       <p className="eyebrow">Bienvenido: {user.name}</p>
+          //     </div>
+          //     <div className="topbar-actions">
+          //       <button className="logout-button" onClick={handleLogout}>
+          //         Cerrar sesión
+          //       </button>
+          //     </div>
+          //   </div>
+            
+          //   {suscripcion.estado !== 'activa' && (
+          //     <div className="dashboard-topbar">
+          //       <strong style={{ color: 'red' }}>{suscripcion.mensaje}</strong>
+          //     </div>
+          //   )}
+
+          //   {suscripcion.estado !== 'vencida' && (
+          //   <section className="top-cards">
+          //     <article className="card summary-card" style={{ display: user.rol === 'Empleado' ? 'none' : 'block' }}>
+          //       <span className="card-title">Total Usuarios </span>
+          //       <strong>{dashboardData?.total_users || 0} </strong>
+          //       <small>Registrados</small>
+          //     </article>
+          //     <article className="card summary-card" style={{ display: user.rol === 'Empleado' ? 'none' : 'block' }}>
+          //       <span className="card-title">Total Clientes </span>
+          //       <strong>{dashboardData?.total_clientes || 0} </strong>
+          //       <small>Registrados</small>
+          //     </article>
+          //     <article className="card summary-card" style={{ display: user.rol === 'Empleado' ? 'block' : 'block' }}>
+          //       <span className="card-title">Total Citas </span>
+          //       <strong>{dashboardData?.total_citas || 0} </strong>
+          //       <small>Agendadas</small>
+          //     </article>
+          //   </section>
+          //   )}
+            
+          //   {suscripcion.estado !== 'vencida' && (
+          //   <section className="dashboard-grid">
+          //     <article className="card">
+          //       <div className="card-title-row">
+          //         <span>Próximas Citas </span>
+          //       </div>
+          //       <div>
+          //         {upcomingCitas.filter(cita => cita.estado === 'confirmada').sort((a, b) => new Date(a.fecha_hora) - new Date(b.fecha_hora)).length > 0 ? (
+          //           <ul className="citas-pendientes-list">
+          //             {upcomingCitas.filter(cita => cita.estado === 'confirmada').sort((a, b) => new Date(a.fecha_hora) - new Date(b.fecha_hora)).map(cita => (
+          //               <li key={cita.id} className="cita-item">
+          //                 <span>{cita.cliente} - {cita.servicio} - {new Date(cita.fecha_hora).toLocaleString()}</span>
+          //                 <div className="cita-actions">
+          //                   <button 
+          //                     className="btn-confirm" 
+          //                     onClick={() => handleCitaEstadoChange(cita.id, 'completada')}
+          //                     title="Marcar como completada"
+          //                   >
+          //                     ✓
+          //                   </button>
+          //                   <button 
+          //                     className="btn-cancel" 
+          //                     onClick={() => handleCitaEstadoChange(cita.id, 'cancelada')}
+          //                     title="Cancelar cita"
+          //                   >
+          //                     ✗
+          //                   </button>
+          //                 </div>
+          //               </li>
+          //             ))}
+          //           </ul>
+          //         ) : (
+          //           <p>No hay citas próximas en la semana</p>
+          //         )}
+          //       </div>
+          //     </article>
+
+          //     <article className="card">
+          //       <div className="card-title-row">
+          //         <span>Citas Pendientes </span>
+          //       </div>
+          //       <div>
+          //         {dashboardData?.citas_pendientes?.length > 0 ? (
+          //           <ul className="citas-pendientes-list">
+          //             {dashboardData.citas_pendientes.map(cita => (
+          //               <li key={cita.id} className="cita-item">
+          //                 <span>{cita.cliente} - {cita.servicio} - {new Date(cita.fecha_hora).toLocaleString()}</span>
+          //                 <div className="cita-actions">
+          //                   <button 
+          //                     className="btn-update" 
+          //                     onClick={() => handleCitaEstadoChange(cita.id, 'confirmada')}
+          //                     title="Confirmar cita"
+          //                   >
+          //                     ✓
+          //                   </button>
+          //                   <button 
+          //                     className="btn-cancel" 
+          //                     onClick={() => handleCitaEstadoChange(cita.id, 'cancelada')}
+          //                     title="Cancelar cita"
+          //                   >
+          //                     ✗
+          //                   </button>
+          //                 </div>
+          //               </li>
+          //             ))}
+          //           </ul>
+          //         ) : (
+          //           <p>No hay citas pendientes</p>
+          //         )}
+          //       </div>
+          //     </article>
+          //   </section>
+          //   )}
+          // </div>
+          <div className="flex h-screen overflow-hidden">
+            {/* Sidebar */}
+            <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+            {/* Content area */}
+            <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+              {/*  Site header */}
+              <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+              <main className="grow">
+                <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+                  {/* Dashboard actions */}
+                  <div className="sm:flex sm:justify-between sm:items-center mb-8">
+                    {/* Left: Title */}
+                    <div className="mb-4 sm:mb-0">
+                      <h1 className="text-2xl md:text-3xl text-gray-800 dark:text-gray-100 font-bold">Dashboard</h1>
+                    </div>
+                    {/* Right: Actions */}
+                    <div className="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
+                      <button className="btn bg-gray-900 text-gray-100 hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-800 dark:hover:bg-white">
+                        <svg className="fill-current shrink-0 xs:hidden" width="16" height="16" viewBox="0 0 16 16">
+                          <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
+                        </svg>
+                        <span className="max-xs:sr-only">Add View</span>
+                      </button>  
+                    </div>
+                  </div>
+                </div>
+              </main>
             </div>
-            
-            {suscripcion.estado !== 'activa' && (
-              <div className="dashboard-topbar">
-                <strong style={{ color: 'red' }}>{suscripcion.mensaje}</strong>
-              </div>
-            )}
-
-            {suscripcion.estado !== 'vencida' && (
-            <section className="top-cards">
-              <article className="card summary-card" style={{ display: user.rol === 'Empleado' ? 'none' : 'block' }}>
-                <span className="card-title">Total Usuarios </span>
-                <strong>{dashboardData?.total_users || 0} </strong>
-                <small>Registrados</small>
-              </article>
-              <article className="card summary-card" style={{ display: user.rol === 'Empleado' ? 'none' : 'block' }}>
-                <span className="card-title">Total Clientes </span>
-                <strong>{dashboardData?.total_clientes || 0} </strong>
-                <small>Registrados</small>
-              </article>
-              <article className="card summary-card" style={{ display: user.rol === 'Empleado' ? 'block' : 'block' }}>
-                <span className="card-title">Total Citas </span>
-                <strong>{dashboardData?.total_citas || 0} </strong>
-                <small>Agendadas</small>
-              </article>
-            </section>
-            )}
-            
-            {suscripcion.estado !== 'vencida' && (
-            <section className="dashboard-grid">
-              <article className="card">
-                <div className="card-title-row">
-                  <span>Próximas Citas </span>
-                </div>
-                <div>
-                  {upcomingCitas.filter(cita => cita.estado === 'confirmada').sort((a, b) => new Date(a.fecha_hora) - new Date(b.fecha_hora)).length > 0 ? (
-                    <ul className="citas-pendientes-list">
-                      {upcomingCitas.filter(cita => cita.estado === 'confirmada').sort((a, b) => new Date(a.fecha_hora) - new Date(b.fecha_hora)).map(cita => (
-                        <li key={cita.id} className="cita-item">
-                          <span>{cita.cliente} - {cita.servicio} - {new Date(cita.fecha_hora).toLocaleString()}</span>
-                          <div className="cita-actions">
-                            <button 
-                              className="btn-confirm" 
-                              onClick={() => handleCitaEstadoChange(cita.id, 'completada')}
-                              title="Marcar como completada"
-                            >
-                              ✓
-                            </button>
-                            <button 
-                              className="btn-cancel" 
-                              onClick={() => handleCitaEstadoChange(cita.id, 'cancelada')}
-                              title="Cancelar cita"
-                            >
-                              ✗
-                            </button>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p>No hay citas próximas en la semana</p>
-                  )}
-                </div>
-              </article>
-
-              <article className="card">
-                <div className="card-title-row">
-                  <span>Citas Pendientes </span>
-                </div>
-                <div>
-                  {dashboardData?.citas_pendientes?.length > 0 ? (
-                    <ul className="citas-pendientes-list">
-                      {dashboardData.citas_pendientes.map(cita => (
-                        <li key={cita.id} className="cita-item">
-                          <span>{cita.cliente} - {cita.servicio} - {new Date(cita.fecha_hora).toLocaleString()}</span>
-                          <div className="cita-actions">
-                            <button 
-                              className="btn-update" 
-                              onClick={() => handleCitaEstadoChange(cita.id, 'confirmada')}
-                              title="Confirmar cita"
-                            >
-                              ✓
-                            </button>
-                            <button 
-                              className="btn-cancel" 
-                              onClick={() => handleCitaEstadoChange(cita.id, 'cancelada')}
-                              title="Cancelar cita"
-                            >
-                              ✗
-                            </button>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p>No hay citas pendientes</p>
-                  )}
-                </div>
-              </article>
-            </section>
-            )}
           </div>
         )      
       case 'agenda':
