@@ -15,7 +15,7 @@ export default function Header({ setSidebarOpen, handleLogout, user}) {
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
 
         <button
-          className="lg:hidden"
+          className="lg:hidden text-white"
           onClick={() => setSidebarOpen(true)}
         > <Menu size={24} />
         </button>

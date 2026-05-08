@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/'
-import { useSucursales } from './hooks/useData'
 
 function ClientesPage({ user }) {
   const [clientes, setClientes] = useState([])
   const [negocios, setNegocios] = useState([])
-  const { sucursales, loadingSucursales } = useSucursales(user)
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingCliente, setEditingCliente] = useState(null)
@@ -14,7 +12,6 @@ function ClientesPage({ user }) {
     name: '',
     celular: '',
     negocio_id: '',
-    sucursal_id: '',
   })
 
   useEffect(() => {
@@ -66,7 +63,7 @@ function ClientesPage({ user }) {
         await loadClientes()
         setShowModal(false)
         setEditingCliente(null)
-        setFormData({ name: '', celular: '', negocio_id: '', sucursal_id: '' })
+        setFormData({ name: '', celular: '', negocio_id: '' })
       } else {
         const error = await response.json()
         alert(`Error: ${error.detail || 'Error desconocido'}`)
@@ -83,7 +80,6 @@ function ClientesPage({ user }) {
       name: cliente.name,
       celular: cliente.celular || '',
       negocio_id: cliente.negocio_id,
-      sucursal_id: cliente.sucursal_id || '',
     })
     setShowModal(true)
   }
@@ -111,14 +107,14 @@ function ClientesPage({ user }) {
 
   const openCreateModal = () => {
     setEditingCliente(null)
-    setFormData({ name: '', celular: '', negocio_id: user ? user.negocio_id.toString() : '', sucursal_id: '' })
+    setFormData({ name: '', celular: '', negocio_id: user ? user.negocio_id.toString() : '' })
     setShowModal(true)
   }
 
   const closeModal = () => {
     setShowModal(false)
     setEditingCliente(null)
-    setFormData({ name: '', celular: '', negocio_id: '', sucursal_id: '' })
+    setFormData({ name: '', celular: '', negocio_id: ''})
   }
 
   if (loading) {
@@ -275,28 +271,6 @@ function ClientesPage({ user }) {
                     className="w-full h-12 rounded-2xl border border-slate-700 bg-slate-900 px-4 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                   />
                 </div>
-              </div>
-
-              <div className="form-group">
-                <label className="block mb-2 text-sm font-medium text-slate-300">
-                  Sucursal
-                </label>
-
-                <select
-                  disabled={editingCliente}
-                  value={formData.sucursal_id}
-                  onChange={e => setFormData({...formData, sucursal_id: e.target.value})}
-                  required
-                  className="w-full h-12 rounded-2xl border border-slate-700 bg-slate-900 px-4 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-                >
-                  <option value="">Seleccione una sucursal</option>
-
-                  {sucursales.map(sucursal => (
-                    <option key={sucursal.id} value={sucursal.id}>
-                      {sucursal.name}
-                    </option>
-                  ))}
-                </select>
               </div>
 
               <div className="form-group">

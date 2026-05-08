@@ -1,0 +1,7 @@
+button,
+select,
+input[type="checkbox"],
+input[type="radio"],
+a {
+  cursor: pointer;
+}

@@ -700,16 +700,13 @@ def clientes_list(request):
         # Filtrar por parámetros de query
         celular = request.GET.get('celular')
         negocio_id = request.GET.get('negocio_id')
-        sucursal_id = request.GET.get('sucursal_id')
         
         if celular:
             clientes = clientes.filter(celular=celular)
         if negocio_id:
             clientes = clientes.filter(negocio_id=negocio_id)
-        if sucursal_id:
-            clientes = clientes.filter(sucursal_id=sucursal_id)
         
-        data = [{'id': c.id, 'name': c.name, 'celular': c.celular, 'negocio_id': c.negocio_id, 'sucursal_id': c.sucursal_id} for c in clientes]
+        data = [{'id': c.id, 'name': c.name, 'celular': c.celular, 'negocio_id': c.negocio_id} for c in clientes]
         return JsonResponse({'clientes': data})
     elif request.method == 'POST':
         try:
@@ -717,8 +714,7 @@ def clientes_list(request):
             cliente = Cliente.objects.create(
                 name=data['name'],
                 celular=data.get('celular', ''),
-                negocio_id=data['negocio_id'],
-                sucursal_id=data['sucursal_id']
+                negocio_id=data['negocio_id']
             )
             return JsonResponse({
                 'id': cliente.id,
@@ -743,7 +739,6 @@ def cliente_detail(request, cliente_id):
             'name': cliente.name,
             'celular': cliente.celular,
             'negocio_id': cliente.negocio.id,
-            'sucursal_id': cliente.sucursal.id,
 
         }
         return JsonResponse(data)
@@ -754,7 +749,6 @@ def cliente_detail(request, cliente_id):
             cliente.name = data.get('name', cliente.name)
             cliente.celular = data.get('celular', cliente.celular)
             cliente.negocio_id = data.get('negocio_id', cliente.negocio_id)
-            cliente.sucursal_id = data.get('sucursal_id', cliente.sucursal_id)
             cliente.save()
             return JsonResponse({
                 'message': 'Cliente actualizado',
@@ -763,7 +757,6 @@ def cliente_detail(request, cliente_id):
                     'name': cliente.name,
                     'celular': cliente.celular,
                     'negocio_id': cliente.negocio_id,
-                    'sucursal_id': cliente.sucursal_id,
                 }
             })
         except Exception as e:

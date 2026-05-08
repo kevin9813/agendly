@@ -64,8 +64,7 @@ export default function Sidebar({
           fixed lg:static inset-y-0 left-0 z-50
           w-72 bg-slate-900 border-r border-slate-800
           transform transition-transform duration-300 ease-in-out
-          lg:translate-x-0
-          h-[100dvh] bg-white dark:bg-gray-800
+          lg:translate-x-0 bg-white dark:bg-gray-800
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
