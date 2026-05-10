@@ -122,10 +122,10 @@ function ClientesPage({ user }) {
   }
 
   return (
-    <div className="min-h-screen text-white p-6 rounded-2xl border border-slate-800 dark:bg-gray-800">
+    <div className="min-h-screen rounded-2xl border dark:border-slate-800 dark:bg-gray-800 p-6">
       <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">
             Gestión de Clientes
           </h1>
         </div>
@@ -138,49 +138,48 @@ function ClientesPage({ user }) {
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#111827] shadow-[0_10px_40px_rgba(0,0,0,0.35)]">
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="border-b border-white/10 bg-white/[0.03]">
+          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+            <thead className="bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                   ID
                 </th>
 
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Nombre
                 </th>
 
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Celular / WhatsApp
                 </th>
 
-                <th
-                  style={{ display: user.rol === 'Empleado' ? 'none' : 'table-cell' }}
-                  className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-400"
+                <th style={{ display: user.rol === 'Empleado' ? 'none' : 'table-cell' }}
+                  className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500"
                 >
                   Acciones
                 </th>
               </tr>
             </thead>
 
-            <tbody>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {clientes.map(cliente => (
                 <tr
                   key={cliente.id}
-                  className="border-b border-slate-800 hover:bg-slate-900/50 transition-colors duration-200"
+                  className="transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
                 >
-                  <td className="px-6 py-4 text-sm text-slate-400">
+                  <td className="px-6 py-4 text-sm font-medium text-slate-700 dark:text-slate-200">
                     #{cliente.id}
                   </td>
 
                   <td className="px-6 py-4">
-                    <div className="font-medium text-white">
+                    <div className="font-semibold text-slate-900 dark:text-white">
                       {cliente.name}
                     </div>
                   </td>
 
-                  <td className="px-6 py-4 text-slate-300 text-sm">
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
                     {cliente.celular || '-'}
                   </td>
 
@@ -190,7 +189,7 @@ function ClientesPage({ user }) {
                   >
                     <div className="flex justify-end gap-2">
                       <button
-                        className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-slate-200 transition-all hover:bg-white/[0.06]"
+                        className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                         onClick={() => handleEdit(cliente)}
                       >
                         Editar
@@ -213,26 +212,26 @@ function ClientesPage({ user }) {
 
       {showModal && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4 backdrop-blur-sm"
           onClick={closeModal}
         >
           <div
-            className="w-full max-w-2xl rounded-3xl border border-slate-800 bg-[#111827] shadow-2xl overflow-hidden"
+            className="relative max-h-[95vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white shadow-2xl dark:bg-slate-900"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-800 bg-[#0f172a]">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
               <div>
-                <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                <p className="text-sm font-medium text-violet-500">
                   Clientes
                 </p>
 
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                   {editingCliente ? 'Editar Cliente' : 'Nuevo Cliente'}
                 </h2>
               </div>
 
               <button
-                className="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all duration-200"
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-xl text-slate-600 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
                 onClick={closeModal}
               >
                 ×
@@ -245,7 +244,7 @@ function ClientesPage({ user }) {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="form-group">
-                  <label className="block mb-2 text-sm font-medium text-slate-300">
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Nombre completo
                   </label>
 
@@ -254,12 +253,12 @@ function ClientesPage({ user }) {
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
                     required
-                    className="w-full h-12 rounded-2xl border border-slate-700 bg-slate-900 px-4 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
                 </div>
 
                 <div className="form-group">
-                  <label className="block mb-2 text-sm font-medium text-slate-300">
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Celular / WhatsApp
                   </label>
 
@@ -268,17 +267,17 @@ function ClientesPage({ user }) {
                     value={formData.celular}
                     onChange={e => setFormData({...formData, celular: e.target.value})}
                     placeholder="Ej: 312 123 4567"
-                    className="w-full h-12 rounded-2xl border border-slate-700 bg-slate-900 px-4 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
                 </div>
               </div>
 
               <div className="form-group">
-                <label className="block mb-2 text-sm font-medium text-slate-300">
+                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                   Negocio
                 </label>
 
-                <div className="flex items-center h-12 rounded-2xl border border-slate-700 bg-slate-900 px-4 text-slate-400">
+                <div className="rounded-2xl border border-gray-300 dark:border-white/10 bg-white dark:bg-[#0f172a] px-4 py-3 text-sm text-gray-500 dark:text-slate-400">
                   {negocios.find(n => n.id.toString() === formData.negocio_id)?.name || 'Cargando...'}
                 </div>
               </div>

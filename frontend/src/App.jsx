@@ -7,7 +7,7 @@ import ClientesPage from './ClientesPage'
 import EstadisticasPage from './EstadisticasPage'
 import Sidebar from './components/Sidebar'
 import Header from './components/Header'
-import { Menu } from 'lucide-react'
+import { Menu,Sun, Moon } from 'lucide-react'
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/'
 const Swal = window.Swal
@@ -28,6 +28,7 @@ function App() {
     mensaje: '',
     plan: ''
   })
+
 
   // Cargar sesión desde localStorage cuando el componente monta
   useEffect(() => {
@@ -264,12 +265,12 @@ function App() {
             <section className="grid grid-cols-12 gap-6">
               {/* TOTAL USUARIOS */}
               {user.rol !== 'Empleado' && (
-                <div className="col-span-12 lg:col-span-4 relative overflow-hidden rounded-2xl border border-slate-800 dark:bg-gray-800 p-6">
+                <div className="col-span-12 lg:col-span-4 relative overflow-hidden rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-gray-800 p-6">
 
                   {/* TOP */}
                   <div className="mb-8 flex items-start justify-between">
                     <div>
-                      <h3 className="text-2xl font-bold text-white">
+                      <h3 className="text-2xl font-bold dark:text-white">
                         Total Usuarios
                       </h3>
                     </div>
@@ -277,55 +278,55 @@ function App() {
 
                   {/* VALUE */}
                   <div className="mb-6 flex items-center gap-3">
-                    <strong className="text-5xl font-bold text-white">
+                    <strong className="text-5xl font-bold dark:text-white">
                       {dashboardData?.total_users || 0}
                     </strong>
                   </div>
                   {/* FOOTER */}
-                  <p className="text-slate-400">
+                  <p className="text-slate-400 dark:text-white">
                     Registrados
                   </p>
                 </div>
               )}
               {/* TOTAL CLIENTES */}
               {user.rol !== 'Empleado' && (
-                <div className="col-span-12 lg:col-span-4 relative overflow-hidden rounded-2xl border border-slate-800 dark:bg-gray-800 p-6">
+                <div className="col-span-12 lg:col-span-4 relative overflow-hidden rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-gray-800 p-6">
                   <div className="mb-8 flex items-start justify-between">
                     <div>
-                      <h3 className="text-2xl font-bold text-white">
+                      <h3 className="text-2xl font-bold dark:text-white">
                         Total Clientes
                       </h3>
                     </div>
                   </div>
 
                   <div className="mb-6 flex items-center gap-3">
-                    <strong className="text-5xl font-bold text-white">
+                    <strong className="text-5xl font-bold dark:text-white">
                       {dashboardData?.total_clientes || 0}
                     </strong>
                   </div>
 
-                  <p className="text-slate-400">
+                  <p className="text-slate-400 dark:text-white">
                     Registrados
                   </p>
                 </div>
               )}
               {/* TOTAL CITAS */}
-              <div className="col-span-12 lg:col-span-4 relative overflow-hidden rounded-2xl border border-slate-800 dark:bg-gray-800 p-6">
+              <div className="col-span-12 lg:col-span-4 relative overflow-hidden rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-gray-800 p-6">
                 <div className="mb-8 flex items-start justify-between">
                   <div>
-                    <h3 className="text-2xl font-bold text-white">
+                    <h3 className="text-2xl font-bold dark:text-white">
                       Total Citas
                     </h3>
                   </div>
                 </div>
 
                 <div className="mb-6 flex items-center gap-3">
-                  <strong className="text-5xl font-bold text-white">
+                  <strong className="text-5xl font-bold dark:text-white">
                     {dashboardData?.total_citas || 0}
                   </strong>
                 </div>
 
-                <p className="text-slate-400">
+                <p className="text-slate-400 dark:text-white">
                   Agendadas
                 </p>
               </div>
@@ -485,7 +486,7 @@ function App() {
   return (
     <div>
       {user ? (
-      <div className="min-h-screen bg-slate-100 bg-slate-900/95">
+      <div className="min-h-screen bg-slate-100">
 
       <div className="flex">
 
@@ -495,13 +496,13 @@ function App() {
         />
 
         {/* CONTENT */}
-         <div className="flex-1 min-w-0 bg-slate-900/95 backdrop-blur-xl">
+         <div className="flex-1 min-w-0 dark:bg-slate-900/95 ">
 
           {/* TOPBAR */}
           <Header setSidebarOpen={setSidebarOpen} handleLogout={handleLogout} user={user}/>
 
           {/* PAGE */}
-          <main className="p-6 bg-slate-900/95">
+          <main className="p-6">
             {renderPage()}
           </main>
 
@@ -510,7 +511,7 @@ function App() {
       </div>
     </div>
       ) : (
-        <div className="min-h-screen bg-[#0f172a] flex items-center justify-center px-4 py-8">
+        <div className="min-h-screen dbg-[#0f172a] flex items-center justify-center px-4 py-8">
           <div className="w-full max-w-md">
             
             {/* CARD */}

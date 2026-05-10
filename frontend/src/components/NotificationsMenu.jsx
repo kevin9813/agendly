@@ -30,30 +30,15 @@ export default function NotificationsMenu() {
     <div className="relative">
 
       {/* BUTTON */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="
-          relative
-          w-10 h-10
-          rounded-full
-          flex items-center justify-center
-          text-slate-400
-          hover:text-white
-          hover:bg-slate-800
-          transition-all
-        "
+      <button onClick={() => setOpen(!open)}
+        className="relative w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
       >
 
         <Bell size={20} />
 
         {/* RED DOT */}
         <span
-          className="
-            absolute top-2 right-2
-            w-2 h-2
-            bg-red-500
-            rounded-full
-          "
+          className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"
         />
 
       </button>

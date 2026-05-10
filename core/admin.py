@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 
-from .models import Cita, Cliente, Negocio, Sucursal, Rol, Servicio, User, Ciudad, Barrio, Cobertura, UserServicio, NegocioSuscripcion, Plan
+from .models import Cita, Cliente, Negocio, Sucursal, Rol, Servicio, User, Ciudad, Barrio, Cobertura, UserServicio, NegocioSuscripcion, Plan, SucursalHorario
 
 
 class CitaForm(forms.ModelForm):
@@ -22,7 +22,6 @@ class UserServicioInline(admin.TabularInline):
     model = UserServicio
     extra = 1
     autocomplete_fields = ['servicio']
-
 
 @admin.register(Ciudad)
 class CiudadAdmin(admin.ModelAdmin):
@@ -45,6 +44,13 @@ class NegocioAdmin(admin.ModelAdmin):
 class SucursalAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'negocio')
     search_fields = ('name', 'negocio__name')
+
+@admin.register(SucursalHorario)
+class SucursalHorario(admin.ModelAdmin):
+    list_display = ('id', 'sucursal', 'dia_semana', 'hora_inicio', 'hora_fin', 'activo')
+    list_filter = ('sucursal', 'dia_semana', 'activo')
+    search_fields = ('sucursal__name',)
+    ordering = ('sucursal', 'dia_semana', 'hora_inicio')
 
 @admin.register(NegocioSuscripcion)
 class NegocioSuscripcionAdmin(admin.ModelAdmin):

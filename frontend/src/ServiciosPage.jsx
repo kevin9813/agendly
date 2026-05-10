@@ -147,11 +147,11 @@ function ServiciosPage({ user }) {
   }
 
   return (
-    <div className="min-h-screen text-white p-6 rounded-2xl border border-slate-800 dark:bg-gray-800">
+    <div className="min-h-screen rounded-2xl border dark:border-slate-800 dark:bg-gray-800 p-6">
       {/* TOPBAR */}
       <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">
+          <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">
             Gestión de Servicios
           </h1>
         </div>
@@ -165,49 +165,49 @@ function ServiciosPage({ user }) {
       </div>
 
       {/* TABLA */}
-      <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#111827] shadow-[0_10px_40px_rgba(0,0,0,0.35)]">
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="border-b border-white/10 bg-white/[0.03]">
+          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+            <thead className="bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                   ID
                 </th>
 
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Nombre
                 </th>
 
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Precio
                 </th>
 
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Tiempo
                 </th>
 
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Domicilio
                 </th>
 
-                <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Acciones
                 </th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {servicios.map(servicio => (
                 <tr
                   key={servicio.id}
-                  className="transition-all hover:bg-white/[0.03]"
+                  className="transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
                 >
-                  <td className="px-6 py-5 text-sm font-medium text-slate-400">
+                  <td className="px-6 py-4 text-sm font-medium text-slate-700 dark:text-slate-200">
                     #{servicio.id}
                   </td>
 
                   <td className="px-6 py-5">
-                    <div className="font-semibold text-white">
+                    <div className="font-semibold text-slate-900 dark:text-white">
                       {servicio.name}
                     </div>
                   </td>
@@ -218,7 +218,7 @@ function ServiciosPage({ user }) {
                     </span>
                   </td>
 
-                  <td className="px-6 py-5 text-sm text-slate-300">
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
                     {servicio.tiempo} min
                   </td>
 
@@ -227,7 +227,7 @@ function ServiciosPage({ user }) {
                       className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
                         servicio.permite_domicilio
                           ? 'bg-blue-500/10 text-blue-400'
-                          : 'bg-white/[0.04] text-slate-400'
+                          : 'bg-white/[0.04] text-slate-600 dark:text-slate-300'
                       }`}
                     >
                       {servicio.permite_domicilio ? 'Sí' : 'No'}
@@ -237,7 +237,7 @@ function ServiciosPage({ user }) {
                   <td className="px-6 py-5">
                     <div className="flex justify-end gap-2">
                       <button
-                        className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-slate-200 transition-all hover:bg-white/[0.06]"
+                        className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                         onClick={() => handleEdit(servicio)}
                       >
                         Editar
@@ -261,27 +261,27 @@ function ServiciosPage({ user }) {
       {/* MODAL */}
       {showModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4 backdrop-blur-sm"
           onClick={closeModal}
         >
           <div
-            className="max-h-[95vh] w-full max-w-2xl overflow-y-auto rounded-[32px] border border-white/10 bg-[#111827] shadow-[0_20px_80px_rgba(0,0,0,0.55)]"
+            className="relative max-h-[95vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white shadow-2xl dark:bg-slate-900"
             onClick={e => e.stopPropagation()}
           >
             {/* HEADER */}
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#111827]/95 px-6 py-5 backdrop-blur-xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <p className="text-sm font-medium text-violet-500">
                   Servicio
                 </p>
 
-                <h2 className="mt-1 text-2xl font-bold text-white">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                   {editingServicio ? 'Editar Servicio' : 'Nuevo Servicio'}
                 </h2>
               </div>
 
               <button
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-xl text-slate-400 transition-all hover:bg-white/[0.06] hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-xl text-slate-600 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
                 onClick={closeModal}
               >
                 ×
@@ -293,7 +293,7 @@ function ServiciosPage({ user }) {
               <div className="grid gap-5 md:grid-cols-2">
                 {/* NOMBRE */}
                 <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-semibold text-slate-300">
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Nombre
                   </label>
 
@@ -307,13 +307,13 @@ function ServiciosPage({ user }) {
                       })
                     }
                     required
-                    className="h-12 w-full rounded-2xl border border-white/10 bg-[#0f172a] px-4 text-sm text-white outline-none transition-all placeholder:text-slate-500 focus:border-slate-500"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
                 </div>
 
                 {/* PRECIO */}
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-300">
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Precio
                   </label>
 
@@ -328,13 +328,14 @@ function ServiciosPage({ user }) {
                       })
                     }
                     required
-                    className="h-12 w-full rounded-2xl border border-white/10 bg-[#0f172a] px-4 text-sm text-white outline-none transition-all focus:border-slate-500"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+
                   />
                 </div>
 
                 {/* TIEMPO */}
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-300">
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Tiempo (minutos)
                   </label>
 
@@ -348,14 +349,15 @@ function ServiciosPage({ user }) {
                       })
                     }
                     required
-                    className="h-12 w-full rounded-2xl border border-white/10 bg-[#0f172a] px-4 text-sm text-white outline-none transition-all focus:border-slate-500"
+                    className="w-full rounded-2xl border border-slate-200 dark:bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+
                   />
                 </div>
               </div>
 
               {/* CHECKBOX */}
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <label className="flex items-center gap-3 text-sm font-medium text-slate-300">
+                <label className="flex items-center gap-3 text-sm font-medium text-slate-700 dark:text-slate-300">
                   <input
                     type="checkbox"
                     checked={formData.permite_domicilio}
@@ -365,7 +367,7 @@ function ServiciosPage({ user }) {
                         permite_domicilio: e.target.checked,
                       })
                     }
-                    className="h-5 w-5 rounded border-white/20 bg-[#0f172a]"
+                    className="h-5 w-5 rounded border-white/20 text-slate-700 dark:bg-[#0f172a]"
                   />
 
                   Permite a domicilio
@@ -374,7 +376,7 @@ function ServiciosPage({ user }) {
 
               {/* NOTAS */}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-300">
+                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                   Notas
                 </label>
 
@@ -387,17 +389,17 @@ function ServiciosPage({ user }) {
                     })
                   }
                   rows="4"
-                  className="w-full rounded-2xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-slate-500 focus:border-slate-500"
+                  className="w-full rounded-2xl border border-gray-300 dark:border-white/10 bg-white dark:bg-[#0f172a] px-4 py-3 text-sm text-gray-900 dark:text-white outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:border-slate-500"
                 />
               </div>
 
               {/* NEGOCIO */}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-300">
+                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                   Negocio
                 </label>
 
-                <div className="rounded-2xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-slate-400">
+                <div className="rounded-2xl border border-gray-300 dark:border-white/10 bg-white dark:bg-[#0f172a] px-4 py-3 text-sm text-gray-500 dark:text-slate-400">
                   {negocios.find(
                     n => n.id.toString() === formData.negocio_id
                   )?.name || 'Cargando..'}
@@ -405,11 +407,11 @@ function ServiciosPage({ user }) {
               </div>
 
               {/* ACTIONS */}
-              <div className="flex flex-col-reverse gap-3 border-t border-white/10 pt-6 sm:flex-row sm:justify-end">
+              <div className="flex flex-col-reverse md:flex-row justify-end gap-3 pt-4 border-t border-slate-800">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="h-12 rounded-2xl border border-white/10 bg-white/[0.03] px-6 text-sm font-semibold text-slate-300 transition-all hover:bg-white/[0.06]"
+                  className="h-12 px-5 rounded-2xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-white font-medium transition-all duration-200"
                 >
                   Cancelar
                 </button>

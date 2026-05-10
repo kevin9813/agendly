@@ -255,10 +255,10 @@ function EstadisticasPage({ user }) {
   }
 
   return (
-    <div className="min-h-screen text-white p-6 rounded-2xl border border-slate-800 dark:bg-gray-800">
+    <div className="min-h-screen rounded-2xl border dark:border-slate-800 dark:bg-gray-800 p-6">
       <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">
             Estadísticas
           </h1>
         </div>
@@ -270,11 +270,11 @@ function EstadisticasPage({ user }) {
         <div className="space-y-6">
 
           {/* FILTERS */}
-          <section className="rounded-3xl border border-slate-800 bg-[#111827] p-5 shadow-2xl">
+          <section className="rounded-3xl  bg-white border dark:border-slate-800 dark:bg-[#111827] p-5 shadow-2xl">
             <div className="flex flex-col lg:flex-row lg:items-end gap-5">
 
               <div className="flex-1">
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Usuario
                 </label>
 
@@ -282,7 +282,7 @@ function EstadisticasPage({ user }) {
                   value={selectedUserId}
                   onChange={(event) => setSelectedUserId(event.target.value)}
                   disabled={user?.rol === 'Empleado'}
-                  className="w-full h-12 rounded-2xl border border-slate-700 bg-slate-900 px-4 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  className="w-full h-12 rounded-2xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                 >
                   <option value="">Todos</option>
 
@@ -295,14 +295,14 @@ function EstadisticasPage({ user }) {
               </div>
 
               <div className="flex-1">
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Periodo
                 </label>
 
                 <select
                   value={period}
                   onChange={(event) => setPeriod(event.target.value)}
-                  className="w-full h-12 rounded-2xl border border-slate-700 bg-slate-900 px-4 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  className="w-full h-12 rounded-2xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                 >
                   {periodOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -316,8 +316,8 @@ function EstadisticasPage({ user }) {
             {/* SUMMARY */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
               
-              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-                <span className="text-sm text-slate-400">
+              <div className="rounded-2xl border bg-white dark:border-slate-800 dark:bg-slate-900 p-4">
+                <span className="text-sm  text-slate-700 dark:text-slate-400">
                   Total completadas
                 </span>
 
@@ -326,8 +326,8 @@ function EstadisticasPage({ user }) {
                 </strong>
               </div>
 
-              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-                <span className="text-sm text-slate-400">
+              <div className="rounded-2xl border bg-white dark:border-slate-800 dark:bg-slate-900 p-4">
+                <span className="text-sm text-slate-700 dark:text-slate-400">
                   Total canceladas
                 </span>
 
@@ -336,12 +336,12 @@ function EstadisticasPage({ user }) {
                 </strong>
               </div>
 
-              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-                <span className="text-sm text-slate-400">
+              <div className="rounded-2xl border bg-white dark:border-slate-800 dark:bg-slate-900 p-4">
+                <span className="text-sm text-slate-700 dark:text-slate-400">
                   Periodo
                 </span>
 
-                <strong className="block mt-2 text-lg font-semibold text-white">
+                <strong className="block mt-2 text-lg font-semibold text-slate-700 dark:text-white">
                   {periodOptions.find((opt) => opt.value === period)?.label}
                 </strong>
               </div>
@@ -350,27 +350,27 @@ function EstadisticasPage({ user }) {
           </section>
 
           {/* CHART */}
-          <section className="rounded-3xl border border-slate-800 bg-[#111827] p-5 shadow-2xl">
+          <section className="rounded-3xl border bg-white dark:border-slate-800 dark:bg-[#111827] p-5 shadow-2xl">
             
             <div className="flex items-center justify-between mb-6">
               <div>
-                <p className="text-sm uppercase tracking-[0.2em] text-slate-500 font-semibold">
+                <p className="text-sm uppercase tracking-[0.2em] text-slate-900 dark:text-slate-500 font-semibold">
                   Reportes
                 </p>
 
-                <h2 className="text-xl font-bold text-white">
+                <h2 className="text-xl font-bold text-slate-500 dark:text-white">
                   Rendimiento de Citas
                 </h2>
               </div>
 
               <div className="flex items-center gap-5 text-sm">
                 
-                <div className="flex items-center gap-2 text-slate-300">
+                <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                   <span className="w-3 h-3 rounded-full bg-green-400" />
                   Completadas
                 </div>
 
-                <div className="flex items-center gap-2 text-slate-300">
+                <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                   <span className="w-3 h-3 rounded-full bg-red-400" />
                   Canceladas
                 </div>
@@ -378,11 +378,11 @@ function EstadisticasPage({ user }) {
             </div>
 
             {chartData.every((item) => item.completadas === 0 && item.canceladas === 0) ? (
-              <div className="flex items-center justify-center h-[320px] rounded-2xl border border-dashed border-slate-700 bg-slate-900 text-slate-500 text-center px-6">
+              <div className="flex items-center justify-center h-[320px] rounded-2xl border border-dashed border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 text-gray-500 dark:text-slate-500 text-center px-6">
                 No hay datos de citas completadas o canceladas para este periodo.
               </div>
             ) : (
-              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+              <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
                 <div className="chart-container h-[320px]">
                   <canvas ref={chartRef} />
                 </div>
@@ -398,7 +398,7 @@ function EstadisticasPage({ user }) {
         </div>
 
         {/* RIGHT */}
-        <div className="rounded-3xl border border-slate-800 bg-[#111827] p-6 shadow-2xl min-h-[300px]">
+        <div className="rounded-3xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-[#111827] p-6 shadow-2xl min-h-[300px]">
           {/* <div className="mb-6">
             <p className="text-sm uppercase tracking-[0.2em] text-slate-500 font-semibold">
               Información

@@ -61,6 +61,23 @@ class Sucursal(models.Model):
     def __str__(self):
         return f"{self.negocio.name} - {self.name}"
 
+class SucursalHorario(models.Model):
+    DIA_SEMANA_CHOICES = [(0, 'Domingo'),(1, 'Lunes'),(2, 'Martes'),(3, 'Miércoles'),(4, 'Jueves'),(5, 'Viernes'),(6, 'Sábado')]
+    sucursal = models.ForeignKey(Sucursal,on_delete=models.CASCADE,related_name="horarios")
+    dia_semana = models.IntegerField(choices=DIA_SEMANA_CHOICES)
+    hora_inicio = models.TimeField()
+    hora_fin = models.TimeField()
+    activo = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('sucursal', 'dia_semana')
+        ordering = ['dia_semana', 'hora_inicio']
+
+    def __str__(self):
+        return f"{self.sucursal} - {self.get_dia_semana_display()}"
+
 
 class NegocioSuscripcion(models.Model):
     negocio = models.ForeignKey(Negocio, on_delete=models.CASCADE, related_name='suscripciones')

@@ -51,8 +51,7 @@ export default function Sidebar({
     <>
       {/* MOBILE OVERLAY */}
       <div
-        className={`
-          fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity
+        className={`fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity
           ${sidebarOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}
         `}
         onClick={() => setSidebarOpen(false)}
@@ -61,16 +60,14 @@ export default function Sidebar({
       {/* SIDEBAR */}
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-50
-          w-72 bg-slate-900 border-r border-slate-800
-          transform transition-transform duration-300 ease-in-out
-          lg:translate-x-0 bg-white dark:bg-gray-800
+          fixed lg:static inset-y-0 left-0 z-50 w-72 dark:bg-slate-900 border-r dark:border-slate-800
+          transform transition-transform duration-300 ease-in-out lg:translate-x-0 bg-white dark:bg-gray-800
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
 
         {/* HEADER */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800">
+        <div className="h-16 flex items-center justify-between px-6 border-b dark:border-slate-800">
 
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-violet-600 flex items-center justify-center text-white font-bold">
@@ -78,11 +75,11 @@ export default function Sidebar({
             </div>
 
             <div>
-              <h1 className="text-white font-semibold">
+              <h1 className="font-semibold text-gray-900 dark:text-white">
                 Kelzo
               </h1>
 
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-400 text-gray-900 dark:text-white">
                 Dashboard
               </p>
             </div>
@@ -99,7 +96,7 @@ export default function Sidebar({
         {/* NAV */}
         <div className="p-4 overflow-y-auto h-[calc(100vh-64px)]">
 
-          <p className="text-xs uppercase text-slate-500 font-semibold px-3 mb-3">
+          <p className="text-xs uppercase text-slate-500 font-semibold px-3 mb-3 text-gray-900 dark:text-white">
             Menú
           </p>
 
@@ -122,15 +119,13 @@ export default function Sidebar({
                       setSidebarOpen(false)
                     }}
                     className={`
-                      w-full flex items-center gap-3
-                      px-4 py-3 rounded-xl
-                      text-sm font-medium
-                      transition-all duration-200
+                      w-full flex items-center gap-3 px-4 py-3 rounded-xl
+                      text-sm font-medium transition-all duration-200
                       
                       ${
                         currentPage === item.key
-                          ? 'bg-violet-500 text-white'
-                          : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                          ? 'bg-violet-500 text-white text-gray-900 dark:text-white'
+                          : 'text-slate-300 hover:bg-slate-800 hover:text-white text-gray-900 dark:text-white'
                       }
                     `}
                   >

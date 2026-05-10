@@ -202,7 +202,7 @@ function UsuariosPage({ user }) {
   }
 
   return (
-    <div className="min-h-screen rounded-2xl border border-slate-800 dark:bg-gray-800 p-6">
+    <div className="min-h-screen rounded-2xl border dark:border-slate-800 dark:bg-gray-800 p-6">
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
