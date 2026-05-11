@@ -24,6 +24,7 @@ function NegocioPage({ user }) {
     permite_agendar: false,
     activo: true,
   })
+  const [horarios, setHorarios] = useState([])
 
   useEffect(() => {
     if (!user?.negocio_id) {
@@ -69,6 +70,18 @@ function NegocioPage({ user }) {
       if (response.ok) {
         const data = await response.json()
         setSucursales(data.sucursales || [])
+      }
+    } catch (error) {
+      console.error('Error loading sucursales:', error)
+    }
+  }
+
+  const loadHorarios = async (sucursal_id) => {
+     try {
+      const response = await fetch(`${apiUrl}sucursal-horarios/${sucursal_id}`)
+      if (response.ok) {
+        const data = await response.json()
+        setHorarios(data.horarios || [])
       }
     } catch (error) {
       console.error('Error loading sucursales:', error)
@@ -147,6 +160,7 @@ function NegocioPage({ user }) {
       activo: Boolean(sucursal.activo),
     })
     setMessage('')
+    loadHorarios(sucursal.id)
   }
 
   const cancelSucursalForm = () => {
@@ -184,6 +198,7 @@ function NegocioPage({ user }) {
         permite_agendar: Boolean(sucursalForm.permite_agendar),
         activo: Boolean(sucursalForm.activo),
         negocio_id: user.negocio_id,
+        horarios: horarios,
       }
 
       if (!editingSucursal) {
@@ -578,7 +593,7 @@ function NegocioPage({ user }) {
 
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    Horario de Atención
+                    Notas
                   </label>
 
                   <textarea
@@ -591,6 +606,100 @@ function NegocioPage({ user }) {
                     className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
                 </div>
+                <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                  <div className="mb-6">
+                    <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                      Horarios de Atención
+                    </h2>
+
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      Configura los días y horarios disponibles para la sucursal.
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    {horarios.map((horario, index) => (
+                      <div
+                        key={horario.dia_semana}
+                        className={`
+                          flex flex-col gap-4 rounded-xl border p-4 transition-all
+                          md:flex-row md:items-center md:justify-between
+                          
+                          ${
+                            horario.activo
+                              ? 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800'
+                              : 'border-slate-100 bg-slate-100 opacity-70 dark:border-slate-800 dark:bg-slate-950'
+                          }
+                        `}
+                      >
+                        {/* Día */}
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            checked={horario.activo}
+                            className="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-800"
+                            onChange={(e) => {
+                              const nuevos = [...horarios]
+                              nuevos[index].activo = e.target.checked
+                              setHorarios(nuevos)
+                            }}
+                          />
+
+                          <span className="min-w-[100px] font-medium text-slate-700 dark:text-slate-200">
+                            {horario.nombre}
+                          </span>
+                        </div>
+
+                        {/* Horarios */}
+                        <div className="flex items-center gap-3">
+                          <div className="flex flex-col">
+                            <label className="mb-1 text-xs text-slate-500 dark:text-slate-400">
+                              Inicio
+                            </label>
+
+                            <input
+                              type="time"
+                              value={horario.hora_inicio}
+                              disabled={!horario.activo}
+                              className="
+                                rounded-lg border border-slate-300 bg-white px-3 py-2
+                                text-slate-700 outline-none transition
+                                focus:border-blue-500 focus:ring-2 focus:ring-blue-200
+                                disabled:cursor-not-allowed disabled:opacity-50
+                                dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200
+                                dark:focus:border-blue-400 dark:focus:ring-blue-900
+                              "
+                              onChange={(e) => {
+                                const nuevos = [...horarios]
+                                nuevos[index].hora_inicio = e.target.value
+                                setHorarios(nuevos)
+                              }}
+                            />
+                          </div>
+
+                          <span className="mt-5 text-slate-400">—</span>
+
+                          <div className="flex flex-col">
+                            <label className="mb-1 text-xs text-slate-500 dark:text-slate-400">
+                              Fin
+                            </label>
+
+                            <input
+                              type="time"
+                              value={horario.hora_fin}
+                              disabled={!horario.activo}
+                              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-blue-400 dark:focus:ring-blue-900"
+                              onChange={(e) => {
+                                const nuevos = [...horarios]
+                                nuevos[index].hora_fin = e.target.value
+                                setHorarios(nuevos)
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
 
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-800/50">
                   <label className="flex cursor-pointer items-center justify-between gap-4">

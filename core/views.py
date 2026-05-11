@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Prefetch
 
-from .models import Barrio, Cobertura, Cita, Cliente, Negocio, Rol, Servicio, Sucursal, User, UserServicio, Ciudad, NegocioSuscripcion, Plan
+from .models import Barrio, Cobertura, Cita, Cliente, Negocio, Rol, Servicio, Sucursal, User, UserServicio, Ciudad, NegocioSuscripcion, Plan, SucursalHorario
 
 
 def parse_datetime(value):
@@ -363,6 +363,19 @@ def sucursal_detail(request, sucursal_id):
             sucursal.permite_agendar = data.get('permite_agendar', sucursal.permite_agendar)
             sucursal.activo = data.get('activo', sucursal.activo)
             sucursal.save()
+            horarios = data.get('horarios', [])
+             # Eliminar horarios anteriores
+            SucursalHorario.objects.filter(sucursal=sucursal).delete()
+             # Crear nuevos
+            for horario in horarios:
+                SucursalHorario.objects.create(
+                    sucursal=sucursal,
+                    dia_semana=horario['dia_semana'],
+                    hora_inicio=horario['hora_inicio'],
+                    hora_fin=horario['hora_fin'],
+                    activo=horario['activo']
+                )
+
             return JsonResponse({'message': 'Sucursal actualizada'})
         except Exception as e:
             return JsonResponse({'detail': str(e)}, status=400)
@@ -393,6 +406,51 @@ def negocio_suscripcion(request, negocio_id):
         }
         return JsonResponse(data)
 
+
+@csrf_exempt
+def sucursal_horarios(request, sucursal_id):
+    if request.method == 'GET':
+        horarios = SucursalHorario.objects.filter(sucursal_id=sucursal_id)
+        # Si existen horarios guardados
+        if horarios.exists():
+
+            data = [{
+                'id': h.id,
+                'dia_semana': h.dia_semana,
+                'nombre': h.get_dia_semana_display(),
+                'hora_inicio': h.hora_inicio.strftime('%H:%M') if h.hora_inicio else '',
+                'hora_fin': h.hora_fin.strftime('%H:%M') if h.hora_fin else '',
+                'activo': h.activo,
+            } for h in horarios]
+
+        else:
+            # Horarios por defecto
+            dias = [
+                'Domingo',
+                'Lunes',
+                'Martes',
+                'Miércoles',
+                'Jueves',
+                'Viernes',
+                'Sábado',
+            ]
+
+            data = []
+
+            for i, nombre in enumerate(dias):
+
+                data.append({
+                    'id': None,
+                    'dia_semana': i,
+                    'nombre': nombre,
+                    'hora_inicio': '08:00',
+                    'hora_fin': '18:00',
+                    'activo': False if i == 0 else True,
+                })
+
+        return JsonResponse({
+            'horarios': data
+        })
 
 # Similar CRUD views for other models would go here
 # For brevity, I'll add basic list views for now
