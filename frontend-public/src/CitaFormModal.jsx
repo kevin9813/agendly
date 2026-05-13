@@ -176,190 +176,202 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>×</button>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+      
+      <div
+        className="bg-white w-full max-w-2xl rounded-2xl shadow-lg max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
 
-        <div className="modal-header">
-          <h2>Agendar Cita</h2>
-          <br />
-          <div className="cita-info">
-            <p><strong>Servicio:</strong> {servicio.nombre}</p>
-            <p><strong>Empleado:</strong> {empleado.name}</p>
-            <p><strong>Precio:</strong> ${formatPrice(servicio.precio)}</p>
-            <p><strong>Duración:</strong> {servicio.tiempo} minutos</p>
+        {/* HEADER */}
+        <div className="sticky top-0 bg-white border-b px-5 py-4 flex justify-between items-center rounded-t-2xl">
+          <h2 className="text-lg font-bold text-gray-900">
+            Agendar Cita
+          </h2>
+
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-black text-2xl"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* INFO SERVICIO */}
+        <div className="px-5 pt-4">
+          <div className="bg-gray-50 rounded-xl p-3 text-sm space-y-1">
+            <p><b>Servicio:</b> {servicio.nombre}</p>
+            <p><b>Empleado:</b> {empleado.name}</p>
+            <p><b>Precio:</b> ${formatPrice(servicio.precio)}</p>
+            <p><b>Duración:</b> {servicio.tiempo} min</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="cita-form">
-          <div className="form-section">
-            <h3>Datos del Cliente</h3>
+        {/* FORM */}
+        <form onSubmit={handleSubmit} className="p-5 space-y-6">
 
-            <div className="form-group">
-              <label>Nombre completo:</label>
+          {/* CLIENTE */}
+          <div>
+            <h3 className="font-semibold text-gray-900 mb-3">
+              Datos del Cliente
+            </h3>
+
+            <div className="space-y-3">
+
               <input
                 type="text"
                 value={formData.cliente_name}
                 onChange={e => setFormData({...formData, cliente_name: e.target.value})}
-                placeholder="Ingresa tu nombre completo"
-                required
+                placeholder="Nombre completo"
+                className="w-full border rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-black"
               />
-              {errors.cliente_name && <span className="error-text">{errors.cliente_name}</span>}
-            </div>
+              {errors.cliente_name && (
+                <p className="text-red-500 text-sm">{errors.cliente_name}</p>
+              )}
 
-            <div className="form-group">
-              <label>Celular/WhatsApp:</label>
               <input
                 type="tel"
                 value={formData.cliente_celular}
                 onChange={e => setFormData({...formData, cliente_celular: e.target.value})}
-                placeholder="Ingresa tu número de celular"
-                required
+                placeholder="Celular / WhatsApp"
+                className="w-full border rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-black"
               />
-              {errors.cliente_celular && <span className="error-text">{errors.cliente_celular}</span>}
+              {errors.cliente_celular && (
+                <p className="text-red-500 text-sm">{errors.cliente_celular}</p>
+              )}
+
             </div>
           </div>
 
-          <div className="form-section">
-            <h3>Fecha y Hora</h3>
+          {/* FECHA Y HORA */}
+          <div>
+            <h3 className="font-semibold text-gray-900 mb-3">
+              Fecha y Hora
+            </h3>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label>Fecha:</label>
-                <input
-                  type="date"
-                  value={formData.fecha}
-                  onChange={e => setFormData({...formData, fecha: e.target.value})}
-                  min={new Date().toISOString().split('T')[0]}
-                  required
-                />
-                {errors.fecha && <span className="error-text">{errors.fecha}</span>}
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 
-              <div className="form-group">
-                <label>Hora de inicio:</label>
-                <input
-                  type="time"
-                  value={formData.hora}
-                  onChange={e => setFormData({...formData, hora: e.target.value})}
-                  required
-                />
-                {errors.hora && <span className="error-text">{errors.hora}</span>}
-              </div>
+              <input
+                type="date"
+                value={formData.fecha}
+                onChange={e => setFormData({...formData, fecha: e.target.value})}
+                min={new Date().toISOString().split('T')[0]}
+                className="border rounded-xl px-3 py-2"
+              />
 
-              <div className="form-group">
-                <label>Hora de fin:</label>
-                <input
-                  type="time"
-                  value={horaFin}
-                  readOnly
-                  className="readonly-input"
-                />
-              </div>
+              <input
+                type="time"
+                value={formData.hora}
+                onChange={e => setFormData({...formData, hora: e.target.value})}
+                className="border rounded-xl px-3 py-2"
+              />
+
+              <input
+                type="time"
+                value={horaFin}
+                readOnly
+                className="border rounded-xl px-3 py-2 bg-gray-100"
+              />
+
             </div>
           </div>
 
-          <div className="form-section">
-            <h3>Tipo de Servicio</h3>
+          {/* SERVICIO */}
+          <div>
+            <h3 className="font-semibold text-gray-900 mb-3">
+              Tipo de Servicio
+            </h3>
 
-            <div className="form-group">
-              <label>¿Dónde quieres el servicio?</label>
-              <select
-                value={formData.tipo_servicio}
-                onChange={e => {
-                  const selected = e.target.value
-                  if (selected === 'domicilio' && !servicioPermiteDomicilio) {
-                    setFormData(prev => ({
-                      ...prev,
-                      tipo_servicio: 'local',
-                      cobertura_id: '',
-                      direccion: '',
-                    }))
-                    setErrors(prev => ({ ...prev, tipo_servicio: 'Este servicio no está disponible a domicilio' }))
-                  } else {
-                    setFormData(prev => ({
-                      ...prev,
-                      tipo_servicio: selected,
-                      cobertura_id: selected === 'domicilio' ? prev.cobertura_id : '',
-                      direccion: selected === 'domicilio' ? prev.direccion : '',
-                    }))
-                    setErrors(prev => ({ ...prev, tipo_servicio: undefined }))
-                  }
-                }}
-                required
-              >
-                <option value="local">En el local</option>
-                <option value="domicilio" disabled={!servicioPermiteDomicilio}>
-                  A domicilio{!servicioPermiteDomicilio ? ' (no disponible para este servicio)' : ''}
-                </option>
-                {/* <option value="virtual">Virtual</option> */}
-              </select>
-              {errors.tipo_servicio && <span className="error-text">{errors.tipo_servicio}</span>}
-            </div>
+            <select
+              value={formData.tipo_servicio}
+              onChange={e => {
+                const selected = e.target.value;
+
+                if (selected === 'domicilio' && !servicioPermiteDomicilio) {
+                  setFormData(prev => ({
+                    ...prev,
+                    tipo_servicio: 'local',
+                    cobertura_id: '',
+                    direccion: '',
+                  }));
+                  return;
+                }
+
+                setFormData(prev => ({
+                  ...prev,
+                  tipo_servicio: selected,
+                }));
+              }}
+              className="w-full border rounded-xl px-3 py-2"
+            >
+              <option value="local">En el local</option>
+              <option value="domicilio" disabled={!servicioPermiteDomicilio}>
+                A domicilio
+              </option>
+            </select>
 
             {formData.tipo_servicio === 'domicilio' && (
-              <>
-                <div className="form-group">
-                  <label>Zona de cobertura:</label>
-                  <select
-                    value={formData.cobertura_id}
-                    onChange={e => setFormData({...formData, cobertura_id: e.target.value})}
-                    required
-                  >
-                    <option value="">Seleccionar zona</option>
-                    {coberturas.map(cobertura => (
-                      <option key={cobertura.id} value={cobertura.id}>
-                        {cobertura.barrio} - +${formatPrice(cobertura.costo_extra)} ({cobertura.tiempo_estimado} min adicionales)
-                      </option>
-                    ))}
-                  </select>
-                  {errors.cobertura_id && <span className="error-text">{errors.cobertura_id}</span>}
-                </div>
+              <div className="mt-3 space-y-3">
 
-                <div className="form-group">
-                  <label>Dirección completa:</label>
-                  <input
-                    type="text"
-                    value={formData.direccion}
-                    onChange={e => setFormData({...formData, direccion: e.target.value})}
-                    placeholder="Ingresa la dirección exacta del servicio"
-                    required
-                  />
-                  {errors.direccion && <span className="error-text">{errors.direccion}</span>}
-                </div>
-              </>
+                <select
+                  value={formData.cobertura_id}
+                  onChange={e => setFormData({...formData, cobertura_id: e.target.value})}
+                  className="w-full border rounded-xl px-3 py-2"
+                >
+                  <option value="">Seleccionar zona</option>
+                  {coberturas.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.barrio} +${formatPrice(c.costo_extra)}
+                    </option>
+                  ))}
+                </select>
+
+                <input
+                  type="text"
+                  value={formData.direccion}
+                  onChange={e => setFormData({...formData, direccion: e.target.value})}
+                  placeholder="Dirección completa"
+                  className="w-full border rounded-xl px-3 py-2"
+                />
+
+              </div>
             )}
           </div>
 
-          <div className="form-section">
-            <h3>Notas adicionales (opcional)</h3>
-            <div className="form-group">
-              <textarea
-                value={formData.notas}
-                onChange={e => setFormData({...formData, notas: e.target.value})}
-                placeholder="Alguna petición especial o información adicional..."
-                rows="3"
-              />
-            </div>
+          {/* NOTAS */}
+          <div>
+            <h3 className="font-semibold text-gray-900 mb-2">
+              Notas (opcional)
+            </h3>
+
+            <textarea
+              value={formData.notas}
+              onChange={e => setFormData({...formData, notas: e.target.value})}
+              rows="3"
+              className="w-full border rounded-xl px-3 py-2"
+            />
           </div>
 
-          <div className="form-actions">
+          {/* BOTONES */}
+          <div className="flex gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="btn-secondary"
               disabled={creating}
+              className="flex-1 bg-gray-200 hover:bg-gray-300 rounded-xl py-2"
             >
               Cancelar
             </button>
+
             <button
               type="submit"
-              className="btn-primary"
               disabled={creating}
+              className="flex-1 bg-black text-white rounded-xl py-2 hover:bg-gray-800"
             >
-              {creating ? 'Agendando...' : 'Agendar Cita'}
+              {creating ? 'Agendando...' : 'Agendar'}
             </button>
           </div>
+
         </form>
       </div>
     </div>

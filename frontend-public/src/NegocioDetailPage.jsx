@@ -92,154 +92,251 @@ function NegocioDetailPage() {
 
   return (
     <div className="public-app">
-      <header className="public-header">
-        <h1>Kelzo</h1>
-        <p>Reserva tu cita en el negocio de tu preferencia</p>
-        <button 
-          className="back-to-negocios"
-          onClick={() => navigate('/negocios')}
-        >
-          ← Volver a negocios
-        </button>
+      <header className="bg-white rounded-2xl shadow-sm px-4 py-3 mb-4 border border-gray-100">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Kelzo</h1>
+            <p className="text-sm text-gray-500">
+              Reserva fácil y rápido
+            </p>
+          </div>
+          <button onClick={() => navigate('/negocios')} 
+            className="bg-gray-100 hover:bg-gray-200 transition px-3 py-2 rounded-xl text-sm font-medium text-gray-700"
+          >
+            ← Negocios
+          </button>
+
+        </div>
       </header>
 
-      <div className="negocio-detail">
-        <div className="negocio-info">
-          <h2>{negocio.name}</h2>
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+        <h2 className="text-2xl font-bold text-gray-900 mb-5">
+          {negocio.name}
+        </h2>
 
-          {negocio.sucursales && negocio.sucursales.length > 0 ? (
-            <div className="accordion" id="sucursalesAccordion">
-              {negocio.sucursales.map((sucursal, index) => (
-                <div className="accordion-item" key={sucursal.id}>
-                  <h2 className="accordion-header" id={`heading-${sucursal.id}`}>
-                    <button
-                      className={`accordion-button ${index !== 0 ? 'collapsed' : ''}`}
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target={`#collapse-${sucursal.id}`}
-                      aria-expanded={index === 0 ? 'true' : 'false'}
-                      aria-controls={`collapse-${sucursal.id}`}
-                    >
-                      {sucursal.name} - {sucursal.ciudad} / {sucursal.barrio}
-                    </button>
-                  </h2>
+        {negocio.sucursales && negocio.sucursales.length > 0 ? (
+          <div className="space-y-4">
+            
+            {negocio.sucursales.map((sucursal, index) => (
+              <details
+                key={sucursal.id}
+                className="group border border-gray-200 rounded-2xl overflow-hidden"
+                open={index === 0}
+              >
+                
+                <summary className="flex items-center justify-between cursor-pointer list-none px-4 py-4 bg-gray-50 hover:bg-gray-100 transition">
+                  
+                  <div>
+                    <h3 className="font-semibold text-gray-900">
+                      {sucursal.name}
+                    </h3>
 
-                  <div
-                    id={`collapse-${sucursal.id}`}
-                    className={`accordion-collapse collapse ${index === 0 ? 'show' : ''}`}
-                    aria-labelledby={`heading-${sucursal.id}`}
-                    data-bs-parent="#sucursalesAccordion"
-                  >
-                    <div className="accordion-body info-details">
-                      <p><strong>Dirección:</strong> {sucursal.direccion}</p>
-                      <p><strong>Teléfono:</strong> {sucursal.tel}</p>
-                      <p><strong>Whatsapp:</strong> {sucursal.whatsapp}</p>
-                    </div>
-                    <div className="accordion-body">
-                      <div className="mb-3">
-                        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                          Horarios de Atención
-                        </h3>
-                      </div>
-
-                      <div className="grid gap-2 sm:grid-cols-2">
-                        {sucursal.horarios?.map((horario) => (
-                          <div
-                            key={horario.id || horario.dia_semana}
-                            className={`
-                              flex items-center justify-between rounded-lg border px-3 py-2 text-sm
-
-                              ${
-                                horario.activo
-                                  ? 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800'
-                                  : 'border-slate-100 bg-slate-100 opacity-60 dark:border-slate-800 dark:bg-slate-950'
-                              }
-                            `}
-                          >
-                            <span className="font-medium text-slate-700 dark:text-slate-200">
-                              {horario.nombre+' '} 
-                            </span>
-
-                            {horario.activo ? (
-                              <span className="text-slate-600 dark:text-slate-300">
-                                {horario.hora_inicio} - {horario.hora_fin}
-                              </span>
-                            ) : (
-                              <span className="text-red-500 dark:text-red-400">
-                                Cerrado
-                              </span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="accordion-body">
-                      <strong>Notas:</strong>
-                      <p>{sucursal.horario}</p>
-                    </div>
-                    <br />
+                    <p className="text-sm text-gray-500">
+                      {sucursal.ciudad} / {sucursal.barrio}
+                    </p>
                   </div>
+
+                  <div className="text-gray-400 transition-transform duration-300 group-open:rotate-180">
+                    ▼
+                  </div>
+
+                </summary>
+
+                <div className="p-4 space-y-5">
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    
+                    <div className="bg-gray-50 rounded-xl p-3">
+                      <p className="text-xs text-gray-500 mb-1">
+                        Dirección
+                      </p>
+
+                      <p className="text-sm font-medium text-gray-800">
+                        {sucursal.direccion}
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-xl p-3">
+                      <p className="text-xs text-gray-500 mb-1">
+                        Teléfono
+                      </p>
+
+                      <p className="text-sm font-medium text-gray-800">
+                        {sucursal.tel}
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-xl p-3 sm:col-span-2">
+                      <p className="text-xs text-gray-500 mb-1">
+                        WhatsApp
+                      </p>
+
+                      <p className="text-sm font-medium text-gray-800">
+                        {sucursal.whatsapp}
+                      </p>
+                    </div>
+
+                  </div>
+
+                  <div>
+                    
+                    <div className="mb-3">
+                      <h3 className="text-sm font-semibold text-gray-900">
+                        Horarios de Atención
+                      </h3>
+                    </div>
+
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      
+                      {sucursal.horarios?.map((horario) => (
+                        <div
+                          key={horario.id || horario.dia_semana}
+                          className={`
+                            flex items-center justify-between rounded-xl border px-3 py-2 text-sm
+                            ${
+                              horario.activo
+                                ? 'border-gray-200 bg-gray-50'
+                                : 'border-gray-100 bg-gray-100 opacity-60'
+                            }
+                          `}
+                        >
+                          
+                          <span className="font-medium text-gray-700">
+                            {horario.nombre}
+                          </span>
+
+                          {horario.activo ? (
+                            <span className="text-gray-600">
+                              {horario.hora_inicio} - {horario.hora_fin}
+                            </span>
+                          ) : (
+                            <span className="text-red-500">
+                              Cerrado
+                            </span>
+                          )}
+
+                        </div>
+                      ))}
+
+                    </div>
+
+                  </div>
+
+                  <div className="bg-amber-50 border border-amber-100 rounded-xl p-3">
+                    
+                    <p className="text-sm font-semibold text-amber-700 mb-1">
+                      Notas
+                    </p>
+
+                    <p className="text-sm text-amber-800">
+                      {sucursal.horario}
+                    </p>
+
+                  </div>
+
                 </div>
-              ))}
-            </div>
-          ) : (
-            <p>No hay sucursales disponibles.</p>
-          )}
-        </div>
 
-        <div className="servicios-section">
-          <h3>Servicios disponibles</h3>
-          {servicios.length > 0 ? (
-            <div className="servicios-grid">
+              </details>
+            ))}
+
+          </div>
+        ) : (
+          <div className="bg-gray-50 rounded-xl p-4 text-center">
+            <p className="text-gray-500">
+              No hay sucursales disponibles.
+            </p>
+          </div>
+        )}
+
+      </div>
+
+        <div className="max-w-6xl mx-auto px-4 py-6">
+           <h3 className="text-xl font-bold text-gray-900 mb-5">Servicios disponibles</h3>
+           {servicios.length > 0 ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              
               {servicios.map(servicio => (
-                <div key={servicio.id} className="servicio-card">
-                  <h4>{servicio.nombre}</h4>
-                  <p><strong>Precio:</strong> ${formatPrice(servicio.precio)}</p>
-                  <p><strong>Duración:</strong> {servicio.tiempo} minutos</p>
+                
+                <div
+                  key={servicio.id}
+                  className="border border-gray-200 rounded-2xl p-4 hover:shadow-md transition"
+                >
+                  
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3">
+                    {servicio.nombre}
+                  </h4>
+
+                  <div className="space-y-1 text-sm text-gray-700 mb-4">
+                    <p>
+                      <span className="font-semibold">Precio:</span>{" "}
+                      ${formatPrice(servicio.precio)}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold">Duración:</span>{" "}
+                      {servicio.tiempo} minutos
+                    </p>
+                  </div>
+
                   {negocio.sucursales.some(sucursal => sucursal.permite_agendar) && (
-                    <div className="empleados-list">
-                      <h5>Colaboradores:</h5>
-                      {(() => {
-                        // Obtener IDs de sucursales que permiten agendar
-                        const sucursalesPermitidas = negocio.sucursales
-                          .filter(sucursal => sucursal.permite_agendar)
-                          .map(sucursal => sucursal.id)
+                    <div className="mt-3">
+                      
+                      <h5 className="text-sm font-semibold text-gray-800 mb-2">
+                        Colaboradores
+                      </h5>
 
-                        // Filtrar empleados por servicio y sucursal permitida
-                        const empleadosParaServicio = empleados.filter(
-                          empleado =>
-                            empleado.servicios_ids &&
-                            empleado.servicios_ids.includes(servicio.id) &&
-                            sucursalesPermitidas.includes(empleado.sucursal_id)
-                        )
+                      <div className="flex flex-wrap gap-2">
+                        {(() => {
 
-                        return empleadosParaServicio.length > 0 ? (
-                          empleadosParaServicio.map(empleado => (
-                            <button
-                              key={empleado.id}
-                              className="agendar-button"
-                              onClick={() => handleAgendar(servicio, empleado)}
-                            >
-                              {empleado.name} {empleado.sucursal}
-                            </button>
-                          ))
-                        ) : (
-                          <p className="no-empleados">
-                            No hay colaboradores disponibles para este servicio
-                          </p>
-                        )
-                      })()}
+                          const sucursalesPermitidas = negocio.sucursales
+                            .filter(sucursal => sucursal.permite_agendar)
+                            .map(sucursal => sucursal.id)
+
+                          const empleadosParaServicio = empleados.filter(
+                            empleado =>
+                              empleado.servicios_ids &&
+                              empleado.servicios_ids.includes(servicio.id) &&
+                              sucursalesPermitidas.includes(empleado.sucursal_id)
+                          )
+
+                          return empleadosParaServicio.length > 0 ? (
+                            empleadosParaServicio.map(empleado => (
+                              <button
+                                key={empleado.id}
+                                onClick={() => handleAgendar(servicio, empleado)}
+                                className="bg-black text-white text-sm px-3 py-2 rounded-xl hover:bg-gray-800 transition"
+                              >
+                                {empleado.name} • {empleado.sucursal}
+                              </button>
+                            ))
+                          ) : (
+                            <p className="text-sm text-gray-500">
+                              No hay colaboradores disponibles para este servicio
+                            </p>
+                          )
+
+                        })()}
+                      </div>
+
                     </div>
                   )}
+
                 </div>
               ))}
+
             </div>
+
           ) : (
-            <div className="no-servicios">
-              <p>No hay servicios disponibles en este momento</p>
+            <div className="bg-gray-50 rounded-xl p-4 text-center">
+              <p className="text-gray-500">
+                No hay servicios disponibles en este momento
+              </p>
             </div>
           )}
+
         </div>
+          
       </div>
 
       {showCitaModal && selectedServicio && selectedEmpleado && negocio && (

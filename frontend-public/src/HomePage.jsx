@@ -5,141 +5,173 @@ function HomePage() {
 
   return (
     <div className="public-app">
-      <header className="public-header">
-        <h1>Kelzo</h1>
-        <p>Reserva tu cita en el negocio de tu preferencia</p>
-        <button 
-          className="ver-negocios-btn"
-          onClick={() => navigate('/negocios')}
-        >
-          Ver Negocios
-        </button>
+      <header className="bg-white rounded-2xl shadow-sm px-4 py-3 mb-4 border border-gray-100">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Kelzo</h1>
+            <p className="text-sm text-gray-500">
+              Reserva tu cita en el negocio de tu preferencia
+            </p>
+          </div>
+          <button onClick={() => navigate('/negocios')} 
+            className="bg-gray-100 hover:bg-gray-200 transition px-3 py-2 rounded-xl text-sm font-medium text-gray-700"
+          > Ver Negocios
+          </button>
+
+        </div>
       </header>
 
-      <div className="home-content">
-        <section className="info-section">
-          <h2>¿Qué es Kelzo?</h2>
-          <p>
+      <div className="max-w-6xl mx-auto px-4 py-10 space-y-16">
+        {/* HERO / INFO */}
+        <section className="text-center space-y-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+            ¿Qué es Kelzo?
+          </h2>
+
+          <p className="text-gray-600 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
             Kelzo es una plataforma de reservas de citas en línea que conecta a personas con negocios y servicios de su ciudad.
             Permite agendar citas de forma rápida, sencilla y sin llamadas, ayudando a los negocios a organizar su agenda y a los clientes a encontrar disponibilidad en segundos.
           </p>
         </section>
 
-        <section className="features-section">
-          <h3>Características principales</h3>
-          <div className="features-grid">
-            <div className="feature-card">
-              <h4>🔍 Encuentra negocios</h4>
-              <p>Busca y filtra negocios por ciudad y barrio</p>
-            </div>
-            <div className="feature-card">
-              <h4>📅 Agenda citas</h4>
-              <p>Selecciona el servicio y empleado que necesitas</p>
-            </div>
-            <div className="feature-card">
-              <h4>⏰ Fácil y rápido</h4>
-              <p>Reserva tu cita en minutos sin complicaciones</p>
-            </div>
-            <div className="feature-card">
-              <h4>💼 Profesionales</h4>
-              <p>Conecta con profesionales certificados</p>
-            </div>
+        {/* FEATURES */}
+        <section className="space-y-6">
+          <h3 className="text-2xl font-bold text-center text-gray-900">
+            Características principales
+          </h3>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+            {[
+              ["🔍", "Encuentra negocios", "Busca y filtra por ciudad y barrio"],
+              ["📅", "Agenda citas", "Selecciona servicio y empleado"],
+              ["⏰", "Fácil y rápido", "Reserva en minutos sin complicaciones"],
+              ["💼", "Profesionales", "Conecta con expertos certificados"],
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition"
+              >
+                <div className="text-2xl mb-2">{item[0]}</div>
+                <h4 className="font-semibold text-gray-900 mb-1">
+                  {item[1]}
+                </h4>
+                <p className="text-sm text-gray-600">
+                  {item[2]}
+                </p>
+              </div>
+            ))}
+
           </div>
         </section>
 
-        <section className="py-5 bg-light">
-        <div className="container">
-        <div className="text-center mb-5">
-        <h2 className="fw-bold display-5">Nuestros Planes</h2>
-        <p className="text-muted fs-5">
-        Elige el plan ideal para impulsar tu negocio
-        </p>
-        </div>
+        {/* PLANS */}
+        <section className="space-y-10">
 
-        <div className="row g-4 justify-content-center">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-gray-900">
+              Nuestros Planes
+            </h2>
+            <p className="text-gray-600 mt-2">
+              Elige el plan ideal para impulsar tu negocio
+            </p>
+          </div>
 
-        {/* Plan Básico */}
-        <div className="col-md-6 col-lg-5">
-        <div className="card h-100 shadow border-0 rounded-4">
-          <div className="card-body p-4">
-            <div className="text-center mb-4">
-              <h3 className="fw-bold text-primary">Básico</h3>
-              <h2 className="fw-bold">
-                $24.900
-                <span className="fs-6 text-muted">/mes</span>
-              </h2>
-              <p className="text-muted">
-                Ideal para negocios pequeños o independientes.
+          <div className="grid gap-6 md:grid-cols-2 justify-center">
+
+            {/* BASIC */}
+            <div className="border border-gray-200 rounded-2xl p-6 bg-white shadow-sm hover:shadow-md transition">
+
+              <h3 className="text-xl font-bold text-blue-600 text-center">
+                Básico
+              </h3>
+
+              <p className="text-center text-2xl font-bold mt-2">
+                $24.900 <span className="text-sm text-gray-500">/mes</span>
               </p>
-              <br />
+
+              <p className="text-center text-gray-600 mt-2 mb-4">
+                Ideal para negocios pequeños
+              </p>
+
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>✅ Hasta 100 citas mensuales</li>
+                <li>✅ Hasta 10 servicios</li>
+                <li>✅ 3 usuarios</li>
+                <li>✅ 1 sucursal</li>
+                <li>✅ Agenda integrada</li>
+                <li>✅ Página de reservas</li>
+                <li>✅ Gestión de clientes</li>
+                <li>✅ Soporte estándar</li>
+              </ul>
+
             </div>
 
-            <ul className="list-group list-group-flush mb-4">
-              <li className="list-group-item">✅ Hasta 100 citas mensuales</li>
-              <li className="list-group-item">✅ Hasta 10 servicios disponibles</li>
-              <li className="list-group-item">✅ Hasta 3 usuarios registrados</li>
-              <li className="list-group-item">✅ 1 sucursal incluida</li>
-              <li className="list-group-item">✅ Agenda y calendario integrados</li>
-              <li className="list-group-item">✅ Página pública para reservas online</li>
-              <li className="list-group-item">✅ Gestión completa de clientes</li>
-              <li className="list-group-item">✅ Soporte estándar</li>
-            </ul>
-          </div>
-        </div>
-        </div>
+            {/* PREMIUM */}
+            <div className="border-2 border-black rounded-2xl p-6 bg-white shadow-lg hover:shadow-xl transition">
 
-        {/* Plan Premium */}
-        <div className="col-md-6 col-lg-5">
-        <div className="card h-100 shadow-lg border-0 rounded-4">
-          
-          <div className="card-body p-4">
-            <div className="text-center mb-4 mt-3">
-              <h3 className="fw-bold text-primary">Premium</h3>
-              <h2 className="fw-bold">
-                $49.900
-                <span className="fs-6 text-muted">/mes</span>
-              </h2>
-              <p className="text-muted">
-                Perfecto para negocios en crecimiento que buscan automatización.
+              <h3 className="text-xl font-bold text-black text-center">
+                Premium
+              </h3>
+
+              <p className="text-center text-2xl font-bold mt-2">
+                $49.900 <span className="text-sm text-gray-500">/mes</span>
               </p>
+
+              <p className="text-center text-gray-600 mt-2 mb-4">
+                Para negocios en crecimiento
+              </p>
+
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>🚀 Citas ilimitadas</li>
+                <li>🚀 Hasta 50 servicios</li>
+                <li>🚀 15 usuarios</li>
+                <li>🚀 3 sucursales</li>
+                <li>🚀 Agenda completa</li>
+                <li>🚀 Reservas online</li>
+                <li>🚀 Clientes ilimitados</li>
+                <li>🚀 Estadísticas</li>
+                <li>🚀 Soporte prioritario</li>
+              </ul>
+
             </div>
 
-            <ul className="list-group list-group-flush mb-4">
-              <li className="list-group-item">🚀 Citas mensuales ilimitadas</li>
-              <li className="list-group-item">🚀 Hasta 50 servicios disponibles</li>
-              <li className="list-group-item">🚀 Hasta 15 usuarios registrados</li>
-              <li className="list-group-item">🚀 Hasta 3 sucursales incluidas</li>
-              <li className="list-group-item">🚀 Agenda y calendario integrados</li>
-              <li className="list-group-item">🚀 Página pública para reservas online</li>
-              <li className="list-group-item">🚀 Gestión completa de clientes</li>
-              <li className="list-group-item">🚀 Estadísticas y reportes</li>
-              <li className="list-group-item">🚀 Soporte prioritario</li>
-            </ul>
           </div>
-        </div>
-        </div>
-
-        </div>
-        </div>
         </section>
-    
 
-        <section className="cta-section">
-          <h3>¿Tienes un negocio?</h3>
-          <p>
-            Empieza a recibir reservas en línea, organiza tu agenda y deja de perder clientes.
-            Con Kelzo puedes automatizar tus citas y hacer crecer tu negocio.
+        {/* CTA */}
+        <section className="text-center bg-black text-white rounded-2xl p-10 space-y-6">
+
+          <h3 className="text-2xl md:text-3xl font-bold">
+            ¿Tienes un negocio?
+          </h3>
+
+          <p className="text-gray-300 max-w-2xl mx-auto">
+            Empieza a recibir reservas en línea, organiza tu agenda y automatiza tus citas con Kelzo.
           </p>
-            <div className="d-flex flex-column flex-md-row justify-content-center gap-3">
-              <a href="https://www.instagram.com/kelzo_app/" target="_blank" rel="noopener noreferrer"
-                className="btn btn-light btn-lg rounded-pill px-4 shadow-sm"
-              > 📷 @kelzo_app </a>
 
-              <a href="https://wa.me/573123456789" target="_blank" rel="noopener noreferrer"
-                className="btn btn-success btn-lg rounded-pill px-4 shadow-sm"
-              > 📞 WhatsApp </a>
-            </div>
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+
+            <a
+              href="https://www.instagram.com/kelzo_app/"
+              target="_blank"
+              className="bg-white text-black px-5 py-2 rounded-full font-medium hover:bg-gray-200 transition"
+            >
+              📷 Instagram
+            </a>
+
+            {/* <a
+              href="https://wa.me/573123456789"
+              target="_blank"
+              className="bg-green-500 text-white px-5 py-2 rounded-full font-medium hover:bg-green-600 transition"
+            >
+              📞 WhatsApp
+            </a> */}
+
+          </div>
+
         </section>
+
       </div>
     </div>
   )
