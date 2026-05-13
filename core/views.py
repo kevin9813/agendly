@@ -250,13 +250,24 @@ def negocios_list_sucursales(request):
 @csrf_exempt
 def negocio_detail_sucursales(request, negocio_id):
     try:
-        negocio = Negocio.objects.prefetch_related('sucursales').get(id=negocio_id)
+        negocio = Negocio.objects.prefetch_related('sucursales__horarios').get(id=negocio_id)
     except Negocio.DoesNotExist:
         return JsonResponse({'detail': 'Negocio no encontrado'}, status=404)
 
     if request.method == 'GET':
         sucursales_data = []
+        horarios_data = []
         for s in negocio.sucursales.all():
+            
+            for h in s.horarios.all():
+                horarios_data.append({
+                    'dia_semana': h.dia_semana,
+                    'nombre': h.get_dia_semana_display(),
+                    'hora_inicio': h.hora_inicio.strftime('%H:%M') if h.hora_inicio else '',
+                    'hora_fin': h.hora_fin.strftime('%H:%M') if h.hora_fin else '',
+                    'activo': h.activo,
+                })
+
             sucursales_data.append({
                 'id': s.id,
                 'name': s.name,
@@ -268,6 +279,7 @@ def negocio_detail_sucursales(request, negocio_id):
                 'horario': s.horario,
                 'permite_agendar': s.permite_agendar,
                 'activo': s.activo,
+                'horarios': horarios_data,
             })
 
         data = {

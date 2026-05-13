@@ -135,11 +135,49 @@ function NegocioDetailPage() {
                       <p><strong>Teléfono:</strong> {sucursal.tel}</p>
                       <p><strong>Whatsapp:</strong> {sucursal.whatsapp}</p>
                     </div>
-                      <div className="horario accordion-body">
-                        <strong>Horario-Notas:</strong>
-                        <p>{sucursal.horario}</p>
+                    <div className="accordion-body">
+                      <div className="mb-3">
+                        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                          Horarios de Atención
+                        </h3>
                       </div>
-                      <br />
+
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {sucursal.horarios?.map((horario) => (
+                          <div
+                            key={horario.id || horario.dia_semana}
+                            className={`
+                              flex items-center justify-between rounded-lg border px-3 py-2 text-sm
+
+                              ${
+                                horario.activo
+                                  ? 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800'
+                                  : 'border-slate-100 bg-slate-100 opacity-60 dark:border-slate-800 dark:bg-slate-950'
+                              }
+                            `}
+                          >
+                            <span className="font-medium text-slate-700 dark:text-slate-200">
+                              {horario.nombre+' '} 
+                            </span>
+
+                            {horario.activo ? (
+                              <span className="text-slate-600 dark:text-slate-300">
+                                {horario.hora_inicio} - {horario.hora_fin}
+                              </span>
+                            ) : (
+                              <span className="text-red-500 dark:text-red-400">
+                                Cerrado
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="accordion-body">
+                      <strong>Notas:</strong>
+                      <p>{sucursal.horario}</p>
+                    </div>
+                    <br />
                   </div>
                 </div>
               ))}
