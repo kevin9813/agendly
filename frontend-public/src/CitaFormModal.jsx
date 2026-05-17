@@ -1,9 +1,33 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/'
+const Swal = window.Swal // ✅ Usando SweetAlert2 desde CDN
 
-// Función para formatear precios con puntos de miles
+// ============ FUNCIONES HELPER ============
+const getHorarioDia = (sucursal, fechaStr) => {
+  if (!fechaStr || !sucursal?.horarios) return null
+  const fecha = new Date(fechaStr + 'T00:00:00')
+  const diaSemana = fecha.getDay()
+  return sucursal.horarios.find(h => h.dia_semana === diaSemana)
+}
+
+const isDiaDisponible = (sucursal, fechaStr) => {
+  const horario = getHorarioDia(sucursal, fechaStr)
+  return horario && horario.activo
+}
+
+const isHoraValida = (sucursal, fechaStr, horaStr) => {
+  const horario = getHorarioDia(sucursal, fechaStr)
+  if (!horario || !horario.activo) return false
+  return horaStr >= horario.hora_inicio && horaStr <= horario.hora_fin
+}
+
+const getDiaSemanaNombre = (fechaStr) => {
+  const fecha = new Date(fechaStr + 'T00:00:00')
+  const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+  return dias[fecha.getDay()]
+}
+
 const formatPrice = (price) => {
   return parseFloat(price).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
 }
@@ -13,7 +37,7 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
     cliente_name: '',
     cliente_celular: '',
     fecha: '',
-    hora: '09:00',
+    hora: '',
     tipo_servicio: 'local',
     cobertura_id: '',
     direccion: '',
@@ -26,21 +50,68 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
   const [creating, setCreating] = useState(false)
   const [errors, setErrors] = useState({})
 
+  const sucursal = negocio?.sucursales?.[0]
+
+  const generarOpcionesHora = () => {
+    if (!formData.fecha || !sucursal || !isDiaDisponible(sucursal, formData.fecha)) return []
+    
+    const horario = getHorarioDia(sucursal, formData.fecha)
+    const opciones = []
+    
+    let [h, m] = horario.hora_inicio.split(':').map(Number)
+    const [finH, finM] = horario.hora_fin.split(':').map(Number)
+    
+    while (h < finH || (h === finH && m < finM)) {
+      const horaStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+      opciones.push(horaStr)
+      
+      m += 30
+      if (m >= 60) {
+        m = 0
+        h++
+      }
+    }
+    
+    return opciones
+  }
+
   useEffect(() => {
-    // Calcular hora fin cuando cambien fecha u hora
     if (formData.hora) {
       const [horas, minutos] = formData.hora.split(':').map(Number)
       const inicio = new Date(2024, 0, 1, horas, minutos)
       const fin = new Date(inicio.getTime() + servicio.tiempo * 60000)
       const horaFinStr = String(fin.getHours()).padStart(2, '0') + ':' + String(fin.getMinutes()).padStart(2, '0')
       setHoraFin(horaFinStr)
+    } else {
+      setHoraFin('')
     }
 
-    // Cargar coberturas si es necesario
+    const newErrors = { ...errors }
+
+    if (formData.fecha && sucursal) {
+      if (!isDiaDisponible(sucursal, formData.fecha)) {
+        const nombreDia = getDiaSemanaNombre(formData.fecha)
+        newErrors.fecha = `No se puede agendar los ${nombreDia}. El día no está disponible.`
+      } else {
+        delete newErrors.fecha
+      }
+    }
+
+    if (formData.fecha && formData.hora && sucursal) {
+      if (!isHoraValida(sucursal, formData.fecha, formData.hora)) {
+        const horario = getHorarioDia(sucursal, formData.fecha)
+        newErrors.hora = `Horario no disponible. Horario permitido: ${horario?.hora_inicio} - ${horario?.hora_fin}`
+      } else {
+        delete newErrors.hora
+      }
+    }
+
+    setErrors(newErrors)
+
     if (formData.tipo_servicio === 'domicilio') {
       loadCoberturas()
     }
-  }, [formData.hora, formData.tipo_servicio, servicio.tiempo])
+  }, [formData.hora, formData.fecha, formData.tipo_servicio, servicio.tiempo, sucursal])
 
   const loadCoberturas = async () => {
     try {
@@ -70,10 +141,17 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
       if (formData.fecha < today) {
         newErrors.fecha = 'No se puede agendar citas en fechas anteriores a hoy'
       }
+      if (sucursal && !isDiaDisponible(sucursal, formData.fecha)) {
+        const nombreDia = getDiaSemanaNombre(formData.fecha)
+        newErrors.fecha = `No se puede agendar los ${nombreDia}. El día no está disponible.`
+      }
     }
 
     if (!formData.hora) {
       newErrors.hora = 'La hora es requerida'
+    } else if (sucursal && formData.fecha && !isHoraValida(sucursal, formData.fecha, formData.hora)) {
+      const horario = getHorarioDia(sucursal, formData.fecha)
+      newErrors.hora = `Horario no disponible. Horario permitido: ${horario?.hora_inicio} - ${horario?.hora_fin}`
     }
 
     if (formData.tipo_servicio === 'domicilio') {
@@ -102,10 +180,8 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
     setCreating(true)
 
     try {
-      // Primero crear o buscar el cliente
       let clienteId = null
 
-      // Buscar cliente existente por celular si está disponible
       if (formData.cliente_celular.trim()) {
         const clientesResponse = await fetch(`${apiUrl}clientes/?celular=${formData.cliente_celular}&negocio_id=${negocio.id}`)
         const clientesData = await clientesResponse.json()
@@ -116,7 +192,6 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
         }
       }
 
-      // Si no existe, crear nuevo cliente
       if (!clienteId) {
         const clienteResponse = await fetch(`${apiUrl}clientes/`, {
           method: 'POST',
@@ -136,7 +211,6 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
         clienteId = clienteData.cliente.id
       }
 
-      // Crear la cita
       const fechaHora = `${formData.fecha}T${formData.hora}:00`
       const citaResponse = await fetch(`${apiUrl}citas/`, {
         method: 'POST',
@@ -146,7 +220,7 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
           empleado_id: empleado.id,
           servicio_id: servicio.id,
           fecha_hora: fechaHora,
-          estado: 'pendiente', // La cita queda pendiente para que el negocio la confirme
+          estado: 'pendiente',
           tipo_servicio: formData.tipo_servicio,
           cobertura_id: formData.cobertura_id ? parseInt(formData.cobertura_id) : null,
           direccion: formData.direccion,
@@ -155,21 +229,44 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
       })
 
       if (citaResponse.ok) {
-        const citaData = await citaResponse.json()
-        alert('¡Cita agendada correctamente! El negocio revisará y confirmará tu cita pronto.')
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Cita agendada!',
+          text: 'El negocio revisará y confirmará tu cita pronto.',
+          confirmButtonColor: '#000',
+          confirmButtonText: 'Entendido',
+        })
         onSuccess()
         onClose()
       } else {
         const errorData = await citaResponse.json()
         if (errorData.detail && errorData.detail.includes('solapamiento')) {
-          alert('Error: El empleado ya tiene una cita programada en este horario. Por favor selecciona otro horario.')
+          await Swal.fire({
+            icon: 'error',
+            title: 'Horario no disponible',
+            text: 'El empleado ya tiene una cita programada en este horario. Por favor selecciona otro horario.',
+            confirmButtonColor: '#000',
+            confirmButtonText: 'Entendido',
+          })
         } else {
-          alert(`Error: ${errorData.detail || 'Error al crear la cita'}`)
+          await Swal.fire({
+            icon: 'error',
+            title: 'Error al agendar',
+            text: errorData.detail || 'Ocurrió un error al crear la cita. Intenta nuevamente.',
+            confirmButtonColor: '#000',
+            confirmButtonText: 'Entendido',
+          })
         }
       }
     } catch (error) {
       console.error('Error creating cita:', error)
-      alert('Error al agendar la cita. Por favor intenta nuevamente.')
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error de conexión',
+        text: 'Error al agendar la cita. Por favor intenta nuevamente.',
+        confirmButtonColor: '#000',
+        confirmButtonText: 'Entendido',
+      })
     } finally {
       setCreating(false)
     }
@@ -249,29 +346,74 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
               Fecha y Hora
             </h3>
 
+            {sucursal && (
+              <div className="mb-3 p-3 bg-blue-50 text-blue-800 rounded-lg text-sm">
+                <p className="font-medium mb-1">📅 Horarios de atención:</p>
+                <div className="grid grid-cols-2 gap-1">
+                  {sucursal.horarios.map(h => (
+                    <span key={h.dia_semana} className={h.activo ? '' : 'text-gray-400 line-through'}>
+                      {h.nombre}: {h.activo ? `${h.hora_inicio} - ${h.hora_fin}` : 'Cerrado'}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 
-              <input
-                type="date"
-                value={formData.fecha}
-                onChange={e => setFormData({...formData, fecha: e.target.value})}
-                min={new Date().toISOString().split('T')[0]}
-                className="border rounded-xl px-3 py-2"
-              />
+              {/* FECHA */}
+              <div>
+                <input
+                  type="date"
+                  value={formData.fecha}
+                  onChange={e => {
+                    setFormData({...formData, fecha: e.target.value, hora: ''})
+                  }}
+                  min={new Date().toISOString().split('T')[0]}
+                  className={`w-full border rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-black ${
+                    errors.fecha ? 'border-red-500 bg-red-50' : ''
+                  }`}
+                />
+                {errors.fecha && (
+                  <p className="text-red-500 text-xs mt-1">{errors.fecha}</p>
+                )}
+              </div>
 
-              <input
-                type="time"
-                value={formData.hora}
-                onChange={e => setFormData({...formData, hora: e.target.value})}
-                className="border rounded-xl px-3 py-2"
-              />
+              {/* HORA */}
+              <div>
+                <select
+                  value={formData.hora}
+                  onChange={e => setFormData({...formData, hora: e.target.value})}
+                  disabled={!formData.fecha || !!errors.fecha}
+                  className={`w-full border rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-black ${
+                    errors.hora ? 'border-red-500 bg-red-50' : ''
+                  } ${(!formData.fecha || errors.fecha) ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                >
+                  <option value="">
+                    {!formData.fecha 
+                      ? 'Seleccione fecha' 
+                      : errors.fecha 
+                        ? 'Día no disponible' 
+                        : 'Seleccione hora'}
+                  </option>
+                  {generarOpcionesHora().map(hora => (
+                    <option key={hora} value={hora}>{hora}</option>
+                  ))}
+                </select>
+                {errors.hora && (
+                  <p className="text-red-500 text-xs mt-1">{errors.hora}</p>
+                )}
+              </div>
 
-              <input
-                type="time"
-                value={horaFin}
-                readOnly
-                className="border rounded-xl px-3 py-2 bg-gray-100"
-              />
+              {/* HORA FIN */}
+              <div>
+                <input
+                  type="time"
+                  value={horaFin}
+                  readOnly
+                  className="w-full border rounded-xl px-3 py-2 bg-gray-100 cursor-not-allowed"
+                />
+              </div>
 
             </div>
           </div>
@@ -365,8 +507,8 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
 
             <button
               type="submit"
-              disabled={creating}
-              className="flex-1 bg-black text-white rounded-xl py-2 hover:bg-gray-800"
+              disabled={creating || !!errors.fecha || !!errors.hora}
+              className="flex-1 bg-black text-white rounded-xl py-2 hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {creating ? 'Agendando...' : 'Agendar'}
             </button>

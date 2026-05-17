@@ -272,10 +272,14 @@ function NegocioDetailPage() {
                       <span className="font-semibold">Precio:</span>{" "}
                       ${formatPrice(servicio.precio)}
                     </p>
-
                     <p>
                       <span className="font-semibold">Duración:</span>{" "}
                       {servicio.tiempo} minutos
+                    </p>
+
+                    <p>
+                      <span className="font-semibold">Notas:</span>{" "}
+                      {servicio.notas}
                     </p>
                   </div>
 

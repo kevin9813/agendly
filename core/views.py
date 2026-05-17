@@ -757,6 +757,7 @@ def negocio_servicios_list(request, negocio_id):
             'nombre': s.name,
             'precio': str(s.precio),
             'tiempo': s.tiempo,
+            'notas': s.notas,
             'permite_domicilio': s.permite_domicilio,
             'negocio': s.negocio.name,
         } for s in servicios]
