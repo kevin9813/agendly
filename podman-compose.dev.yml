@@ -14,7 +14,7 @@ services:
     networks:
       - mi_red_dev
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
   web:
     build: .
@@ -23,7 +23,7 @@ services:
     depends_on:
       - db
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       DEBUG: "True"
       PYTHONUNBUFFERED: "1"
