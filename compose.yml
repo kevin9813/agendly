@@ -2,81 +2,70 @@ version: "3.9"
 
 services:
   db:
-    image: docker.io/library/postgres:15
-    container_name: db_dev
-    restart: always
+    image: postgres:15
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - postgres_data_dev:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
-      - mi_red_dev
-    ports:
-      - "5433:5432"
+      - app_network
+      - pg_network
 
   web:
     build: .
-    container_name: web_dev
-    restart: always
-    depends_on:
-      - db
+    restart: unless-stopped
     ports:
       - "8001:8000"
     environment:
-      DEBUG: "True"
+      DEBUG: ${DEBUG}
       PYTHONUNBUFFERED: "1"
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
       DJANGO_DEBUG: ${DJANGO_DEBUG}
+    env_file:
+      - .env
     volumes:
-      - .:/app
-    networks:
-      - mi_red_dev
+      - .:/app:Z
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
-    env_file:
-      - .env
+    networks:
+      - app_network
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: frontend_dev
-    restart: always
-    depends_on:
-      - web
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend:/app:Z
+      - /app/node_modules
     environment:
       VITE_API_URL: ${VITE_API_URL}
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     networks:
-      - mi_red_dev
+      - app_network
 
   frontend-public:
     build:
       context: ./frontend-public
       dockerfile: Dockerfile
-    container_name: frontend-public_dev
-    restart: always
-    depends_on:
-      - web
     ports:
       - "3001:3001"
+    volumes:
+      - ./frontend-public:/app:Z
+      - /app/node_modules
     environment:
       VITE_API_URL: ${VITE_API_URL}
-    volumes:
-      - ./frontend-public:/app
-      - /app/node_modules
     networks:
-      - mi_red_dev
+      - app_network
 
 volumes:
-  postgres_data_dev:
+  postgres_data:
 
 networks:
-  mi_red_dev:
+  app_network:
+  pg_network:
+    external: true

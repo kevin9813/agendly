@@ -2,7 +2,8 @@
 
 ### Para DESARROLLO (recomendado mientras codificas):
 ```bash
-podman compose -f podman-compose.dev.yml up --build
+podman network create pg_network
+podman compose -f compose.yml up --build
 ```
 
 **Ventajas**:
@@ -34,3 +35,6 @@ podman network prune -f
 
 <!-- systemctl --user start podman.socket
 systemctl --user status podman.socket -->
+
+<!-- ultimo  -->
+podman compose -f compose.yml up --build
