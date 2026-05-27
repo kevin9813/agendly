@@ -234,6 +234,7 @@ def negocios_list_sucursales(request):
                     'barrio': s.barrio.name if s.barrio else '',
                     'horario': s.horario,
                     'permite_agendar': s.permite_agendar,
+                    'lazos_tiempo': s.lazos_tiempo,
                     'activo': s.activo,
                 })
 
@@ -278,6 +279,7 @@ def negocio_detail_sucursales(request, negocio_id):
                 'barrio': s.barrio.name if s.barrio else '',
                 'horario': s.horario,
                 'permite_agendar': s.permite_agendar,
+                'lazos_tiempo': s.lazos_tiempo,
                 'activo': s.activo,
                 'horarios': horarios_data,
             })
@@ -311,6 +313,7 @@ def sucursales_list(request):
             'barrio_id': s.barrio_id,
             'horario': s.horario,
             'permite_agendar': s.permite_agendar,
+            'lazos_tiempo': s.lazos_tiempo,
             'activo': s.activo,
         } for s in sucursales]
         return JsonResponse({'sucursales': data})
@@ -328,6 +331,7 @@ def sucursales_list(request):
                 barrio_id=data['barrio_id'],
                 horario=data.get('horario', ''),
                 permite_agendar=data.get('permite_agendar', False),
+                lazos_tiempo=data.get('lazos_tiempo', False),
                 activo=data.get('activo', True),
             )
             return JsonResponse({'id': sucursal.id, 'message': 'Sucursal creada'})
@@ -358,6 +362,7 @@ def sucursal_detail(request, sucursal_id):
             'barrio_id': sucursal.barrio_id,
             'horario': sucursal.horario,
             'permite_agendar': sucursal.permite_agendar,
+            'lazos_tiempo': sucursal.lazos_tiempo,
             'activo': sucursal.activo,
         }
         return JsonResponse(data)
@@ -373,6 +378,7 @@ def sucursal_detail(request, sucursal_id):
             sucursal.barrio_id = data.get('barrio_id', sucursal.barrio_id)
             sucursal.horario = data.get('horario', sucursal.horario)
             sucursal.permite_agendar = data.get('permite_agendar', sucursal.permite_agendar)
+            sucursal.lazos_tiempo = data.get('lazos_tiempo', sucursal.lazos_tiempo)
             sucursal.activo = data.get('activo', sucursal.activo)
             sucursal.save()
             horarios = data.get('horarios', [])
@@ -904,19 +910,26 @@ def citas_list(request):
         try:
             data = json.loads(request.body.decode('utf-8'))
             
+            hora_inicio = data.get('hora_inicio')
+            hora_fin_rango = data.get('hora_fin_rango')
+
+            es_rango = bool(hora_inicio and hora_fin_rango)
+
             # Validar que la fecha_hora no sea anterior a ahora
             from django.utils import timezone
             from datetime import datetime, timedelta
             try:
-                fecha_hora = datetime.fromisoformat(data['fecha_hora'].replace('Z', '+00:00'))
-                fecha_hora_aware = timezone.make_aware(fecha_hora) if timezone.is_naive(fecha_hora) else fecha_hora
-                now = timezone.now()
+                fecha_validar = hora_inicio if es_rango else data.get('fecha_hora')
+                if fecha_validar:
+                    fecha_hora = datetime.fromisoformat(fecha_validar.replace('Z', '+00:00'))
+                    fecha_hora_aware = timezone.make_aware(fecha_hora) if timezone.is_naive(fecha_hora) else fecha_hora
+                    now = timezone.now()
                 
-                # Permitir citas desde hoy en adelante (con algunos minutos de margen)
-                # Rechazar solo si es una fecha completamente anterior a hoy
-                today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-                if fecha_hora_aware < today_start:
-                    return JsonResponse({'detail': 'No se puede agendar citas en fechas anteriores'}, status=400)
+                    # Permitir citas desde hoy en adelante (con algunos minutos de margen)
+                    # Rechazar solo si es una fecha completamente anterior a hoy
+                    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+                    if fecha_hora_aware < today_start:
+                        return JsonResponse({'detail': 'No se puede agendar citas en fechas anteriores'}, status=400)
             except (ValueError, AttributeError):
                 pass  # Si hay error al parsear fecha, dejar que continúe y falle gracefully
             
@@ -943,7 +956,7 @@ def citas_list(request):
             cliente = Cliente.objects.get(id=data['cliente_id'])
             celular = (cliente.celular or '').strip()
             if celular:
-                fecha = parse_datetime(data['fecha_hora'])
+                fecha = parse_datetime(hora_inicio if es_rango else data.get('fecha_hora'))
                 from django.db.models import Q
                 citas_mismo_dia = Cita.objects.filter(
                     cliente__celular=celular,
@@ -952,26 +965,57 @@ def citas_list(request):
                 if citas_mismo_dia >= 2:
                     return JsonResponse({'detail': 'Ya tienes 2 citas agendadas para este día con este celular.'}, status=400)
 
-            # Crear la cita primero sin hora_fin para calcularla
-            cita = Cita(
-                cliente_id=data['cliente_id'],
-                empleado_id=data['empleado_id'],
-                servicio_id=data['servicio_id'],
-                fecha_hora=parse_datetime(data['fecha_hora']),
-                estado=data.get('estado', 'pendiente'),
-                tipo_servicio=tipo_servicio,
-                cobertura_id=data.get('cobertura_id'),
-                direccion=data.get('direccion', ''),
-                notas=data.get('notas', ''),
-            )
-            
-            # Calcular hora_fin automáticamente
-            cita.save()  # Esto activa el método save() que calcula hora_fin
+            if es_rango:
+                cita = Cita(
+                    cliente_id=data['cliente_id'],
+                    empleado_id=data['empleado_id'],
+                    servicio_id=data['servicio_id'],
+                    fecha_hora=None,
+                    hora_fin=None,
+                    rango_inicio=parse_datetime(hora_inicio),
+                    rango_fin=parse_datetime(hora_fin_rango),
+                    estado='pendiente',
+                    tipo_servicio=tipo_servicio,
+                    cobertura_id=data.get('cobertura_id'),
+                    direccion=data.get('direccion', ''),
+                    notas=data.get('notas', ''),
+                    tipo_reserva='rango',
+                )
+                cita.save(force_insert=True)
+            else:
+                # Crear la cita primero sin hora_fin para calcularla
+                cita = Cita(
+                    cliente_id=data['cliente_id'],
+                    empleado_id=data['empleado_id'],
+                    servicio_id=data['servicio_id'],
+                    fecha_hora=parse_datetime(data['fecha_hora']),
+                    estado=data.get('estado', 'pendiente'),
+                    tipo_servicio=tipo_servicio,
+                    cobertura_id=data.get('cobertura_id'),
+                    direccion=data.get('direccion', ''),
+                    notas=data.get('notas', ''),
+                    tipo_reserva='exacta',
+                )
+                # Calcular hora_fin automáticamente
+                cita.save()  # Esto activa el método save() que calcula hora_fin
             
             # Validar solapamientos después de calcular hora_fin
             from django.core.exceptions import ValidationError
             try:
-                cita.full_clean()
+                if es_rango:
+                # Validación manual para reservas por rango
+                    if not cita.rango_inicio or not cita.rango_fin:
+                        raise ValidationError(
+                            'Debes seleccionar un rango de tiempo válido.'
+                        )
+
+                    if cita.rango_inicio >= cita.rango_fin:
+                        raise ValidationError(
+                            'La hora final debe ser mayor a la hora inicial.'
+                        )
+                else:
+                    # Mantener validación actual de citas exactas
+                    cita.full_clean()
             except ValidationError as e:
                 cita.delete()  # Eliminar la cita si hay error de validación
                 return JsonResponse({'detail': str(e)}, status=400)

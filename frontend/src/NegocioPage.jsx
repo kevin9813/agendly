@@ -22,6 +22,7 @@ function NegocioPage({ user }) {
     horario: '',
     ciudad_id: '',
     permite_agendar: false,
+    lazos_tiempo: false,
     activo: true,
   })
   const [horarios, setHorarios] = useState([])
@@ -157,6 +158,7 @@ function NegocioPage({ user }) {
       horario: sucursal.horario || '',
       ciudad_id: sucursal.ciudad_id ? sucursal.ciudad_id.toString() : '',
       permite_agendar: Boolean(sucursal.permite_agendar),
+      lazos_tiempo: Boolean(sucursal.lazos_tiempo),
       activo: Boolean(sucursal.activo),
     })
     setMessage('')
@@ -174,6 +176,7 @@ function NegocioPage({ user }) {
       horario: '',
       ciudad_id: '',
       permite_agendar: false,
+      lazos_tiempo: false,
       activo: true,
     })
   }
@@ -196,6 +199,7 @@ function NegocioPage({ user }) {
         ciudad_id: ciudadId,
         horario: sucursalForm.horario,
         permite_agendar: Boolean(sucursalForm.permite_agendar),
+        lazos_tiempo: Boolean(sucursalForm.lazos_tiempo),
         activo: Boolean(sucursalForm.activo),
         negocio_id: user.negocio_id,
         horarios: horarios,
@@ -394,6 +398,10 @@ function NegocioPage({ user }) {
                       Agenda
                     </th>
 
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      Rango horario
+                    </th>
+
                     <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
                       Acciones
                     </th>
@@ -435,6 +443,18 @@ function NegocioPage({ user }) {
                           }`}
                         >
                           {sucursal.permite_agendar ? 'Sí' : 'No'}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                            sucursal.lazos_tiempo
+                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300'
+                              : 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-300'
+                          }`}
+                        >
+                          {sucursal.lazos_tiempo ? 'Sí' : 'No'}
                         </span>
                       </td>
 
@@ -718,6 +738,29 @@ function NegocioPage({ user }) {
                       id="permite_agendar"
                       name="permite_agendar"
                       checked={sucursalForm.permite_agendar}
+                      onChange={handleSucursalChange}
+                      className="h-5 w-5 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
+                    />
+                  </label>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-800/50">
+                  <label className="flex cursor-pointer items-center justify-between gap-4">
+                    <div>
+                      <p className="font-semibold text-slate-800 dark:text-white">
+                        Lazos de tiempo
+                      </p>
+
+                      <p className="text-sm text-slate-500">
+                        Permitir agendar en lazos de tiempo 
+                      </p>
+                    </div>
+
+                    <input
+                      type="checkbox"
+                      id="lazos_tiempo"
+                      name="lazos_tiempo"
+                      checked={sucursalForm.lazos_tiempo}
                       onChange={handleSucursalChange}
                       className="h-5 w-5 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
                     />

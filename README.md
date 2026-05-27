@@ -38,3 +38,7 @@ systemctl --user status podman.socket -->
 
 <!-- ultimo  -->
 podman compose -f compose.yml up --build
+
+
+
+<!-- docker compose exec web python manage.py makemigrations core -->

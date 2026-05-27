@@ -53,6 +53,7 @@ class Sucursal(models.Model):
     barrio = models.ForeignKey(Barrio, on_delete=models.CASCADE)
     horario = models.TextField(blank=True)
     permite_agendar = models.BooleanField(default=False)
+    lazos_tiempo = models.BooleanField(default=False)
     activo = models.BooleanField(default=True)
 
     class Meta:
@@ -180,11 +181,18 @@ class Cliente(models.Model):
 
 class Cita(models.Model):
     TIPO_SERVICIO = [('local', 'En local'),('domicilio', 'A domicilio'),('virtual', 'Virtual')]
+    TIPO_RESERVA = [('exacta', 'Hora exacta'),('rango', 'Rango de tiempo'),]
+
+    tipo_reserva = models.CharField(max_length=20,choices=TIPO_RESERVA,default='exacta')
+    rango_inicio = models.DateTimeField(null=True,blank=True)
+    rango_fin = models.DateTimeField(null=True,blank=True)
+    fecha_hora_confirmada = models.DateTimeField(null=True,blank=True)
+
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='citas')
     empleado = models.ForeignKey(User, on_delete=models.CASCADE, related_name='citas_asignadas')
     servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='citas')
-    fecha_hora = models.DateTimeField()
-    hora_fin = models.DateTimeField(help_text='Hora de finalización calculada automáticamente')
+    fecha_hora = models.DateTimeField(null=True,blank=True)
+    hora_fin = models.DateTimeField(null=True,blank=True,help_text='Hora de finalización calculada automáticamente')
     estado = models.CharField(max_length=20, choices=[
         ('pendiente', 'Pendiente'),('confirmada', 'Confirmada'),
         ('cancelada', 'Cancelada'),('completada', 'Completada'),

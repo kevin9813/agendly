@@ -38,6 +38,8 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
     cliente_celular: '',
     fecha: '',
     hora: '',
+    hora_inicio: '',
+    hora_fin_rango: '',
     tipo_servicio: 'local',
     cobertura_id: '',
     direccion: '',
@@ -147,11 +149,23 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
       }
     }
 
-    if (!formData.hora) {
-      newErrors.hora = 'La hora es requerida'
-    } else if (sucursal && formData.fecha && !isHoraValida(sucursal, formData.fecha, formData.hora)) {
-      const horario = getHorarioDia(sucursal, formData.fecha)
-      newErrors.hora = `Horario no disponible. Horario permitido: ${horario?.hora_inicio} - ${horario?.hora_fin}`
+    if(sucursal.lazos_tiempo) {
+      if (!formData.hora_inicio) {
+        newErrors.hora_inicio = 'La hora de inicio es requerida'
+      }
+      if (!formData.hora_fin_rango) {
+        newErrors.hora_fin_rango = 'La hora de fin es requerida'
+      }
+      if (formData.hora_inicio && formData.hora_fin_rango && formData.hora_inicio >= formData.hora_fin_rango) {
+        newErrors.hora_fin_rango = 'La hora de fin debe ser mayor a la hora de inicio'
+      }
+    } else if (!sucursal.lazos_tiempo) {
+      if (!formData.hora) {
+        newErrors.hora = 'La hora es requerida'
+      } else if (sucursal && formData.fecha && !isHoraValida(sucursal, formData.fecha, formData.hora)) {
+        const horario = getHorarioDia(sucursal, formData.fecha)
+        newErrors.hora = `Horario no disponible. Horario permitido: ${horario?.hora_inicio} - ${horario?.hora_fin}`
+      }
     }
 
     if (formData.tipo_servicio === 'domicilio') {
@@ -212,6 +226,8 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
       }
 
       const fechaHora = `${formData.fecha}T${formData.hora}:00`
+      const fehcaHoraInicio = formData.hora_inicio ? `${formData.fecha}T${formData.hora_inicio}:00` : null
+      const fechaHoraFinRango = formData.hora_fin_rango ? `${formData.fecha}T${formData.hora_fin_rango}:00` : null
       const citaResponse = await fetch(`${apiUrl}citas/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -220,6 +236,8 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
           empleado_id: empleado.id,
           servicio_id: servicio.id,
           fecha_hora: fechaHora,
+          hora_inicio: fehcaHoraInicio,
+          hora_fin_rango: fechaHoraFinRango,
           estado: 'pendiente',
           tipo_servicio: formData.tipo_servicio,
           cobertura_id: formData.cobertura_id ? parseInt(formData.cobertura_id) : null,
@@ -356,6 +374,11 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
                     </span>
                   ))}
                 </div>
+                {sucursal.lazos_tiempo && (
+                  <p className="mt-2 text-sm text-gray-600">
+                    ⏰ Este negocio tiene lazos de tiempo activados. Deberás seleccionar un rango de horas para tu cita.
+                  </p>
+                )}
               </div>
             )}
 
@@ -380,40 +403,92 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
               </div>
 
               {/* HORA */}
-              <div>
-                <select
-                  value={formData.hora}
-                  onChange={e => setFormData({...formData, hora: e.target.value})}
-                  disabled={!formData.fecha || !!errors.fecha}
-                  className={`w-full border rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-black ${
-                    errors.hora ? 'border-red-500 bg-red-50' : ''
-                  } ${(!formData.fecha || errors.fecha) ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                >
-                  <option value="">
-                    {!formData.fecha 
-                      ? 'Seleccione fecha' 
-                      : errors.fecha 
-                        ? 'Día no disponible' 
-                        : 'Seleccione hora'}
-                  </option>
-                  {generarOpcionesHora().map(hora => (
-                    <option key={hora} value={hora}>{hora}</option>
-                  ))}
-                </select>
-                {errors.hora && (
-                  <p className="text-red-500 text-xs mt-1">{errors.hora}</p>
-                )}
-              </div>
+              {!sucursal.lazos_tiempo && (
+                <>
+                <div>
+                  <select
+                    value={formData.hora}
+                    onChange={e => setFormData({...formData, hora: e.target.value})}
+                    disabled={!formData.fecha || !!errors.fecha}
+                    className={`w-full border rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-black ${
+                      errors.hora ? 'border-red-500 bg-red-50' : ''
+                    } ${(!formData.fecha || errors.fecha) ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  >
+                    <option value="">
+                      {!formData.fecha 
+                        ? 'Seleccione fecha' 
+                        : errors.fecha 
+                          ? 'Día no disponible' 
+                          : 'Seleccione hora'}
+                    </option>
+                    {generarOpcionesHora().map(hora => (
+                      <option key={hora} value={hora}>{hora}</option>
+                    ))}
+                  </select>
+                  {errors.hora && (
+                    <p className="text-red-500 text-xs mt-1">{errors.hora}</p>
+                  )}
+                </div>
 
-              {/* HORA FIN */}
-              <div>
-                <input
-                  type="time"
-                  value={horaFin}
-                  readOnly
-                  className="w-full border rounded-xl px-3 py-2 bg-gray-100 cursor-not-allowed"
-                />
-              </div>
+                <div>
+                  <input
+                    type="time"
+                    value={horaFin}
+                    readOnly
+                    className="w-full border rounded-xl px-3 py-2 bg-gray-100 cursor-not-allowed"
+                  />
+                </div>
+                </>
+              )}
+              {sucursal.lazos_tiempo && (
+                <>
+                <div>
+                  <select
+                    value={formData.hora_inicio || ''}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        hora_inicio: e.target.value
+                      })
+                    }
+                    disabled={!formData.fecha}
+                    className="w-full border rounded-xl px-3 py-2"
+                  >
+                    <option value="">Desde</option>
+
+                    {generarOpcionesHora().map(hora => (
+                      <option key={hora} value={hora}>
+                        {hora}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <select
+                    value={formData.hora_fin_rango || ''}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        hora_fin_rango: e.target.value
+                      })
+                    }
+                    disabled={!formData.fecha || !formData.hora_inicio}
+                    className="w-full border rounded-xl px-3 py-2"
+                  >
+                    <option value="">Hasta</option>
+
+                    {generarOpcionesHora()
+                      .filter(h => h > formData.hora_inicio)
+                      .map(hora => (
+                        <option key={hora} value={hora}>
+                          {hora}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                </>
+              )}
 
             </div>
           </div>
