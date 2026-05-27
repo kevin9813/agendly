@@ -921,6 +921,10 @@ def citas_list(request):
 
             es_rango = bool(hora_inicio and hora_fin_rango)
 
+            # Si hay sesión autenticada, validar según el rol
+            user_id = request.session.get('user_id')
+            user_rol = request.session.get('user_rol')
+
             # Validar que la fecha_hora no sea anterior a ahora
             from django.utils import timezone
             from datetime import datetime, timedelta
@@ -933,18 +937,15 @@ def citas_list(request):
                 
                     # Permitir citas desde hoy en adelante (con algunos minutos de margen)
                     # Rechazar solo si es una fecha completamente anterior a hoy
-                    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-                    if fecha_hora_aware < today_start:
-                        return JsonResponse({'detail': 'No se puede agendar citas en fechas anteriores'}, status=400)
+                    if(user_rol != 'Administrador'):
+                        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+                        if fecha_hora_aware < today_start:
+                            return JsonResponse({'detail': 'No se puede agendar citas en fechas anteriores'}, status=400)
             except (ValueError, AttributeError):
                 pass  # Si hay error al parsear fecha, dejar que continúe y falle gracefully
             
             # Validar que el empleado es el correcto según el rol
             empleado_id = data.get('empleado_id')
-            
-            # Si hay sesión autenticada, validar según el rol
-            user_id = request.session.get('user_id')
-            user_rol = request.session.get('user_rol')
             
             if user_id and user_rol:
                 # Usuario autenticado: validar permisos

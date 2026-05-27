@@ -288,11 +288,17 @@ function AgendaPage({ user }) {
       return
     }
 
+    let estado = 'confirmada'
     // Validar que la fecha no sea anterior a hoy
     const today = new Date().toISOString().split('T')[0]
     if (editCitaForm.fecha < today) {
-      alert('No se puede agendar citas en fechas anteriores a hoy')
-      return
+      if(user.rol === 'Administrador'){
+        estado = 'completada'
+      }else{
+        alert('No se puede agendar citas en fechas anteriores a hoy')
+        return
+
+      }
     }
     
     setUpdatingCita(true)
@@ -364,16 +370,23 @@ function AgendaPage({ user }) {
   const handleCreateCita = async (e) => {
     e.preventDefault()
     
+    
     if (!citaForm.cliente_id || !citaForm.empleado_id || !citaForm.servicio_id) {
       alert('Por favor completa todos los campos requeridos')
       return
     }
 
+    let estado = 'confirmada'
     // Validar que la fecha no sea anterior a hoy
     const today = new Date().toISOString().split('T')[0]
     if (citaForm.fecha < today) {
-      alert('No se puede agendar citas en fechas anteriores a hoy')
-      return
+      if(user.rol === 'Administrador'){
+        estado = 'completada'
+      }else{
+        alert('No se puede agendar citas en fechas anteriores a hoy')
+        return
+
+      }
     }
     
     setCreatingCita(true)
@@ -388,7 +401,7 @@ function AgendaPage({ user }) {
           empleado_id: parseInt(citaForm.empleado_id),
           servicio_id: parseInt(citaForm.servicio_id),
           fecha_hora: fechaHora,
-          estado: 'confirmada',
+          estado: estado,
           tipo_servicio: citaForm.tipo_servicio,
           cobertura_id: citaForm.cobertura_id ? parseInt(citaForm.cobertura_id) : null,
           direccion: citaForm.direccion,
@@ -1632,7 +1645,7 @@ function AgendaPage({ user }) {
                       fecha: e.target.value,
                     })
                   }
-                  min={new Date().toISOString().split('T')[0]}
+                  min={user?.rol === 'Administrador' ? undefined : new Date().toISOString().split('T')[0]}
                   className="w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-3 text-gray-900 dark:text-white outline-none transition focus:border-indigo-500 dark:[color-scheme:dark]"
                 />
               </div>
