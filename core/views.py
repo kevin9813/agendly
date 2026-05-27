@@ -148,6 +148,9 @@ def dashboard_view(request):
         'servicio': c.servicio.name if c.servicio else 'Sin servicio',
         'fecha_hora': serialize_datetime(c.fecha_hora),
         'estado': c.estado,
+        'tipo_reserva': c.tipo_reserva,
+        'rango_inicio': serialize_datetime(c.rango_inicio),
+        'rango_fin': serialize_datetime(c.rango_fin),
     } for c in citas_pendientes]
 
     return JsonResponse({
@@ -903,6 +906,9 @@ def citas_list(request):
             'cobertura': c.cobertura.barrio.name if c.cobertura else None,
             'direccion': c.direccion,
             'notas': c.notas,
+            'tipo_reserva': c.tipo_reserva,
+            'rango_inicio': serialize_datetime(c.rango_inicio),
+            'rango_fin': serialize_datetime(c.rango_fin),
         } for c in citas]
         return JsonResponse({'citas': data})
     
@@ -1121,6 +1127,10 @@ def cita_detail(request, cita_id):
                 cita.direccion = data.get('direccion', cita.direccion)
             if 'notas' in data:
                 cita.notas = data['notas']
+            if 'fecha_hora_confirmada' in data:
+                cita.fecha_hora_confirmada = parse_datetime(data['fecha_hora_confirmada'])
+                cita.fecha_hora = parse_datetime(data['fecha_hora_confirmada'])
+                cita.hora_fin = None
             
             # Guardar (esto recalcula hora_fin si fue necesario)
             cita.save()

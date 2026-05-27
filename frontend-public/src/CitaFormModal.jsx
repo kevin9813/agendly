@@ -376,7 +376,7 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
                 </div>
                 {sucursal.lazos_tiempo && (
                   <p className="mt-2 text-sm text-gray-600">
-                    ⏰ Este negocio tiene lazos de tiempo activados. Deberás seleccionar un rango de horas para tu cita.
+                    ⏰ Este negocio tiene lazos de tiempo activados. Deberás seleccionar un rango de horas para tu cita. el negocio confirmará el horario exacto de tu cita dentro del rango seleccionado.
                   </p>
                 )}
               </div>

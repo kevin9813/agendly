@@ -29,6 +29,10 @@ function App() {
     plan: ''
   })
 
+  const [citaSeleccionada, setCitaSeleccionada] = useState(null)
+  const [horaConfirmacion, setHoraConfirmacion] = useState('')
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+
 
   // Cargar sesión desde localStorage cuando el componente monta
   useEffect(() => {
@@ -162,14 +166,14 @@ function App() {
     window.open(url, '_blank')
   }
 
-  const updateCitaEstado = async (citaId, nuevoEstado) => {
+  const updateCitaEstado = async (citaId, nuevoEstado, fechaConfirmar = null) => {
     try {
       const response = await fetch(`${apiUrl}citas/${citaId}/`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ estado: nuevoEstado }),
+        body: JSON.stringify({ estado: nuevoEstado, fecha_hora_confirmada: fechaConfirmar }),
         credentials: 'include',
       })
       if (response.ok) {
@@ -196,8 +200,17 @@ function App() {
       console.error('Error updating cita:', error)
     }
   }
+  const handleConfirmarCita = (cita) => {
+    if (cita.tipo_reserva === 'rango') {
+      setCitaSeleccionada(cita)
+      setHoraConfirmacion('')
+      setShowConfirmModal(true)
+      return
+    }
+    handleCitaEstadoChange(cita.id, 'confirmada')
+  }
 
-  const handleCitaEstadoChange = async (citaId, nuevoEstado) => {
+  const handleCitaEstadoChange = async (citaId, nuevoEstado, fechaConfirmar = null) => {
     const estados = {
       completada: {
         accion: 'completar',titulo: 'Completar Cita',icono: 'success'
@@ -223,7 +236,7 @@ function App() {
     })
     
     if (result.isConfirmed) {
-      updateCitaEstado(citaId, nuevoEstado)
+      updateCitaEstado(citaId, nuevoEstado, fechaConfirmar)
     }
   }
 
@@ -247,6 +260,61 @@ function App() {
     // Limpiar localStorage
     localStorage.removeItem('agendly_user')
     localStorage.removeItem('agendly_current_page')
+  }
+
+  const generarOpcionesHoraRango = () => {
+    if (!citaSeleccionada?.rango_inicio || !citaSeleccionada?.rango_fin) {
+      return []
+    }
+
+    const opciones = []
+
+    const inicio = new Date(citaSeleccionada.rango_inicio)
+    const fin = new Date(citaSeleccionada.rango_fin)
+
+    const actual = new Date(inicio)
+
+    while (actual <= fin) {
+      opciones.push(
+        actual.toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        })
+      )
+
+      actual.setMinutes(actual.getMinutes() + 30)
+    }
+
+    return opciones
+  }
+
+  const confirmarCitaConHora = async () => {
+    if (!citaSeleccionada || !horaConfirmacion) return
+
+    try {
+      const fecha = new Date(citaSeleccionada.rango_inicio)
+      const [hora, minutos] = horaConfirmacion.split(':')
+      fecha.setHours(Number(hora))
+      fecha.setMinutes(Number(minutos))
+      fecha.setSeconds(0)
+      fecha.setMilliseconds(0)
+
+      const fechaHoraCompleta = fecha.toISOString()
+
+      await handleCitaEstadoChange(
+        citaSeleccionada.id,
+        'confirmada',
+        fechaHoraCompleta
+      )
+
+      setShowConfirmModal(false)
+      setHoraConfirmacion('')
+      setCitaSeleccionada(null)
+
+    } catch (error) {
+      console.error('Error al confirmar cita:', error)
+    }
   }
 
   const renderPage = () => {
@@ -425,16 +493,29 @@ function App() {
                             </span>
 
                             <span className="block text-xs text-gray-400">
-                              {new Date(cita.fecha_hora).toLocaleString()}
+                              {cita.tipo_reserva === 'rango' ? (
+                                <>
+                                  Disponible entre{' '}
+                                  {new Date(cita.rango_inicio).toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                  {' - '}
+                                  {new Date(cita.rango_fin).toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                </>
+                              ) : (
+                                new Date(cita.fecha_hora).toLocaleString()
+                              )}
                             </span>
                           </div>
 
                           <div className="flex items-center gap-2">
                             <button
                               className="flex-1 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600 transition"
-                              onClick={() =>
-                                handleCitaEstadoChange(cita.id, 'confirmada')
-                              }
+                              onClick={() => handleConfirmarCita(cita)}
                             >
                               Confirmar
                             </button>
@@ -461,7 +542,61 @@ function App() {
             </section>
             )}
             
+            {showConfirmModal && (
+              <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+                <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+                  <h3 className="text-lg font-semibold mb-4">
+                    Confirmar cita
+                  </h3>
+
+                  <p className="text-sm text-gray-500 mb-4">
+                    Selecciona la hora exacta para confirmar esta cita
+                  </p>
+
+                  <select
+                    value={horaConfirmacion}
+                    onChange={(e) =>
+                      setHoraConfirmacion(e.target.value)
+                    }
+                    className="w-full border rounded-xl px-3 py-2"
+                  >
+                    <option value="">
+                      Seleccionar hora
+                    </option>
+
+                    {generarOpcionesHoraRango().map((hora) => (
+                      <option
+                        key={hora}
+                        value={hora}
+                      >
+                        {hora}
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="flex gap-2 mt-4">
+                    <button
+                      onClick={() =>
+                        setShowConfirmModal(false)
+                      }
+                      className="flex-1 border rounded-xl py-2"
+                    >
+                      Cancelar
+                    </button>
+
+                    <button
+                      onClick={confirmarCitaConHora}
+                      className="flex-1 bg-indigo-500 text-white rounded-xl py-2"
+                    >
+                      Confirmar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
+
+          
         )      
       case 'agenda':
         return <AgendaPage user={user} />
