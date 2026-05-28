@@ -987,6 +987,7 @@ def citas_list(request):
                     direccion=data.get('direccion', ''),
                     notas=data.get('notas', ''),
                     tipo_reserva='rango',
+                    precio_final=str(data.get('precio_final'))
                 )
                 cita.save(force_insert=True)
             else:
@@ -1002,6 +1003,7 @@ def citas_list(request):
                     direccion=data.get('direccion', ''),
                     notas=data.get('notas', ''),
                     tipo_reserva='exacta',
+                    precio_final=data.get('precio_final'),
                 )
                 # Calcular hora_fin automáticamente
                 cita.save()  # Esto activa el método save() que calcula hora_fin

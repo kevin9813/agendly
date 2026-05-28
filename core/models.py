@@ -201,6 +201,7 @@ class Cita(models.Model):
     cobertura = models.ForeignKey(Cobertura, null=True, blank=True, on_delete=models.SET_NULL)
     direccion = models.TextField(blank=True, null=True)
     notas = models.TextField(blank=True)
+    precio_final = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
 
     class Meta:
         db_table = 'cita'

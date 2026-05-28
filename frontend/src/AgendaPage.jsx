@@ -31,6 +31,7 @@ function AgendaPage({ user }) {
     cobertura_id: '',
     direccion: '',
     notas: '',
+    precio_final: '',
   })
   const [newClientName, setNewClientName] = useState('')
   const [newClientCelular, setNewClientCelular] = useState('')
@@ -49,6 +50,7 @@ function AgendaPage({ user }) {
     cobertura_id: '',
     direccion: '',
     notas: '',
+    precio_final: '',
   })
   const [editHoraFin, setEditHoraFin] = useState('')
   const [updatingCita, setUpdatingCita] = useState(false)
@@ -406,6 +408,7 @@ function AgendaPage({ user }) {
           cobertura_id: citaForm.cobertura_id ? parseInt(citaForm.cobertura_id) : null,
           direccion: citaForm.direccion,
           notas: citaForm.notas,
+          precio_final: citaForm.precio_final ? parseFloat(citaForm.precio_final) : parseFloat(servicioSeleccionado?.precio),
         }),
         credentials: 'include',
       })
@@ -438,6 +441,10 @@ function AgendaPage({ user }) {
       setCreatingCita(false)
     }
   }
+
+  const servicioSeleccionado = servicios.find(
+    s => s.id === Number(citaForm.servicio_id)
+  )
 
   const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
@@ -1651,37 +1658,56 @@ function AgendaPage({ user }) {
               </div>
 
               {/* SERVICIO */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Servicio
-                </label>
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Servicio
+                  </label>
 
-                <select
-                  value={citaForm.servicio_id}
-                  onChange={e =>
-                    setCitaForm({
-                      ...citaForm,
-                      servicio_id: e.target.value,
-                    })
-                  }
-                  required
-                  className="w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-3 text-gray-900 dark:text-white outline-none transition focus:border-indigo-500 dark:[color-scheme:dark]"
-                >
-                  <option value="">
-                    Seleccionar servicio
-                  </option>
-
-                  {servicios.map(servicio => (
-                    <option
-                      key={servicio.id}
-                      value={servicio.id}
-                    >
-                      {servicio.name} - $
-                      {formatPrice(servicio.precio)} (
-                      {servicio.tiempo} min)
+                  <select
+                    value={citaForm.servicio_id}
+                    onChange={e =>
+                      setCitaForm({
+                        ...citaForm,
+                        servicio_id: e.target.value,
+                      })
+                    }
+                    required
+                    className="w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-3 text-gray-900 dark:text-white outline-none transition focus:border-indigo-500 dark:[color-scheme:dark]"
+                  >
+                    <option value="">
+                      Seleccionar servicio
                     </option>
-                  ))}
-                </select>
+
+                    {servicios.map(servicio => (
+                      <option
+                        key={servicio.id}
+                        value={servicio.id}
+                      >
+                        {servicio.name} - $
+                        {formatPrice(servicio.precio)} (
+                        {servicio.tiempo} min)
+                      </option>
+                    ))}
+                  </select>
+
+                </div>
+                <div className="md:col-span-1">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Precio <span>{formatPrice(servicioSeleccionado?.precio) || 0}</span>
+                  </label>
+                  <input
+                    type="number"
+                    onChange={e =>
+                      setCitaForm({
+                        ...citaForm,
+                        precio_final: Number(e.target.value),
+                      })
+                    }
+                    placeholder='precio diferente'
+                    className="w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-3 text-gray-900 dark:text-white outline-none transition focus:border-indigo-500 dark:[color-scheme:dark]"
+                  />
+                </div>
               </div>
 
               {/* HORAS */}
