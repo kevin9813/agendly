@@ -909,6 +909,7 @@ def citas_list(request):
             'tipo_reserva': c.tipo_reserva,
             'rango_inicio': serialize_datetime(c.rango_inicio),
             'rango_fin': serialize_datetime(c.rango_fin),
+            'precio_final': float(c.precio_final) if c.precio_final else 0,
         } for c in citas]
         return JsonResponse({'citas': data})
     

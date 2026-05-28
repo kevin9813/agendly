@@ -436,6 +436,7 @@ function App() {
                             </div>
 
                             <div className="flex items-center gap-2">
+                              {new Date(cita.fecha_hora) < new Date() && (
                               <button
                                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition"
                                 onClick={() =>
@@ -445,6 +446,7 @@ function App() {
                               >
                                 ✓
                               </button>
+                               )}
 
                               <button
                                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500 text-white hover:bg-red-600 transition"
