@@ -243,6 +243,7 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
           cobertura_id: formData.cobertura_id ? parseInt(formData.cobertura_id) : null,
           direccion: formData.direccion,
           notas: formData.notas,
+          precio: servicio.precio,
         }),
       })
 

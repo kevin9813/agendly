@@ -988,7 +988,7 @@ def citas_list(request):
                     direccion=data.get('direccion', ''),
                     notas=data.get('notas', ''),
                     tipo_reserva='rango',
-                    precio_final=str(data.get('precio_final'))
+                    precio_final=data.get('precio_final')
                 )
                 cita.save(force_insert=True)
             else:
