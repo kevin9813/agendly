@@ -1131,7 +1131,7 @@ def cita_detail(request, cita_id):
                 cita.direccion = data.get('direccion', cita.direccion)
             if 'notas' in data:
                 cita.notas = data['notas']
-            if 'fecha_hora_confirmada' in data:
+            if 'fecha_hora_confirmada' in data and data['fecha_hora_confirmada'] is not None:
                 cita.fecha_hora_confirmada = parse_datetime(data['fecha_hora_confirmada'])
                 cita.fecha_hora = parse_datetime(data['fecha_hora_confirmada'])
                 cita.hora_fin = None
