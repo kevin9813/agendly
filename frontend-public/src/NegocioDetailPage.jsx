@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import CitaFormModal from './CitaFormModal'
 
@@ -19,9 +19,14 @@ function NegocioDetailPage() {
   const [showCitaModal, setShowCitaModal] = useState(false)
   const [selectedServicio, setSelectedServicio] = useState(null)
   const [selectedEmpleado, setSelectedEmpleado] = useState(null)
+  const hasInitialized = useRef(false)
+
 
   useEffect(() => {
-    loadNegocioDetail()
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      loadNegocioDetail()
+    }
   }, [negocioId])
 
   const loadNegocioDetail = async () => {

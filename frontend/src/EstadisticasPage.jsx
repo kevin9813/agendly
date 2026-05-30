@@ -194,25 +194,25 @@ function EstadisticasPage({ user }) {
 
     // Si no hay datos reales, mostrar datos de ejemplo para demostración
     const hasRealData = Object.values(grouped).some(item => item.completadas > 0 || item.canceladas > 0)
-      if (!hasRealData) {
+      // if (!hasRealData) {
         // Datos de ejemplo para mostrar la gráfica
-        const exampleData = [
-          { key: labels[0]?.key, completadas: 5, canceladas: 2 },
-          { key: labels[1]?.key, completadas: 8, canceladas: 1 },
-          { key: labels[2]?.key, completadas: 3, canceladas: 4 },
-          { key: labels[3]?.key, completadas: 7, canceladas: 0 },
-          { key: labels[4]?.key, completadas: 4, canceladas: 3 },
-          { key: labels[5]?.key, completadas: 6, canceladas: 1 },
-          { key: labels[6]?.key, completadas: 2, canceladas: 2 },
-        ]
+        // const exampleData = [
+        //   { key: labels[0]?.key, completadas: 5, canceladas: 2 },
+        //   { key: labels[1]?.key, completadas: 8, canceladas: 1 },
+        //   { key: labels[2]?.key, completadas: 3, canceladas: 4 },
+        //   { key: labels[3]?.key, completadas: 7, canceladas: 0 },
+        //   { key: labels[4]?.key, completadas: 4, canceladas: 3 },
+        //   { key: labels[5]?.key, completadas: 6, canceladas: 1 },
+        //   { key: labels[6]?.key, completadas: 2, canceladas: 2 },
+        // ]
         
-        exampleData.forEach((item, index) => {
-          if (grouped[item.key]) {
-            grouped[item.key].completadas = item.completadas
-            grouped[item.key].canceladas = item.canceladas
-          }
-        })
-      }
+        // exampleData.forEach((item, index) => {
+        //   if (grouped[item.key]) {
+        //     grouped[item.key].completadas = item.completadas
+        //     grouped[item.key].canceladas = item.canceladas
+        //   }
+        // })
+      // }
 
       return Object.values(grouped)
   }, [filteredCitas, labels, period])
@@ -308,53 +308,53 @@ function EstadisticasPage({ user }) {
   const totalCompletadas = chartData.reduce((sum, item) => sum + item.completadas, 0)
   const totalCanceladas = chartData.reduce((sum, item) => sum + item.canceladas, 0)
 
-  useEffect(() => {
-    if (!chartRefPrecios.current || typeof window.Chart !== 'function') return
+  // useEffect(() => {
+  //   if (!chartRefPrecios.current || typeof window.Chart !== 'function') return
 
-    if (chartInstanceRefPrecios.current) {
-      chartInstanceRefPrecios.current.destroy()
-    }
+  //   if (chartInstanceRefPrecios.current) {
+  //     chartInstanceRefPrecios.current.destroy()
+  //   }
 
-    const labelsPie = chartDataPrecios.map((item) => item.label)
-    const dataPie = chartDataPrecios.map((item) => item.value)
-    const backgroundColorPie = chartDataPrecios.map((item) => item.backgroundColor)
+  //   const labelsPie = chartDataPrecios.map((item) => item.label)
+  //   const dataPie = chartDataPrecios.map((item) => item.value)
+  //   const backgroundColorPie = chartDataPrecios.map((item) => item.backgroundColor)
 
-    chartInstanceRefPrecios.current = new window.Chart(chartRefPrecios.current, {
-      type: 'pie',
-      data: {
-        labels: labelsPie,
-        datasets: [
-          {
-            data: dataPie,
-            backgroundColor: backgroundColorPie,
-            borderWidth: 2,
-            borderColor: '#0f172a',
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (tooltipItem) => {
-                const label = tooltipItem.label || ''
-                const value = tooltipItem.parsed || 0
-                return `${label}: $${value.toFixed(2)}`
-              },
-            },
-          },
-        },
-      },
-    })
+  //   chartInstanceRefPrecios.current = new window.Chart(chartRefPrecios.current, {
+  //     type: 'pie',
+  //     data: {
+  //       labels: labelsPie,
+  //       datasets: [
+  //         {
+  //           data: dataPie,
+  //           backgroundColor: backgroundColorPie,
+  //           borderWidth: 2,
+  //           borderColor: '#0f172a',
+  //         },
+  //       ],
+  //     },
+  //     options: {
+  //       responsive: true,
+  //       maintainAspectRatio: false,
+  //       plugins: {
+  //         legend: { display: false },
+  //         tooltip: {
+  //           callbacks: {
+  //             label: (tooltipItem) => {
+  //               const label = tooltipItem.label || ''
+  //               const value = tooltipItem.parsed || 0
+  //               return `${label}: $${value.toFixed(2)}`
+  //             },
+  //           },
+  //         },
+  //       },
+  //     },
+  //   })
 
-    return () => {
-      chartInstanceRefPrecios.current?.destroy()
-      chartInstanceRefPrecios.current = null
-    }
-  }, [chartDataPrecios])
+  //   return () => {
+  //     chartInstanceRefPrecios.current?.destroy()
+  //     chartInstanceRefPrecios.current = null
+  //   }
+  // }, [chartDataPrecios])
   
 
   if (loading) {
@@ -413,7 +413,7 @@ function EstadisticasPage({ user }) {
           </div>
         </div>
 
-        <div className="mt-5 flex flex-col gap-4">
+        {/* <div className="mt-5 flex flex-col gap-4">
           <label className="inline-flex items-center gap-3 text-slate-700 dark:text-slate-300">
             <input
               type="checkbox"
@@ -434,6 +434,7 @@ function EstadisticasPage({ user }) {
               value={dateStart}
               onChange={(event) => setDateStart(event.target.value)}
               disabled={!useDateRange}
+              onClick={(e) => e.target.showPicker()}
               className="w-full h-12 rounded-2xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all disabled:cursor-not-allowed disabled:opacity-60"
             />
           </div>
@@ -447,14 +448,15 @@ function EstadisticasPage({ user }) {
               value={dateEnd}
               onChange={(event) => setDateEnd(event.target.value)}
               disabled={!useDateRange}
+              onClick={(e) => e.target.showPicker()}
               className="w-full h-12 rounded-2xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all disabled:cursor-not-allowed disabled:opacity-60"
             />
           </div>
         </div>
-        </div><br/>
+        </div><br/> */}
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-1 gap-6">
         {/* LEFT */}
         <div className="space-y-6">
 
@@ -542,7 +544,7 @@ function EstadisticasPage({ user }) {
         </div>
 
         {/* RIGHT */}
-        <div className="rounded-3xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-[#111827] p-6 shadow-2xl min-h-[300px]">
+        {/* <div className="rounded-3xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-[#111827] p-6 shadow-2xl min-h-[300px]">
           <div className="mb-6">
             <p className="text-sm uppercase tracking-[0.2em] text-slate-500 font-semibold">
               Información
@@ -582,7 +584,7 @@ function EstadisticasPage({ user }) {
             </>
           )}
 
-        </div>
+        </div> */}
       </div>
     </section>
   )

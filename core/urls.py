@@ -5,6 +5,7 @@ from .views import (
     barrios_list,
     cita_detail,
     citas_list,
+    citas_filter,
     cliente_detail,
     clientes_list,
     coberturas_list,
@@ -66,4 +67,5 @@ urlpatterns = [
     path('clientes/<int:cliente_id>/', cliente_detail, name='api-cliente-detail'),
     path('citas/', citas_list, name='api-citas'),
     path('citas/<int:cita_id>/', cita_detail, name='api-cita-detail'),
+    path('citas/filter/', citas_filter, name='api-citas-filter'),
 ]

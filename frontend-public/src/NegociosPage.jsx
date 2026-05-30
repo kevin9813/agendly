@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/'
@@ -11,9 +11,14 @@ function NegociosPage() {
   const [barrios, setBarrios] = useState([])
   const [selectedCiudad, setSelectedCiudad] = useState('')
   const [selectedBarrio, setSelectedBarrio] = useState('')
+  const hasInitialized = useRef(false)
+
 
   useEffect(() => {
-    loadNegocios()
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      loadNegocios()
+    }
   }, [])
 
   const loadNegocios = async () => {

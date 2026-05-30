@@ -393,6 +393,7 @@ function CitaFormModal({ servicio, empleado, negocio, onClose, onSuccess }) {
                   onChange={e => {
                     setFormData({...formData, fecha: e.target.value, hora: ''})
                   }}
+                  onClick={(e) => e.target.showPicker()}
                   min={new Date().toISOString().split('T')[0]}
                   className={`w-full border rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-black ${
                     errors.fecha ? 'border-red-500 bg-red-50' : ''

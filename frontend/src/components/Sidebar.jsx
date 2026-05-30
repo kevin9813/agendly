@@ -44,6 +44,11 @@ export default function Sidebar({
       key: 'estadisticas',
       label: 'Estadísticas',
       roles: ['Admin']
+    },
+    {
+      key: 'contabilidad',
+      label: 'Contabilidad',
+      roles: ['Admin']
     }
   ]
 

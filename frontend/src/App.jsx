@@ -5,6 +5,7 @@ import NegocioPage from './NegocioPage'
 import AgendaPage from './AgendaPage'
 import ClientesPage from './ClientesPage'
 import EstadisticasPage from './EstadisticasPage'
+import ContabilidadPage from './ContabilidadPage'
 import Sidebar from './components/Sidebar'
 import Header from './components/Header'
 import { Menu,Sun, Moon } from 'lucide-react'
@@ -88,7 +89,6 @@ function App() {
   }
 
   const loadDashboardData = async () => {
-    console.log('llamados')
     try {
       const response = await fetch(`${apiUrl}dashboard/`, { credentials: 'include' })
       const data = await response.json()
@@ -616,6 +616,8 @@ function App() {
         return <ClientesPage user={user}/>
       case 'estadisticas':
         return <EstadisticasPage user={user}/>
+      case 'contabilidad':
+        return <ContabilidadPage user={user}/>
       default:
         return <div>Página no encontrada</div>
    

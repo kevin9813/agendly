@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Prefetch
+from django.db.models import Q
 
 from .models import Barrio, Cobertura, Cita, Cliente, Negocio, Rol, Servicio, Sucursal, User, UserServicio, Ciudad, NegocioSuscripcion, Plan, SucursalHorario
 
@@ -1059,6 +1060,124 @@ def citas_list(request):
     
     return JsonResponse({'detail': 'Method not allowed'}, status=405)
 
+@csrf_exempt
+def citas_filter(request):
+    if request.method == 'POST':
+        try:
+            # Verificar autenticación
+            user_id = request.session.get('user_id')
+            user_rol = request.session.get('user_rol')
+            
+            # Construir filtros dinámicamente
+            filters = Q()  # Filtro vacío
+            applied_filters = {}
+            
+            try:
+                if request.body:
+                    data = json.loads(request.body.decode('utf-8'))
+                else:
+                    data = {}
+            except json.JSONDecodeError:
+                data = {}
+
+
+            # 1. Filtro por empleado
+            empleado_id = data.get('empleado_id')
+            if empleado_id and str(empleado_id).strip():
+                try:
+                    filters &= Q(empleado_id=int(empleado_id))
+                    applied_filters['empleado_id'] = int(empleado_id)
+                except (ValueError, TypeError):
+                    pass
+
+            # 2. Filtro por negocio (a través del empleado)
+            negocio_id = data.get('negocio_id')
+            if negocio_id and str(negocio_id).strip():
+                try:
+                    filters &= Q(empleado__negocio_id=int(negocio_id))
+                    applied_filters['negocio_id'] = int(negocio_id)
+                except (ValueError, TypeError):
+                    pass
+            
+            # 5. Filtro por estado
+            estado = data.get('estado')
+            if estado and str(estado).strip():
+                estados_validos = ['pendiente', 'confirmada', 'cancelada', 'completada']
+                if estado in estados_validos:
+                    filters &= Q(estado=estado)
+                    applied_filters['estado'] = estado
+                
+            # 6. Filtro por rango de fechas (optimizado)
+            fecha_inicio = data.get('fecha_inicio')
+            if fecha_inicio and str(fecha_inicio).strip():
+                try:
+                    fecha_inicio_obj = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+                    filters &= (
+                        Q(fecha_hora__date__gte=fecha_inicio_obj) |
+                        Q(rango_inicio__date__gte=fecha_inicio_obj)
+                    )
+                    applied_filters['fecha_inicio'] = str(fecha_inicio_obj)
+                except (ValueError, TypeError):
+                    pass
+
+            fecha_fin = data.get('fecha_fin')
+            if fecha_fin and str(fecha_fin).strip():
+                try:
+                    fecha_fin_obj = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+                    filters &= (
+                        Q(fecha_hora__date__lte=fecha_fin_obj) |
+                        Q(rango_fin__date__lte=fecha_fin_obj)
+                    )
+                    applied_filters['fecha_fin'] = str(fecha_fin_obj)
+                except (ValueError, TypeError):
+                    pass
+            
+
+            # APLICAR FILTROS EN LA BASE DE DATOS
+            citas = Cita.objects.select_related(
+                'cliente', 'empleado', 'servicio', 'cobertura'
+            ).filter(filters)  # ← Aquí se filtra en la DB
+
+            # Serializar solo los resultados filtrados
+            citas_data = []
+            for cita in citas:
+                citas_data.append({
+                    'id': cita.id,
+                    'cliente': cita.cliente.name if cita.cliente else None,
+                    'cliente_id': cita.cliente.id if cita.cliente else None,
+                    'cliente_telefono': getattr(cita.cliente, 'telefono', '') if cita.cliente else '',
+                    'empleado_id': cita.empleado.id if cita.empleado else None,
+                    'empleado': cita.empleado.name if cita.empleado else None,
+                    'servicio_id': cita.servicio.id if cita.servicio else None,
+                    'servicio': cita.servicio.name if cita.servicio else None,
+                    'tipo_reserva': cita.tipo_reserva,
+                    'fecha_hora': cita.fecha_hora.isoformat() if cita.fecha_hora else None,
+                    'rango_inicio': cita.rango_inicio.isoformat() if cita.rango_inicio else None,
+                    'rango_fin': cita.rango_fin.isoformat() if cita.rango_fin else None,
+                    'fecha_hora_confirmada': cita.fecha_hora_confirmada.isoformat() if cita.fecha_hora_confirmada else None,
+                    'estado': cita.estado,
+                    'tipo_servicio': cita.tipo_servicio,
+                    'precio_final': float(cita.precio_final) if cita.precio_final else None,
+                    'direccion': cita.direccion,
+                    'notas': cita.notas,
+                })
+
+            return JsonResponse({
+                'success': True,
+                'total': len(citas_data),
+                'citas': citas_data,
+                'filtros_aplicados': applied_filters
+            })  
+        
+        except Exception as e:
+            return JsonResponse({'detail': str(e)}, status=400)
+        
+    
+
+
+           
+
+          
 
 @csrf_exempt
 @require_auth

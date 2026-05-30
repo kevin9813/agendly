@@ -1087,6 +1087,7 @@ function AgendaPage({ user }) {
                       fecha: e.target.value,
                     })
                   }
+                  onClick={(e) => e.target.showPicker()}
                   min={new Date().toISOString().split('T')[0]}
                   className="w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-3 text-gray-900 dark:text-white outline-none transition focus:border-indigo-500 dark:[color-scheme:dark]"
                 />
@@ -1657,6 +1658,7 @@ function AgendaPage({ user }) {
                       fecha: e.target.value,
                     })
                   }
+                  onClick={(e) => e.target.showPicker()}
                   min={user?.rol === 'Administrador' ? undefined : new Date().toISOString().split('T')[0]}
                   className="w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-3 text-gray-900 dark:text-white outline-none transition focus:border-indigo-500 dark:[color-scheme:dark]"
                 />
