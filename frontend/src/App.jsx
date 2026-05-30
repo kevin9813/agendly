@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ServiciosPage from './ServiciosPage'
 import UsuariosPage from './UsuariosPage'
 import NegocioPage from './NegocioPage'
@@ -32,16 +32,19 @@ function App() {
   const [citaSeleccionada, setCitaSeleccionada] = useState(null)
   const [horaConfirmacion, setHoraConfirmacion] = useState('')
   const [showConfirmModal, setShowConfirmModal] = useState(false)
-
+  const hasInitialized = useRef(false)
 
   // Cargar sesión desde localStorage cuando el componente monta
   useEffect(() => {
-    const savedUser = localStorage.getItem('agendly_user')
-    if (savedUser) {
-      const userData = JSON.parse(savedUser)
-      setUser(userData)
-      loadDashboardData()
-      loadSuscripcionStatus(userData.negocio_id)
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      const savedUser = localStorage.getItem('agendly_user')
+      if (savedUser) {
+        const userData = JSON.parse(savedUser)
+        setUser(userData)
+        loadDashboardData()
+        loadSuscripcionStatus(userData.negocio_id)
+      }
     }
   }, [])
 
@@ -85,6 +88,7 @@ function App() {
   }
 
   const loadDashboardData = async () => {
+    console.log('llamados')
     try {
       const response = await fetch(`${apiUrl}dashboard/`, { credentials: 'include' })
       const data = await response.json()

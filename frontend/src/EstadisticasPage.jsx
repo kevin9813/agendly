@@ -103,9 +103,13 @@ function EstadisticasPage({ user }) {
   const chartRefPrecios = useRef(null)
   const chartInstanceRef = useRef(null)
   const chartInstanceRefPrecios = useRef(null)
+  const hasInitialized = useRef(false)
 
   useEffect(() => {
-    loadData()
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      loadData()
+    }
   }, [])
 
   const loadData = async () => {

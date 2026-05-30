@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/'
 
@@ -54,9 +54,14 @@ function AgendaPage({ user }) {
   })
   const [editHoraFin, setEditHoraFin] = useState('')
   const [updatingCita, setUpdatingCita] = useState(false)
+  const hasInitialized = useRef(false)
+
 
   useEffect(() => {
-    loadCitas()
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      loadCitas()
+    }
   }, [currentDate, user])
 
   // Calcular hora fin cuando cambien servicio u hora

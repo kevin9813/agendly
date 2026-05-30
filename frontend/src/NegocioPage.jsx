@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/'
 
@@ -26,6 +26,8 @@ function NegocioPage({ user }) {
     activo: true,
   })
   const [horarios, setHorarios] = useState([])
+  const hasInitialized = useRef(false)
+
 
   useEffect(() => {
     if (!user?.negocio_id) {
@@ -33,9 +35,12 @@ function NegocioPage({ user }) {
       return
     }
 
-    loadNegocio()
-    loadBarrios()
-    loadSucursales()
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      loadNegocio()
+      loadBarrios()
+      loadSucursales()
+    }
   }, [user])
 
   const loadNegocio = async () => {

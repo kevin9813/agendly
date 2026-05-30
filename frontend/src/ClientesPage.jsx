@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/'
 
@@ -14,9 +14,14 @@ function ClientesPage({ user }) {
     negocio_id: '',
   })
 
+  const hasInitialized = useRef(false)
+
   useEffect(() => {
-    loadClientes()
-    loadNegocios()
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      loadClientes()
+      loadNegocios()
+    }
   }, [])
 
   const loadClientes = async () => {

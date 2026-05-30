@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/'
 
@@ -22,13 +22,17 @@ function UsuariosPage({ user }) {
     whatsapp: '',
     servicios_ids: [],
   })
+  const hasInitialized = useRef(false)
 
   useEffect(() => {
-    loadUsuarios()
-    loadNegocios()
-    loadRoles()
-    loadServicios()
-    loadSucursales()
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      loadUsuarios()
+      loadNegocios()
+      loadRoles()
+      loadServicios()
+      loadSucursales()
+    }
   }, [])
 
   const loadServicios = async () => {
