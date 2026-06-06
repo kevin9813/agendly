@@ -1067,7 +1067,11 @@ def citas_filter(request):
             # Verificar autenticación
             user_id = request.session.get('user_id')
             user_rol = request.session.get('user_rol')
+            negocio_id_session = request.session.get('negocio_id')
             
+            if not user_id or not user_rol:
+                return JsonResponse({'detail': 'No autenticado'}, status=401)
+
             # Construir filtros dinámicamente
             filters = Q()  # Filtro vacío
             applied_filters = {}
@@ -1080,13 +1084,12 @@ def citas_filter(request):
             except json.JSONDecodeError:
                 data = {}
 
-
-            # 1. Filtro por empleado
-            empleado_id = data.get('empleado_id')
-            if empleado_id and str(empleado_id).strip():
+            # 1. Filtro por usuario/empleado
+            usuario_id = data.get('usuario_id') or data.get('empleado_id')
+            if usuario_id and str(usuario_id).strip():
                 try:
-                    filters &= Q(empleado_id=int(empleado_id))
-                    applied_filters['empleado_id'] = int(empleado_id)
+                    filters &= Q(empleado_id=int(usuario_id))
+                    applied_filters['usuario_id'] = int(usuario_id)
                 except (ValueError, TypeError):
                     pass
 
@@ -1099,7 +1102,16 @@ def citas_filter(request):
                 except (ValueError, TypeError):
                     pass
             
-            # 5. Filtro por estado
+            # 3. Filtro según rol autenticado
+            if user_rol == 'Empleado':
+                filters &= Q(empleado_id=user_id)
+                applied_filters['modo'] = 'solo_propias'
+            elif user_rol == 'Administrador' and not negocio_id:
+                if negocio_id_session:
+                    filters &= Q(empleado__negocio_id=negocio_id_session)
+                    applied_filters['negocio_id'] = negocio_id_session
+
+            # 4. Filtro por estado
             estado = data.get('estado')
             if estado and str(estado).strip():
                 estados_validos = ['pendiente', 'confirmada', 'cancelada', 'completada']
@@ -1107,7 +1119,7 @@ def citas_filter(request):
                     filters &= Q(estado=estado)
                     applied_filters['estado'] = estado
                 
-            # 6. Filtro por rango de fechas (optimizado)
+            # 5. Filtro por rango de fechas (optimizado)
             fecha_inicio = data.get('fecha_inicio')
             if fecha_inicio and str(fecha_inicio).strip():
                 try:
@@ -1133,6 +1145,21 @@ def citas_filter(request):
                     pass
             
 
+            # Filtrar según el rol
+            if user_rol == 'Empleado':
+                # Los empleados solo ven sus propias citas
+                filters &= Q(empleado_id=user_id)
+                applied_filters['modo'] = 'solo_propias'
+            elif user_rol == 'Administrador':
+                # Los administradores ven citas de su negocio
+                if negocio_id:
+                    filters &= Q(empleado__negocio_id=int(negocio_id))
+                else:
+                    # Si no especifica negocio_id, usar el del usuario
+                    if negocio_id_session:
+                        filters &= Q(empleado__negocio_id=negocio_id_session)
+                        applied_filters['negocio_id'] = negocio_id_session
+
             # APLICAR FILTROS EN LA BASE DE DATOS
             citas = Cita.objects.select_related(
                 'cliente', 'empleado', 'servicio', 'cobertura'
@@ -1148,10 +1175,12 @@ def citas_filter(request):
                     'cliente_telefono': getattr(cita.cliente, 'telefono', '') if cita.cliente else '',
                     'empleado_id': cita.empleado.id if cita.empleado else None,
                     'empleado': cita.empleado.name if cita.empleado else None,
+                    'empleado_color': cita.empleado.color if cita.empleado else '#4ECDC4',
                     'servicio_id': cita.servicio.id if cita.servicio else None,
                     'servicio': cita.servicio.name if cita.servicio else None,
                     'tipo_reserva': cita.tipo_reserva,
                     'fecha_hora': cita.fecha_hora.isoformat() if cita.fecha_hora else None,
+                    'hora_fin': cita.hora_fin.isoformat() if cita.hora_fin else None,
                     'rango_inicio': cita.rango_inicio.isoformat() if cita.rango_inicio else None,
                     'rango_fin': cita.rango_fin.isoformat() if cita.rango_fin else None,
                     'fecha_hora_confirmada': cita.fecha_hora_confirmada.isoformat() if cita.fecha_hora_confirmada else None,

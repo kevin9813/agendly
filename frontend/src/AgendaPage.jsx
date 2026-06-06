@@ -54,15 +54,23 @@ function AgendaPage({ user }) {
   })
   const [editHoraFin, setEditHoraFin] = useState('')
   const [updatingCita, setUpdatingCita] = useState(false)
-  const hasInitialized = useRef(false)
-
+  const [selectedUsuarioId, setSelectedUsuarioId] = useState('')
 
   useEffect(() => {
-    if (!hasInitialized.current) {
-      hasInitialized.current = true;
-      loadCitas()
+    loadCitas()
+  }, [currentDate, user, viewMode, selectedUsuarioId])
+
+  useEffect(() => {
+    if (user?.negocio_id) {
+      loadDataForForm()
     }
-  }, [currentDate, user])
+  }, [user])
+
+  useEffect(() => {
+    if (user?.rol !== 'Administrador') {
+      setSelectedUsuarioId('')
+    }
+  }, [user?.rol])
 
   // Calcular hora fin cuando cambien servicio u hora
   useEffect(() => {
@@ -111,7 +119,7 @@ function AgendaPage({ user }) {
       setClientes(clientesData.clientes || [])
       // Filtrar solo usuarios del negocio actual
       const empleadosFiltrados = (empleadosData.usuarios || []).filter(
-        u => u.negocio_id === user.negocio_id
+        u => String(u.negocio_id) === String(user.negocio_id)
       )
       setEmpleados(empleadosFiltrados)
       // Filtrar servicios del negocio actual
@@ -128,16 +136,40 @@ function AgendaPage({ user }) {
   const loadCitas = async () => {
     setLoading(true)
     try {
-      const mes = currentDate.getMonth() + 1
-      const ano = currentDate.getFullYear()
-      const params = new URLSearchParams({
-        mes: mes.toString().padStart(2, '0'),
-        ano: ano.toString(),
-        negocio_id: user.negocio_id,
+      if (!user || !user.negocio_id) {
+        setCitas([])
+        return
+      }
+      const weekDays = getWeekDays(currentDate)
+      const fecha_inicio = viewMode === 'monthly'
+        ? `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-01`
+        : `${weekDays[0].getFullYear()}-${String(weekDays[0].getMonth() + 1).padStart(2, '0')}-${String(weekDays[0].getDate()).padStart(2, '0')}`
+      const fecha_fin = viewMode === 'monthly'
+        ? `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(getDaysInMonth(currentDate)).padStart(2, '0')}`
+        : `${weekDays[6].getFullYear()}-${String(weekDays[6].getMonth() + 1).padStart(2, '0')}-${String(weekDays[6].getDate()).padStart(2, '0')}`
+
+      const body = {
+        fecha_inicio,
+        fecha_fin,
+        negocio_id: Number(user.negocio_id),
+      }
+
+      if (selectedUsuarioId) {
+        body.usuario_id = Number(selectedUsuarioId)
+      }
+
+      const response = await fetch(`${apiUrl}citas/filter/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        credentials: 'include',
       })
-      const response = await fetch(`${apiUrl}citas/?${params}`, { credentials: 'include' })
       const data = await response.json()
-      setCitas(data.citas || [])
+      let citasData = data.citas || []
+      if (selectedUsuarioId) {
+        citasData = citasData.filter(cita => String(cita.empleado_id) === String(selectedUsuarioId))
+      }
+      setCitas(citasData)
     } catch (error) {
       console.error('Error loading citas:', error)
     } finally {
@@ -517,6 +549,27 @@ function AgendaPage({ user }) {
             </button>
           </div>
 
+          {/* FILTRO POR USUARIO */}
+          {user?.rol === 'Administrador' && (
+            <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2 text-sm text-gray-700 dark:text-slate-200">
+              <label className="mr-2 text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                Usuario
+              </label>
+              <select
+                value={selectedUsuarioId}
+                onChange={(e) => setSelectedUsuarioId(e.target.value)}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-indigo-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+              >
+                <option value="">Todos</option>
+                {empleados.map((empleado) => (
+                  <option key={empleado.id} value={empleado.id}>
+                    {empleado.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* PREVIOUS */}
           <button
             type="button"
@@ -665,7 +718,7 @@ function AgendaPage({ user }) {
                                       className="rounded-lg p-2 text-xs text-white shadow transition hover:opacity-90"
                                       style={{
                                         backgroundColor:
-                                          cita.empleado_color,
+                                          cita.empleado_color || '#4ECDC4',
                                         color: '#fff',
                                       }}
                                     >
@@ -816,7 +869,7 @@ function AgendaPage({ user }) {
                             className="cursor-pointer rounded-xl p-3 text-white shadow transition hover:opacity-90"
                             style={{
                               backgroundColor:
-                                cita.empleado_color,
+                                cita.empleado_color || '#4ECDC4',
                               color: '#fff',
                             }}
                           >
@@ -894,7 +947,7 @@ function AgendaPage({ user }) {
           <div
             className="p-6"
             style={{
-              backgroundColor: selectedEvent.empleado_color,
+              backgroundColor: selectedEvent.empleado_color || '#4ECDC4',
             }}
           >
 
@@ -1463,7 +1516,7 @@ function AgendaPage({ user }) {
                     onClick={() => setSelectedEvent(cita)}
                     className="group cursor-pointer rounded-2xl border dark:border-slate-800 dark:bg-slate-950/40 p-5 transition hover:border-slate-200 hover:bg-slate-300 dark:hover:border-slate-700 dark:hover:bg-slate-900"
                     style={{
-                      borderLeft: `4px solid ${cita.empleado_color}`,
+                      borderLeft: `4px solid ${cita.empleado_color || '#4ECDC4'}`,
                     }}
                   >
 
@@ -1499,7 +1552,7 @@ function AgendaPage({ user }) {
 
                         {/* EMPLEADO */}
                         <div className="mb-2 text-sm text-slate-400">
-                          <span className="font-semibold text-gray-900 dar:text-white">
+                          <span className="font-semibold text-gray-900 dark:text-white">
                             {cita.empleado}
                           </span>{' '}
                           → {cita.cliente}
@@ -1576,7 +1629,7 @@ function AgendaPage({ user }) {
               citas.reduce((acc, c) => {
                 if (!acc[c.empleado_id]) {
                   acc[c.empleado_id] = {
-                    color: c.empleado_color,
+                    color: c.empleado_color || '#4ECDC4',
                     name: c.empleado,
                     id: c.empleado_id,
                   }
