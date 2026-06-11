@@ -37,6 +37,7 @@ function AgendaPage({ user }) {
   const [newClientCelular, setNewClientCelular] = useState('')
   const [creatingCita, setCreatingCita] = useState(false)
   const [horaFin, setHoraFin] = useState('')
+  const [searchCliente, setSearchCliente] = useState('');
   
   // Estados para editar cita
   const [isEditMode, setIsEditMode] = useState(false)
@@ -1814,33 +1815,39 @@ function AgendaPage({ user }) {
 
                 <div className="grid gap-3 lg:grid-cols-4">
 
-                  <select
-                    value={citaForm.cliente_id}
-                    onChange={e =>
-                      setCitaForm({
-                        ...citaForm,
-                        cliente_id: e.target.value,
-                      })
-                    }
-                    required
-                    className="w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-3 text-gray-900 dark:text-white outline-none transition focus:border-indigo-500 dark:[color-scheme:dark] lg:col-span-2"
-                  >
-                    <option value="">
-                      Seleccionar cliente
-                    </option>
-
-                    {clientes.map(cliente => (
-                      <option
-                        key={cliente.id}
-                        value={cliente.id}
-                      >
-                        {cliente.name}{' '}
-                        {cliente.celular
-                          ? `(${cliente.celular})`
-                          : ''}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="lg:col-span-2 relative">
+                  <input
+                    type="text"
+                    placeholder="Buscar o seleccionar cliente..."
+                    value={searchCliente}
+                    onChange={(e) => {
+                      setSearchCliente(e.target.value);
+                      setCitaForm({ ...citaForm, cliente_id: '' });
+                    }}
+                    className="w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-3 text-gray-900 dark:text-white outline-none transition focus:border-indigo-500"
+                  />
+                  
+                  {searchCliente && (
+                    <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-lg max-h-60 overflow-auto">
+                      {clientes.filter(cliente =>
+                        cliente.name.toLowerCase().includes(searchCliente.toLowerCase()) ||
+                        (cliente.celular && cliente.celular.includes(searchCliente))
+                      ).map(cliente => (
+                        <button
+                          key={cliente.id}
+                          type="button"
+                          onClick={() => {
+                            setCitaForm({ ...citaForm, cliente_id: cliente.id });
+                            setSearchCliente(`${cliente.name} ${cliente.celular ? `(${cliente.celular})` : ''}`);
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
+                        >
+                          {cliente.name} {cliente.celular && `(${cliente.celular})`}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                   <input
                     type="text"
