@@ -20,6 +20,7 @@ function UsuariosPage({ user }) {
     sucursal_id: '',
     color: '#4ECDC4',
     whatsapp: '',
+    description: '',
     servicios_ids: [],
   })
   const hasInitialized = useRef(false)
@@ -131,7 +132,7 @@ function UsuariosPage({ user }) {
         await loadUsuarios()
         setShowModal(false)
         setEditingUsuario(null)
-        setFormData({ name: '', username: '', password: '', rol_id: '', negocio_id: '' })
+        setFormData({ name: '', username: '', password: '', rol_id: '', negocio_id: '', description: '' })
       } else {
         const error = await response.json()
         alert(`Error: ${error.detail || 'Error desconocido'}`)
@@ -148,6 +149,7 @@ function UsuariosPage({ user }) {
       name: usuario.name,
       username: usuario.username,
       password: '', // No mostrar contraseña existente
+      description: usuario.description,
       rol_id: usuario.rol_id.toString(),
       negocio_id: usuario.negocio_id.toString(),
       sucursal_id: usuario.sucursal_id ? usuario.sucursal_id.toString() : '',
@@ -528,6 +530,23 @@ function UsuariosPage({ user }) {
                 </select>
               </div>
 
+              {/* descripcion  */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Descripcion
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      description: e.target.value,
+                    })
+                  }
+                  rows="4"
+                  className="w-full rounded-2xl border border-gray-300 dark:border-white/10 bg-white dark:bg-[#0f172a] px-4 py-3 text-sm text-gray-900 dark:text-white outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:border-slate-500"
+                />
+              </div>
               {/* Negocio */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">

@@ -540,6 +540,7 @@ def usuarios_list(request):
             'sucursal_id': u.sucursal_id,
             'color': u.color,
             'whatsapp': u.whatsapp,
+            'description': u.description,
             'servicios_ids': [us.servicio_id for us in u.user_servicios.all()],
             'servicios': [us.servicio.name for us in u.user_servicios.all()],
         } for u in users]
@@ -553,6 +554,7 @@ def usuarios_list(request):
                 username=data['username'],
                 rol_id=data['rol_id'],
                 negocio_id=data['negocio_id'],
+                description= data.get('description', ''),
                 sucursal_id=data.get('sucursal_id'),
                 color=data.get('color', '#4ECDC4'),
                 whatsapp=data.get('whatsapp', ''),
@@ -605,6 +607,7 @@ def usuario_detail(request, usuario_id):
             'rol_id': user.rol.id,
             'negocio': user.negocio.name,
             'negocio_id': user.negocio.id,
+            'description': user.description,
             'color': user.color,
             'whatsapp': user.whatsapp,
             'servicios_ids': servicios_ids,
@@ -622,6 +625,7 @@ def usuario_detail(request, usuario_id):
             user.sucursal_id = data.get('sucursal_id', user.sucursal_id)
             user.color = data.get('color', user.color)
             user.whatsapp = data.get('whatsapp', user.whatsapp)
+            user.description = data.get('description', user.description)
             if 'password' in data and data['password']:
                 user.set_password(data['password'])
             user.save()
@@ -646,6 +650,7 @@ def usuario_detail(request, usuario_id):
                     'negocio': user.negocio.name,
                     'color': user.color,
                     'whatsapp': user.whatsapp,
+                    'description': user.description,
                     'servicios_ids': servicios_ids,
                     'sucursal_id': user.sucursal_id,
                 }
