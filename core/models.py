@@ -35,6 +35,7 @@ class Barrio(models.Model):
 
 class Negocio(models.Model):
     name = models.CharField(max_length=150)
+    photo = models.CharField(max_length=150, blank=True, null=True)
 
     class Meta:
         db_table = 'negocio'
@@ -124,7 +125,9 @@ class User(models.Model):
     rol = models.ForeignKey(Rol, on_delete=models.PROTECT, db_column='id_rol', related_name='users')
     color = models.CharField(max_length=7, default='#4ECDC4', help_text='Color para identificar al usuario en la agenda (formato #RRGGBB)')
     whatsapp = models.CharField(max_length=20, blank=True, help_text='Número de WhatsApp del usuario')
+    description = models.CharField(max_length=500, blank=True, null=True)
     activo = models.BooleanField(default=True)
+    photo = models.CharField(max_length=150, blank=True, null=True)
     negocio = models.ForeignKey(Negocio, on_delete=models.PROTECT, db_column='id_negocio', related_name='users')
     sucursal = models.ForeignKey(Sucursal, on_delete=models.PROTECT, db_column='id_sucursal', related_name='users')
 
@@ -147,6 +150,7 @@ class Servicio(models.Model):
     tiempo = models.IntegerField(help_text="Tiempo en minutos")
     permite_domicilio = models.BooleanField(default=False)
     notas = models.TextField(blank=True)
+    photo = models.CharField(max_length=150, blank=True, null=True)
     negocio = models.ForeignKey(Negocio, on_delete=models.CASCADE, related_name='servicios')
 
     class Meta:
