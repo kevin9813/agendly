@@ -56,14 +56,23 @@ function AgendaPage({ user }) {
   const [editHoraFin, setEditHoraFin] = useState('')
   const [updatingCita, setUpdatingCita] = useState(false)
   const [selectedUsuarioId, setSelectedUsuarioId] = useState('')
+  const hasInitialized = useRef(false)
+  const hasInitialized2 = useRef(false)
+
 
   useEffect(() => {
-    loadCitas()
+     if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      loadCitas()
+    }
   }, [currentDate, user, viewMode, selectedUsuarioId])
 
   useEffect(() => {
     if (user?.negocio_id) {
-      loadDataForForm()
+      if (!hasInitialized2.current) {
+        hasInitialized2.current = true;
+        loadDataForForm()
+      }
     }
   }, [user])
 
@@ -109,7 +118,7 @@ function AgendaPage({ user }) {
         fetch(`${apiUrl}clientes/`, { credentials: 'include' }),
         fetch(`${apiUrl}usuarios/`, { credentials: 'include' }),
         fetch(`${apiUrl}servicios/`, { credentials: 'include' }),
-        fetch(`${apiUrl}coberturas/?negocio_id=${user.negocio_id}`, { credentials: 'include' }),
+        //fetch(`${apiUrl}coberturas/?negocio_id=${user.negocio_id}`, { credentials: 'include' }),
       ])
       
       const clientesData = await clientesRes.json()
