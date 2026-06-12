@@ -27,6 +27,7 @@ from .views import (
     usuarios_list,
     negocio_suscripcion,
     sucursal_horarios,
+    guardar_imagen,
 )
 
 urlpatterns = [
@@ -68,4 +69,7 @@ urlpatterns = [
     path('citas/', citas_list, name='api-citas'),
     path('citas/<int:cita_id>/', cita_detail, name='api-cita-detail'),
     path('citas/filter/', citas_filter, name='api-citas-filter'),
+
+    #subir archivos imagenes
+    path('upload/', guardar_imagen, name='guardar-imagen'),
 ]

@@ -7,3 +7,4 @@
 /frontend-public/node_modules
 
 staticfiles/
+media/

@@ -6,6 +6,12 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Prefetch
 from django.db.models import Q
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+import os
+from django.conf import settings
+from PIL import Image
+from io import BytesIO
 
 from .models import Barrio, Cobertura, Cita, Cliente, Negocio, Rol, Servicio, Sucursal, User, UserServicio, Ciudad, NegocioSuscripcion, Plan, SucursalHorario
 
@@ -1208,6 +1214,81 @@ def citas_filter(request):
         
     
 
+@csrf_exempt
+def guardar_imagen(request):
+    if request.method == 'POST':
+        try:
+            # Obtener datos del POST
+            imagen = request.FILES.get('image')  # La imagen viene en FILES, no en POST
+            tipo = request.POST.get('type')
+            negocio_id = request.POST.get('negocio_id')
+
+            # Validar que la imagen exista
+            if not imagen:
+                return JsonResponse({'error': 'No se encontró ninguna imagen'}, status=400)
+
+            # Obtener extensión original
+            extension = os.path.splitext(imagen.name)[1].lower()
+
+            # Abrir la imagen con PIL
+            img = Image.open(imagen)
+
+            if tipo == 'logo':
+                # Logos: máximo 1024*900
+                img.thumbnail((1024, 900), Image.Resampling.LANCZOS)
+                calidad = 85
+                formato = 'JPEG'
+                extension = '.jpg'
+            
+            else:  # fotos generales
+                # Fotos: máximo 800*600
+                img.thumbnail((800, 600), Image.Resampling.LANCZOS)
+                calidad = 85
+                formato = 'JPEG'
+                extension = '.jpg'
+
+            # Guardar la imagen redimensionada en memoria
+            output = BytesIO()
+            img.save(output, format=formato, quality=calidad, optimize=True)
+            output.seek(0)
+
+            # Crear nombre único para la imagen
+            nombre_archivo = f"logo-{negocio_id}{extension}"
+            
+            # Definir ruta de guardado
+            ruta_guardado = os.path.join('media', f'negocio_{negocio_id}')
+            ruta_completa = os.path.join(ruta_guardado, nombre_archivo)
+
+            if default_storage.exists(ruta_completa):
+                default_storage.delete(ruta_completa)
+            
+            # Guardar la nueva imagen
+            default_storage.save(
+                ruta_completa,
+                ContentFile(output.getvalue())
+            )
+            
+            # Obtener URL pública (ajusta según tu configuración)
+            url_imagen = default_storage.url(ruta_completa)
+
+
+            if(tipo == 'logo'):
+                negocio = Negocio.objects.get(id=negocio_id)
+                negocio.photo = ruta_completa
+                negocio.save()
+
+            
+            return JsonResponse({
+                'message': 'Imagen guardada exitosamente',
+                'path': ruta_completa,
+                'url': url_imagen,
+                'nombre': nombre_archivo
+            }, status=200)
+            
+        except Exception as e:
+            return JsonResponse({'error': f'Error al guardar la imagen: {str(e)}'}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
 
            
 
@@ -1331,3 +1412,6 @@ def cita_detail(request, cita_id):
             return JsonResponse({'detail': str(e)}, status=400)
     
     return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+

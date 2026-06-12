@@ -26,6 +26,7 @@ function NegocioPage({ user }) {
     activo: true,
   })
   const [horarios, setHorarios] = useState([])
+  const [selectedImage, setSelectedImage] = useState(null);
   const hasInitialized = useRef(false)
 
 
@@ -244,6 +245,50 @@ function NegocioPage({ user }) {
     }
   }
 
+   // 1. Función que se ejecuta cuando el usuario selecciona un archivo
+  const handleImageChange = (event) => {
+    // Toma el primer archivo seleccionado
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+    }
+  };
+
+   const handleUpload = async () => {
+    if (!selectedImage) {
+      alert("Por favor, selecciona una imagen primero.");
+      return;
+    }
+
+    // Crear un objeto FormData, que es ideal para enviar archivos
+    const formData = new FormData();
+      // Añadir la imagen al objeto. El primer argumento ('image') es la clave
+      // que usará tu backend para acceder al archivo.
+      formData.append('image', selectedImage);
+      formData.append('type', 'logo');
+      formData.append('negocio_id', user.negocio_id);
+
+
+      try {
+        // Realizar la petición POST a tu API backend
+        const response = await fetch(`${apiUrl}upload/`, {
+          method: 'POST',
+          body: formData, // ¡Importante! No incluyas el header 'Content-Type'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          alert(`¡Imagen subida con éxito! Ruta: ${data.filePath}`);
+          // Aquí puedes guardar la URL de la imagen en el estado para mostrarla
+        } else {
+          alert('Error al subir la imagen.');
+        }
+      } catch (error) {
+        console.error('Error en la petición:', error);
+        alert('Error de red al intentar subir la imagen.');
+      }
+    };
+
   if (loading) {
     return (
       <div>
@@ -310,6 +355,39 @@ function NegocioPage({ user }) {
           <h2 className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">
             {sucursales.length}
           </h2>
+        </div>
+      </div>
+      
+ 
+      <div className="bg-white border border-gray-200 rounded-lg p-6 dark:border-slate-800 dark:bg-slate-900">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-white">
+          Subir Imagen
+        </h2>
+        
+        <div className="flex gap-3">
+          {/* Input de tipo 'file' que solo acepta imágenes */}
+          <div className="flex-1">
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageChange}
+              className="block w-full text-sm text-gray-500
+                file:mr-3 file:py-1.5 file:px-3
+                file:rounded-md file:border-0
+                file:text-sm file:font-medium
+                file:bg-gray-100 file:text-gray-700
+                hover:file:bg-gray-200
+                cursor-pointer"
+            />
+          </div>
+          
+          {/* Botón para disparar la subida */}
+          <button 
+            onClick={handleUpload}
+            className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+          >
+            Subir Imagen
+          </button>
         </div>
       </div>
 
