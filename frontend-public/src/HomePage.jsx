@@ -87,7 +87,7 @@ function HomePage() {
               </h3>
 
               <p className="text-center text-2xl font-bold mt-2">
-                $24.900 <span className="text-sm text-gray-500">/mes</span>
+                $25.000 <span className="text-sm text-gray-500">/mes</span>
               </p>
 
               <p className="text-center text-gray-600 mt-2 mb-4">
@@ -115,7 +115,7 @@ function HomePage() {
               </h3>
 
               <p className="text-center text-2xl font-bold mt-2">
-                $49.900 <span className="text-sm text-gray-500">/mes</span>
+                $50.000 <span className="text-sm text-gray-500">/mes</span>
               </p>
 
               <p className="text-center text-gray-600 mt-2 mb-4">
