@@ -95,9 +95,9 @@ function HomePage() {
               </p>
 
               <ul className="space-y-2 text-sm text-gray-700">
-                <li>✅ Hasta 100 citas mensuales</li>
-                <li>✅ Hasta 10 servicios</li>
-                <li>✅ 3 usuarios</li>
+                <li>✅ Hasta 1000 citas mensuales</li>
+                <li>✅ Hasta 20 servicios</li>
+                <li>✅ 6 usuarios</li>
                 <li>✅ 1 sucursal</li>
                 <li>✅ Agenda integrada</li>
                 <li>✅ Página de reservas</li>
