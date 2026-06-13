@@ -533,7 +533,8 @@ def coberturas_list(request):
 @csrf_exempt
 def usuarios_list(request):
     if request.method == 'GET':
-        users = User.objects.select_related('rol', 'negocio', 'sucursal').prefetch_related('user_servicios__servicio').all()
+        users = User.objects.filter(activo=True).select_related('rol', 'negocio', 'sucursal').prefetch_related('user_servicios__servicio').all()
+        
         data = [{
             'id': u.id,
             'name': u.name,
