@@ -7,6 +7,7 @@ export default defineConfig({
     host: true,
     port: 3000,
     allowedHosts: [
+      'kelzo.lat',
       'kelzo.local',
       'localhost',
       '.local'  // Permite todos los dominios .local
