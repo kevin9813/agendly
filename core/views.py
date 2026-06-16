@@ -254,7 +254,7 @@ def negocios_list_sucursales(request):
             data.append({
                 'id': n.id,
                 'name': n.name,
-                'photo': negocio.photo,
+                'photo': n.photo,
                 'sucursales': sucursales_data
             })
 
