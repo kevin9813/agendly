@@ -665,7 +665,7 @@ function App() {
                 <div className="flex items-center justify-center mb-5">
                   <div className="w-16 h-16 rounded-2xl bg-blue-600/20 border border-blue-500/20 flex items-center justify-center">
                     <span className="text-2xl font-bold text-blue-400">
-                      K
+                        <img src="/static/img/logo.png" alt="" />
                     </span>
                   </div>
                 </div>
