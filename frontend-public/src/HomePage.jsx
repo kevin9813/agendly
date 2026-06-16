@@ -29,8 +29,8 @@ function HomePage() {
           </h2>
 
           <p className="text-gray-600 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
-            Kelzo es una plataforma de reservas de citas en línea que conecta a personas con negocios y servicios de su ciudad.
-            Permite agendar citas de forma rápida, sencilla y sin llamadas, ayudando a los negocios a organizar su agenda y a los clientes a encontrar disponibilidad en segundos.
+            Kelzo es una plataforma web especializada en gestión de agendas y reservas de citas en línea, diseñada para conectar a personas con negocios y servicios locales. Permite a los clientes agendar citas de forma rápida, sencilla y sin necesidad de llamadas telefónicas, mientras ayuda a los negocios a organizar su operación de manera eficiente.
+            Con Kelzo, las empresas administran su agenda de forma ordenada, crean y configuran sus servicios, y asignan a los colaboradores encargados de cada atención. Además, cuenta con un módulo contable integrado que te permite consultar y analizar tus ganancias por rango de fechas, así como ver la cantidad de citas atendidas y el rendimiento de cada miembro de tu equipo. Todo lo necesario para reducir tareas administrativas, tener el control total y hacer crecer tu negocio de forma organizada.
           </p>
         </section>
 
