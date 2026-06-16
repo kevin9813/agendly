@@ -12,7 +12,6 @@ import os
 from django.conf import settings
 from PIL import Image
 from io import BytesIO
-
 from .models import Barrio, Cobertura, Cita, Cliente, Negocio, Rol, Servicio, Sucursal, User, UserServicio, Ciudad, NegocioSuscripcion, Plan, SucursalHorario
 
 
@@ -255,6 +254,7 @@ def negocios_list_sucursales(request):
             data.append({
                 'id': n.id,
                 'name': n.name,
+                'photo': negocio.photo,
                 'sucursales': sucursales_data
             })
 
@@ -301,6 +301,7 @@ def negocio_detail_sucursales(request, negocio_id):
         data = {
             'id': negocio.id,
             'name': negocio.name,
+            'photo': negocio.photo,
             'sucursales': sucursales_data
         }
         return JsonResponse(data)
@@ -1242,15 +1243,15 @@ def guardar_imagen(request):
             img = Image.open(imagen)
 
             if tipo == 'logo':
-                # Logos: máximo 1024*900
-                img.thumbnail((1024, 900), Image.Resampling.LANCZOS)
+                # Logos: máximo 400*350
+                img.thumbnail((400, 350), Image.Resampling.LANCZOS)
                 calidad = 85
                 formato = 'JPEG'
                 extension = '.jpg'
             
             else:  # fotos generales
-                # Fotos: máximo 800*600
-                img.thumbnail((800, 600), Image.Resampling.LANCZOS)
+                # Fotos: máximo 300*250
+                img.thumbnail((300, 250), Image.Resampling.LANCZOS)
                 calidad = 85
                 formato = 'JPEG'
                 extension = '.jpg'
@@ -1264,7 +1265,7 @@ def guardar_imagen(request):
             nombre_archivo = f"logo-{negocio_id}{extension}"
             
             # Definir ruta de guardado
-            ruta_guardado = os.path.join('media', f'negocio_{negocio_id}')
+            ruta_guardado = os.path.join('staticfiles/media', f'negocio_{negocio_id}')
             ruta_completa = os.path.join(ruta_guardado, nombre_archivo)
 
             if default_storage.exists(ruta_completa):
@@ -1279,16 +1280,16 @@ def guardar_imagen(request):
             # Obtener URL pública (ajusta según tu configuración)
             url_imagen = default_storage.url(ruta_completa)
 
-
+            url_completa_dominio = f"/static/media/negocio_{negocio_id}/{nombre_archivo}"
             if(tipo == 'logo'):
                 negocio = Negocio.objects.get(id=negocio_id)
-                negocio.photo = ruta_completa
+                negocio.photo = url_completa_dominio
                 negocio.save()
 
             
             return JsonResponse({
                 'message': 'Imagen guardada exitosamente',
-                'path': ruta_completa,
+                'path': url_completa_dominio,
                 'url': url_imagen,
                 'nombre': nombre_archivo
             }, status=200)

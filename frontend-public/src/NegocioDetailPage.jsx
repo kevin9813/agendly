@@ -130,7 +130,10 @@ function NegocioDetailPage() {
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
         <h2 className="text-2xl font-bold text-gray-900 mb-5">
-          {negocio.name}
+          <center>
+            <img src={negocio.photo} alt="" />
+            {negocio.name}
+          </center>
         </h2>
 
         {negocio.sucursales && negocio.sucursales.length > 0 ? (
