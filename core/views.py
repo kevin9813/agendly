@@ -132,14 +132,16 @@ def dashboard_view(request):
 
     user_id = request.session.get('user_id')
     user_rol = request.session.get('user_rol')
+    negocio_id = request.session.get('negocio_id')
 
     if not user_id or not user_rol:
         return JsonResponse({'detail': 'No autenticado'}, status=401)
 
     # Get some basic stats
-    total_users = User.objects.count()
-    total_clientes = Cliente.objects.count()
-    citas_pendientes = Cita.objects.filter(estado='pendiente').select_related('cliente', 'servicio').all()
+    usuarios_negocio = User.objects.filter(negocio=negocio_id)
+    total_clientes = Cliente.objects.filter(negocio=negocio_id).count()
+    citas_pendientes = Cita.objects.filter(estado='pendiente', empleado__in=usuarios_negocio).select_related('cliente', 'servicio', 'empleado').all()
+    
 
     # Filtrar según el rol
     total_citas = 0
@@ -147,7 +149,9 @@ def dashboard_view(request):
         # Los empleados solo ven sus propias citas
         total_citas = Cita.objects.filter(empleado_id=user_id).count()
     elif user_rol == 'Administrador':
-        total_citas = Cita.objects.count()
+        total_citas = Cita.objects.filter(empleado__in=usuarios_negocio).count()
+
+    total_users = usuarios_negocio.count()
 
     citas_pendientes_data = [{
         'id': c.id,
@@ -533,7 +537,8 @@ def coberturas_list(request):
 @csrf_exempt
 def usuarios_list(request):
     if request.method == 'GET':
-        users = User.objects.filter(activo=True).select_related('rol', 'negocio', 'sucursal').prefetch_related('user_servicios__servicio').all()
+        negocio_id = request.session.get('negocio_id')
+        users = User.objects.filter(activo=True, negocio=negocio_id).select_related('rol', 'negocio', 'sucursal').prefetch_related('user_servicios__servicio').all()
         
         data = [{
             'id': u.id,
@@ -675,7 +680,8 @@ def usuario_detail(request, usuario_id):
 @csrf_exempt
 def servicios_list(request):
     if request.method == 'GET':
-        servicios = Servicio.objects.select_related('negocio').all()
+        negocio_id = request.session.get('negocio_id')
+        servicios = Servicio.objects.filter(negocio=negocio_id).select_related('negocio').all()
         data = [{
             'id': s.id,
             'name': s.name,
@@ -788,7 +794,8 @@ def negocio_servicios_list(request, negocio_id):
 @csrf_exempt
 def clientes_list(request):
     if request.method == 'GET':
-        clientes = Cliente.objects.all()
+        negocio_id = request.session.get('negocio_id')
+        clientes = Cliente.objects.filter(negocio=negocio_id).all()
         
         # Filtrar por parámetros de query
         celular = request.GET.get('celular')
