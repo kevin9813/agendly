@@ -748,7 +748,7 @@ def servicio_detail(request, servicio_id):
     elif request.method in ['PUT', 'PATCH']:
         try:
             data = json.loads(request.body.decode('utf-8'))
-            servicio.name = data.get('nombre', servicio.name)
+            servicio.name = data.get('name', servicio.name)
             servicio.precio = data.get('precio', servicio.precio)
             servicio.tiempo = data.get('tiempo', servicio.tiempo)
             servicio.permite_domicilio = data.get('permite_domicilio', servicio.permite_domicilio)
