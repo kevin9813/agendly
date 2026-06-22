@@ -118,7 +118,7 @@ function AgendaPage({ user }) {
         fetch(`${apiUrl}clientes/`, { credentials: 'include' }),
         fetch(`${apiUrl}usuarios/`, { credentials: 'include' }),
         fetch(`${apiUrl}servicios/`, { credentials: 'include' }),
-        //fetch(`${apiUrl}coberturas/?negocio_id=${user.negocio_id}`, { credentials: 'include' }),
+        fetch(`${apiUrl}coberturas/?negocio_id=${user.negocio_id}`, { credentials: 'include' }),
       ])
       
       const clientesData = await clientesRes.json()
