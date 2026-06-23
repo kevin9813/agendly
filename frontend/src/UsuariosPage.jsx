@@ -217,12 +217,16 @@ function UsuariosPage({ user }) {
           </h1>
         </div>
 
-        <button
-          onClick={openCreateModal}
-          className="inline-flex items-center justify-center rounded-2xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 transition-all hover:bg-violet-700"
-        >
-          + Nuevo Usuario
-        </button>
+        {usuarios.length <= 5 ? (
+          <button
+            onClick={openCreateModal}
+            className="inline-flex items-center justify-center rounded-2xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 transition-all hover:bg-violet-700"
+          >
+            + Nuevo Usuario
+          </button>
+        ) : (
+          <p className="text-sm text-gray-500">Límite de usuarios alcanzado</p>
+        )}
       </div>
 
       {/* Tabla */}
